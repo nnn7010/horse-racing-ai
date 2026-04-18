@@ -198,14 +198,14 @@ def _parse_result_row(tr) -> dict | None:
     # 性齢
     row["sex_age"] = tds[4].get_text(strip=True) if len(tds) > 4 else ""
 
-    # 斤量
+    # 斤量 (col 5)
     weight_text = tds[5].get_text(strip=True) if len(tds) > 5 else ""
     try:
         row["impost"] = float(weight_text)
     except ValueError:
         row["impost"] = 0.0
 
-    # 騎手
+    # 騎手 (col 6)
     jockey_link = tr.select_one("a[href*='/jockey/']")
     if jockey_link:
         row["jockey_name"] = jockey_link.get_text(strip=True)
@@ -216,30 +216,23 @@ def _parse_result_row(tr) -> dict | None:
         row["jockey_name"] = tds[6].get_text(strip=True) if len(tds) > 6 else ""
         row["jockey_id"] = ""
 
-    # タイム
+    # タイム (col 7)
     time_text = tds[7].get_text(strip=True) if len(tds) > 7 else ""
     row["time"] = _parse_time(time_text)
     row["time_str"] = time_text
 
-    # 着差
+    # 着差 (col 8)
     row["margin"] = tds[8].get_text(strip=True) if len(tds) > 8 else ""
 
-    # 単勝オッズ
-    if len(tds) > 9:
-        odds_text = tds[9].get_text(strip=True) if len(tds) > 9 else ""
-        # 場合によっては12列目あたりにオッズ
-        # 通過順の列の後にオッズがある
-        pass
-
-    # 通過順位
-    if len(tds) > 10:
-        row["passing"] = tds[10].get_text(strip=True)
+    # 通過順 (col 14)
+    if len(tds) > 14:
+        row["passing"] = tds[14].get_text(strip=True)
     else:
         row["passing"] = ""
 
-    # 上がり3F
-    if len(tds) > 11:
-        agari_text = tds[11].get_text(strip=True)
+    # 上がり3F (col 15)
+    if len(tds) > 15:
+        agari_text = tds[15].get_text(strip=True)
         try:
             row["last_3f"] = float(agari_text)
         except ValueError:
@@ -247,32 +240,41 @@ def _parse_result_row(tr) -> dict | None:
     else:
         row["last_3f"] = 0.0
 
-    # 単勝オッズ（テーブル構造により位置が変わる）
-    for i in range(12, min(len(tds), 16)):
-        text = tds[i].get_text(strip=True).replace(",", "")
+    # 単勝オッズ (col 16)
+    if len(tds) > 16:
+        odds_text = tds[16].get_text(strip=True).replace(",", "")
         try:
-            val = float(text)
-            if 1.0 <= val <= 9999.0:
-                row["win_odds"] = val
-                break
+            row["win_odds"] = float(odds_text)
         except ValueError:
-            continue
-    if "win_odds" not in row:
+            row["win_odds"] = 0.0
+    else:
         row["win_odds"] = 0.0
 
-    # 馬体重
-    for i in range(len(tds) - 1, max(len(tds) - 5, 7), -1):
-        text = tds[i].get_text(strip=True)
-        weight_m = re.search(r"(\d{3,4})\(([+-]?\d+)\)", text)
+    # 人気 (col 17)
+    if len(tds) > 17:
+        pop_text = tds[17].get_text(strip=True)
+        try:
+            row["popularity"] = int(pop_text)
+        except ValueError:
+            row["popularity"] = 0
+    else:
+        row["popularity"] = 0
+
+    # 馬体重 (col 18)
+    if len(tds) > 18:
+        wt = tds[18].get_text(strip=True)
+        weight_m = re.search(r"(\d{3,4})\(([+-]?\d+)\)", wt)
         if weight_m:
             row["horse_weight"] = int(weight_m.group(1))
             row["weight_change"] = int(weight_m.group(2))
-            break
-    if "horse_weight" not in row:
+        else:
+            row["horse_weight"] = 0
+            row["weight_change"] = 0
+    else:
         row["horse_weight"] = 0
         row["weight_change"] = 0
 
-    # 調教師
+    # 調教師 (col 22)
     trainer_link = tr.select_one("a[href*='/trainer/']")
     if trainer_link:
         row["trainer_name"] = trainer_link.get_text(strip=True)
@@ -310,8 +312,6 @@ def _parse_payouts(soup) -> dict:
             if len(tds) < 3:
                 continue
             bet_type = tds[0].get_text(strip=True)
-            numbers = tds[1].get_text(strip=True)
-            amount = tds[2].get_text(strip=True).replace(",", "").replace("円", "")
 
             if "単勝" in bet_type:
                 key = "win"
@@ -324,14 +324,28 @@ def _parse_payouts(soup) -> dict:
             else:
                 continue
 
-            try:
-                if key not in payouts:
-                    payouts[key] = []
+            # <br/>区切りで複数エントリがある場合（複勝等）
+            # 内部のテキストノードを<br>で分割
+            nums_parts = [s.strip() for s in tds[1].decode_contents().split("<br") if s.strip()]
+            nums_parts = [re.sub(r"<[^>]+>|/?>", "", s).strip() for s in nums_parts]
+            nums_parts = [s for s in nums_parts if s]
+
+            amt_parts = [s.strip() for s in tds[2].decode_contents().split("<br") if s.strip()]
+            amt_parts = [re.sub(r"<[^>]+>|/?>", "", s).strip().replace(",", "") for s in amt_parts]
+            amt_parts = [s for s in amt_parts if s]
+
+            if key not in payouts:
+                payouts[key] = []
+
+            for i, nums in enumerate(nums_parts):
+                amt_str = amt_parts[i] if i < len(amt_parts) else "0"
+                try:
+                    amount = int(re.sub(r"\D", "", amt_str)) if amt_str else 0
+                except ValueError:
+                    amount = 0
                 payouts[key].append({
-                    "numbers": numbers,
-                    "amount": int(re.sub(r"\D", "", amount)) if amount else 0,
+                    "numbers": nums.strip(),
+                    "amount": amount,
                 })
-            except ValueError:
-                pass
 
     return payouts
