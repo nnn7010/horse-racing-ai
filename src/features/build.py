@@ -49,7 +49,7 @@ def build_features(
 
     # 不要な文字列列を除外
     feature_cols = [c for c in df.columns if df[c].dtype in [np.float64, np.int64, np.float32, np.int32, "float64", "int64", "float32", "int32"]]
-    meta_cols = ["race_id", "horse_id", "date", "finish_position", "number", "horse_name", "jockey_name", "trainer_name"]
+    meta_cols = ["race_id", "horse_id", "date", "finish_position", "number", "horse_name", "jockey_name", "trainer_name", "jockey_id", "trainer_id"]
     keep_cols = list(set(meta_cols) & set(df.columns)) + feature_cols
     keep_cols = list(dict.fromkeys(keep_cols))  # 重複除去、順序保持
 
@@ -80,15 +80,18 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
     if prev_3f_cols:
         df["avg_last_3f_5"] = df[prev_3f_cols].mean(axis=1)
 
-    # 当該コース複勝率（同コース・距離・芝ダート、累積・過去のみ）
+    # 当該コース複勝率（同コース・距離・芝ダート、累積・ベイズ平滑化）
     if all(c in df.columns for c in ["surface", "distance", "finish_position"]):
         course_key = df["surface"].astype(str) + "_" + df["distance"].astype(str)
         df["_course_key"] = course_key
         df["_ht3"] = (df["finish_position"] <= 3).astype(float)
-        df["horse_course_top3_rate"] = df.groupby(["horse_id", "_course_key"])["_ht3"].transform(
+        raw_course = df.groupby(["horse_id", "_course_key"])["_ht3"].transform(
             lambda x: x.expanding().mean().shift(1)
         )
-        df["horse_course_runs"] = df.groupby(["horse_id", "_course_key"]).cumcount()
+        course_runs = df.groupby(["horse_id", "_course_key"]).cumcount()
+        df["horse_course_runs"] = course_runs
+        # ベイズ平滑化: k=3
+        df["horse_course_top3_rate"] = (raw_course * course_runs + 0.21 * 3) / (course_runs + 3)
         df.drop(["_course_key", "_ht3"], axis=1, inplace=True)
 
     # 前走間隔（日数）
@@ -105,6 +108,65 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
     # 馬体重・増減
     if "horse_weight" in df.columns:
         df["prev_weight"] = df.groupby("horse_id")["horse_weight"].shift(1)
+
+    # === 追加: 馬の能力特徴量 ===
+
+    # スピード指数: (基準タイム - 走破タイム) / 距離 × 1000
+    if "time" in df.columns and "distance" in df.columns:
+        # 距離別の平均タイムを基準にする
+        df["_speed_raw"] = df["time"] / df["distance"] * 1000  # m当たりのタイム
+        df["speed_index"] = df.groupby("horse_id")["_speed_raw"].shift(1)
+        # 近3走平均スピード指数
+        df["avg_speed_3"] = df.groupby("horse_id")["_speed_raw"].transform(
+            lambda x: x.shift(1).rolling(3, min_periods=1).mean()
+        )
+        df.drop("_speed_raw", axis=1, inplace=True)
+
+    # 上がり3Fの相対評価（レース内順位 → 過去の平均）
+    if "last_3f" in df.columns:
+        # レース内上がり順位（1が最速）
+        df["last_3f_rank"] = df.groupby("race_id")["last_3f"].rank(method="min")
+        df["prev_last_3f_rank"] = df.groupby("horse_id")["last_3f_rank"].shift(1)
+        df["avg_last_3f_rank_3"] = df.groupby("horse_id")["last_3f_rank"].transform(
+            lambda x: x.shift(1).rolling(3, min_periods=1).mean()
+        )
+
+    # 馬の累積勝率・複勝率（ベイズ平滑化付き）
+    if "finish_position" in df.columns:
+        df["_hw"] = (df["finish_position"] == 1).astype(float)
+        df["_ht"] = (df["finish_position"] <= 3).astype(float)
+        # 生の累積率
+        raw_win = df.groupby("horse_id")["_hw"].transform(lambda x: x.expanding().mean().shift(1))
+        raw_top3 = df.groupby("horse_id")["_ht"].transform(lambda x: x.expanding().mean().shift(1))
+        horse_runs = df.groupby("horse_id").cumcount()
+        df["horse_runs"] = horse_runs
+        # ベイズ平滑化: (wins + prior*k) / (runs + k)
+        # prior = 全体平均（勝率~7%, 複勝率~21%）, k = 5（出走5回分の重み）
+        k = 5
+        prior_win = 0.07
+        prior_top3 = 0.21
+        runs_shifted = horse_runs.clip(lower=0)
+        df["horse_win_rate"] = (raw_win * runs_shifted + prior_win * k) / (runs_shifted + k)
+        df["horse_top3_rate"] = (raw_top3 * runs_shifted + prior_top3 * k) / (runs_shifted + k)
+        df.drop(["_hw", "_ht"], axis=1, inplace=True)
+
+    # 過去データの有無フラグ
+    df["has_history"] = (df.groupby("horse_id").cumcount() > 0).astype(int)
+
+    # 着順の安定度（近5走の標準偏差）
+    if prev_finish_cols:
+        df["finish_std_5"] = df[prev_finish_cols].std(axis=1)
+
+    # クラス変動（前走より上のクラスか下か）
+    if "class" in df.columns:
+        class_order = {
+            "新馬": 1, "未勝利": 2, "1勝クラス": 3, "2勝クラス": 4,
+            "3勝クラス": 5, "オープン": 6, "リステッド": 7,
+            "GIII": 8, "GII": 9, "GI": 10, "G3": 8, "G2": 9, "G1": 10,
+        }
+        df["class_num"] = df["class"].map(class_order).fillna(3)
+        df["prev_class_num"] = df.groupby("horse_id")["class_num"].shift(1)
+        df["class_change"] = df["class_num"] - df["prev_class_num"]
 
     return df
 
@@ -150,27 +212,45 @@ def _add_pedigree_features(df: pd.DataFrame, horses_df: pd.DataFrame) -> pd.Data
     """血統特徴量を追加する。"""
     df = df.copy()
 
+    # 血統データがなければスキップ
+    has_sire = "sire" in df.columns and df["sire"].notna().sum() > 0
+    if not has_sire:
+        return df
+
+    # 系統分類
     for col in ["sire", "dam_sire", "dam_dam_sire"]:
         if col in df.columns:
             line_col = f"{col}_line"
             df[line_col] = df[col].fillna("").apply(classify_sire_line)
 
-    # 系統をエンコード
+    # 系統をone-hotエンコード
     df = encode_sire_lines(df)
 
-    # 父のコース別複勝率
+    # 父のコース別複勝率（累積・ベイズ平滑化）
     if all(c in df.columns for c in ["sire", "surface", "distance", "finish_position"]):
         course_key = df["surface"].astype(str) + "_" + df["distance"].astype(str)
-        sire_course = (
-            df.groupby(["sire", course_key.rename("_ck")])["finish_position"]
-            .apply(lambda x: (x <= 3).mean())
-            .reset_index(name="sire_course_top3_rate")
+        df["_ck"] = course_key
+        df["_st3"] = (df["finish_position"] <= 3).astype(float)
+        raw_sire_course = df.groupby(["sire", "_ck"])["_st3"].transform(
+            lambda x: x.expanding().mean().shift(1)
         )
-        # すでにあれば上書きしない
-        if "sire_course_top3_rate" not in df.columns:
-            df["_ck"] = course_key
-            df = df.merge(sire_course, left_on=["sire", "_ck"], right_on=["sire", "_ck"], how="left")
-            df.drop("_ck", axis=1, inplace=True)
+        sire_course_runs = df.groupby(["sire", "_ck"]).cumcount()
+        # ベイズ平滑化 k=10
+        df["sire_course_top3_rate"] = (raw_sire_course * sire_course_runs + 0.21 * 10) / (sire_course_runs + 10)
+        df["sire_course_runs"] = sire_course_runs
+        df.drop(["_ck", "_st3"], axis=1, inplace=True)
+
+    # 母父のコース別複勝率（累積・ベイズ平滑化）
+    if all(c in df.columns for c in ["dam_sire", "surface", "distance", "finish_position"]):
+        course_key = df["surface"].astype(str) + "_" + df["distance"].astype(str)
+        df["_ck"] = course_key
+        df["_dt3"] = (df["finish_position"] <= 3).astype(float)
+        raw_ds_course = df.groupby(["dam_sire", "_ck"])["_dt3"].transform(
+            lambda x: x.expanding().mean().shift(1)
+        )
+        ds_course_runs = df.groupby(["dam_sire", "_ck"]).cumcount()
+        df["damsire_course_top3_rate"] = (raw_ds_course * ds_course_runs + 0.21 * 10) / (ds_course_runs + 10)
+        df.drop(["_ck", "_dt3"], axis=1, inplace=True)
 
     return df
 
@@ -218,6 +298,7 @@ def get_feature_columns(df: pd.DataFrame) -> list[str]:
         "place_code", "sire_line", "dam_sire_line", "dam_dam_sire_line",
         "win_odds", "place_odds",
         "target", "popularity", "time", "last_3f",  # prevent leakage
+        "jockey_rides", "last_3f_rank", "prev_class_num", "sire_course_runs",  # intermediate cols
     }
     feature_cols = [
         c for c in df.columns

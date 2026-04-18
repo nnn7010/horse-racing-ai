@@ -1,6 +1,7 @@
 """06: 対象レースの予測・馬券抽出。
 
-最適化版: 事前計算済み特徴量を使い、対象レースのエントリーのみ予測する。
+過去の特徴量データから各馬・騎手・調教師の最新統計を取得し、
+学習済みモデルで予測する。
 """
 
 import json
@@ -20,6 +21,69 @@ from src.utils.logger import get_logger
 logger = get_logger("06_predict")
 
 
+def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
+    """過去データから各エンティティの最新統計を辞書化する。"""
+    lookup = {"horse": {}, "jockey": {}, "trainer": {}, "combo": {}}
+
+    if hist_df.empty:
+        return lookup
+
+    hist_df = hist_df.sort_values("date")
+
+    # 馬ごとの最新統計（全特徴量列の最終行）
+    for hid, g in hist_df.groupby("horse_id"):
+        last = g.iloc[-1]
+        stats = {}
+        for col in g.columns:
+            if col in ["race_id", "horse_id", "date", "horse_name", "jockey_name",
+                        "trainer_name", "jockey_id", "trainer_id", "finish_position", "number"]:
+                continue
+            val = last.get(col)
+            if pd.notna(val):
+                stats[col] = val
+        # 近5走着順を明示的にセット
+        recent = g.tail(5)
+        for i, (_, row) in enumerate(recent.iloc[::-1].iterrows(), 1):
+            stats[f"prev{i}_finish_position"] = row.get("finish_position", 0)
+            if "time" in row:
+                stats[f"prev{i}_time"] = row["time"]
+            if "last_3f" in row:
+                stats[f"prev{i}_last_3f"] = row["last_3f"]
+        if len(recent) > 0:
+            stats["avg_finish_5"] = recent["finish_position"].mean()
+        lookup["horse"][hid] = stats
+
+    # 騎手ごとの最新統計
+    if "jockey_id" in hist_df.columns:
+        for jid, g in hist_df.groupby("jockey_id"):
+            last = g.iloc[-1]
+            lookup["jockey"][jid] = {
+                "jockey_win_rate": last.get("jockey_win_rate", 0.0) if pd.notna(last.get("jockey_win_rate")) else 0.0,
+                "jockey_top3_rate": last.get("jockey_top3_rate", 0.0) if pd.notna(last.get("jockey_top3_rate")) else 0.0,
+                "jockey_rides": last.get("jockey_rides", 0) if pd.notna(last.get("jockey_rides")) else 0,
+            }
+
+    # 調教師ごとの最新統計
+    if "trainer_id" in hist_df.columns:
+        for tid, g in hist_df.groupby("trainer_id"):
+            last = g.iloc[-1]
+            lookup["trainer"][tid] = {
+                "trainer_win_rate": last.get("trainer_win_rate", 0.0) if pd.notna(last.get("trainer_win_rate")) else 0.0,
+                "trainer_top3_rate": last.get("trainer_top3_rate", 0.0) if pd.notna(last.get("trainer_top3_rate")) else 0.0,
+            }
+
+    # コンビ統計
+    if "jockey_id" in hist_df.columns:
+        for (jid, hid), g in hist_df.groupby(["jockey_id", "horse_id"]):
+            last = g.iloc[-1]
+            lookup["combo"][(jid, hid)] = {
+                "combo_top3_rate": last.get("combo_top3_rate", 0.0) if pd.notna(last.get("combo_top3_rate")) else 0.0,
+                "combo_rides": last.get("combo_rides", 0) if pd.notna(last.get("combo_rides")) else 0,
+            }
+
+    return lookup
+
+
 def main():
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
@@ -29,66 +93,33 @@ def main():
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # モデルロード
     model, feature_cols = load_model(config["paths"]["models"])
 
-    # 対象レースを読み込み
-    target_file = raw_dir / "target_races.json"
-    if not target_file.exists():
-        logger.error("target_races.json not found.")
-        sys.exit(1)
-
-    with open(target_file, encoding="utf-8") as f:
+    with open(raw_dir / "target_races.json", encoding="utf-8") as f:
         target_races = json.load(f)
 
-    # 過去の特徴量データを読み込み（騎手・馬の統計計算用）
-    features_file = processed_dir / "features.parquet"
-    hist_df = pd.DataFrame()
-    if features_file.exists():
-        hist_df = pd.read_parquet(features_file)
-        logger.info(f"Loaded historical features: {hist_df.shape}")
+    # 過去特徴量から統計を構築
+    hist_df = pd.read_parquet(processed_dir / "features.parquet")
+    logger.info(f"Loaded historical features: {hist_df.shape}")
+    lookup = build_stats_lookup(hist_df)
+    logger.info(f"Stats lookup: {len(lookup['horse'])} horses, {len(lookup['jockey'])} jockeys, {len(lookup['trainer'])} trainers")
 
-    # 騎手・調教師・馬の統計を事前計算
-    jockey_stats = {}
-    trainer_stats = {}
-    horse_stats = {}
-
-    if not hist_df.empty:
-        # 騎手統計
-        if "jockey_id" in hist_df.columns:
-            for jid, g in hist_df.groupby("jockey_id"):
-                if "jockey_win_rate" in g.columns:
-                    last_val = g["jockey_win_rate"].dropna().iloc[-1] if not g["jockey_win_rate"].dropna().empty else 0.0
-                    jockey_stats[jid] = {
-                        "jockey_win_rate": last_val,
-                        "jockey_top3_rate": g["jockey_top3_rate"].dropna().iloc[-1] if "jockey_top3_rate" in g.columns and not g["jockey_top3_rate"].dropna().empty else 0.0,
-                        "jockey_rides": len(g),
-                    }
-
-        # 調教師統計
-        if "trainer_id" in hist_df.columns and "trainer_win_rate" in hist_df.columns:
-            for tid, g in hist_df.groupby("trainer_id"):
-                last_val = g["trainer_win_rate"].dropna().iloc[-1] if not g["trainer_win_rate"].dropna().empty else 0.0
-                trainer_stats[tid] = {
-                    "trainer_win_rate": last_val,
-                    "trainer_top3_rate": g["trainer_top3_rate"].dropna().iloc[-1] if "trainer_top3_rate" in g.columns and not g["trainer_top3_rate"].dropna().empty else 0.0,
+    # 血統データ読み込み
+    horses_file = raw_dir / "horses.json"
+    pedigree_lookup = {}
+    if horses_file.exists():
+        with open(horses_file, encoding="utf-8") as f:
+            for h in json.load(f):
+                pedigree_lookup[h["horse_id"]] = {
+                    "sire": h.get("sire", ""),
+                    "dam_sire": h.get("dam_sire", ""),
+                    "dam_dam_sire": h.get("dam_dam_sire", ""),
                 }
+        logger.info(f"Pedigree lookup: {len(pedigree_lookup)} horses")
 
-        # 馬の過去成績（近5走）
-        if "horse_id" in hist_df.columns:
-            for hid, g in hist_df.groupby("horse_id"):
-                g = g.sort_values("date")
-                recent = g.tail(5)
-                stats = {"horse_id": hid}
-                for i, (_, row) in enumerate(recent.iterrows(), 1):
-                    stats[f"prev{i}_finish_position"] = row.get("finish_position", 0)
-                if "avg_finish_5" in g.columns:
-                    stats["avg_finish_5"] = g["avg_finish_5"].dropna().iloc[-1] if not g["avg_finish_5"].dropna().empty else 0.0
-                if "horse_course_top3_rate" in g.columns:
-                    stats["horse_course_top3_rate"] = g["horse_course_top3_rate"].dropna().iloc[-1] if not g["horse_course_top3_rate"].dropna().empty else 0.0
-                if "days_since_last" in g.columns:
-                    stats["days_since_last"] = g["days_since_last"].dropna().iloc[-1] if not g["days_since_last"].dropna().empty else 0.0
-                horse_stats[hid] = stats
+    # 血統系統分類
+    from src.features.pedigree_dict import classify_sire_line
+    from src.features.pedigree import encode_sire_lines
 
     all_predictions = []
 
@@ -98,7 +129,6 @@ def main():
         if not entries:
             continue
 
-        # エントリーのDataFrame作成
         rows = []
         for entry in entries:
             row = {
@@ -106,10 +136,6 @@ def main():
                 "number": entry.get("number", 0),
                 "horse_name": entry.get("horse_name", ""),
                 "horse_id": entry.get("horse_id", ""),
-                "jockey_name": entry.get("jockey_name", ""),
-                "jockey_id": entry.get("jockey_id", ""),
-                "trainer_name": entry.get("trainer_name", ""),
-                "trainer_id": entry.get("trainer_id", ""),
                 "bracket": entry.get("bracket", 0),
                 "impost": entry.get("weight", 0.0),
                 "distance": race.get("distance", 0),
@@ -117,24 +143,57 @@ def main():
                 "is_turf": 1 if race.get("surface") == "芝" else 0,
                 "place_code_num": int(race.get("place_code", "0")),
                 "track_condition_num": 0,
+                "horse_weight": 0,
+                "weight_change": 0,
+                "has_history": 0,
             }
+
+            # クラスレベル
+            class_map = {
+                "新馬": 1, "未勝利": 2, "1勝クラス": 3, "2勝クラス": 4,
+                "3勝クラス": 5, "オープン": 6, "リステッド": 7,
+                "GIII": 8, "GII": 9, "GI": 10, "G3": 8, "G2": 9, "G1": 10,
+            }
+            race_class = race.get("class", "")
+            for key, val in class_map.items():
+                if key in race_class:
+                    row["class_num"] = val
+                    break
+            else:
+                row["class_num"] = 3
+
+            # 馬の過去統計をマージ
+            hid = entry.get("horse_id", "")
+            if hid in lookup["horse"]:
+                row["has_history"] = 1
+                for k, v in lookup["horse"][hid].items():
+                    if k not in row:  # race条件系は上書きしない
+                        row[k] = v
 
             # 騎手統計をマージ
             jid = entry.get("jockey_id", "")
-            if jid in jockey_stats:
-                row.update(jockey_stats[jid])
+            if jid in lookup["jockey"]:
+                row.update(lookup["jockey"][jid])
 
             # 調教師統計をマージ
             tid = entry.get("trainer_id", "")
-            if tid in trainer_stats:
-                row.update(trainer_stats[tid])
+            if tid in lookup["trainer"]:
+                row.update(lookup["trainer"][tid])
 
-            # 馬の過去成績をマージ
-            hid = entry.get("horse_id", "")
-            if hid in horse_stats:
-                for k, v in horse_stats[hid].items():
-                    if k != "horse_id":
-                        row[k] = v
+            # コンビ統計
+            if (jid, hid) in lookup["combo"]:
+                row.update(lookup["combo"][(jid, hid)])
+
+            # 血統情報をマージ
+            if hid in pedigree_lookup:
+                ped = pedigree_lookup[hid]
+                for ped_col in ["sire", "dam_sire", "dam_dam_sire"]:
+                    sire_name = ped.get(ped_col, "")
+                    line = classify_sire_line(sire_name)
+                    # 系統one-hot
+                    for line_name in ["サンデーサイレンス系", "ノーザンダンサー系", "ミスプロ系", "ネイティヴダンサー系", "ナスルーラ系", "その他"]:
+                        prefix = {"sire": "sire_line", "dam_sire": "damsire_line", "dam_dam_sire": "damdamsire_line"}[ped_col]
+                        row[f"{prefix}_{line_name}"] = 1 if line == line_name else 0
 
             rows.append(row)
 
@@ -147,19 +206,16 @@ def main():
 
         # 予測
         entry_preds = predict_probabilities(model, feature_cols, entry_df)
+        probs = compute_race_probabilities(entry_preds)
 
         # 結果出力
         logger.info(f"\n{race.get('place_name', '')} {race.get('race_name', '')} ({race.get('surface', '')}{race.get('distance', '')}m)")
-
-        # 確率計算
-        probs = compute_race_probabilities(entry_preds)
         win_sorted = sorted(probs["win"].items(), key=lambda x: x[1], reverse=True)
         for num, prob in win_sorted[:5]:
             name = entry_preds[entry_preds["number"] == num]["horse_name"].values
             name = name[0] if len(name) > 0 else "?"
             logger.info(f"  {num:>2}. {name}: {prob:.1%}")
 
-        # 予測結果を保存
         for _, row in entry_preds.iterrows():
             all_predictions.append({
                 "race_id": race_id,
@@ -174,21 +230,10 @@ def main():
                 "win_prob": float(probs["win"].get(row.get("number", 0), 0)),
             })
 
-    # 保存
     if all_predictions:
         pred_df = pd.DataFrame(all_predictions)
         pred_df.to_csv(output_dir / "predictions.csv", index=False, encoding="utf-8-sig")
         logger.info(f"\nSaved {len(all_predictions)} predictions to {output_dir / 'predictions.csv'}")
-
-        # レースごとの予測サマリー
-        logger.info("\n=== 予測サマリー ===")
-        for race_id, race_df in pred_df.groupby("race_id"):
-            top = race_df.sort_values("win_prob", ascending=False).head(3)
-            place = top.iloc[0]["place_name"] if "place_name" in top.columns else ""
-            rname = top.iloc[0]["race_name"] if "race_name" in top.columns else ""
-            logger.info(f"{place} {rname}:")
-            for _, r in top.iterrows():
-                logger.info(f"  ◎ {int(r['number']):>2}. {r['horse_name']} ({r['win_prob']:.1%})")
 
 
 if __name__ == "__main__":

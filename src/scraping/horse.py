@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 
 def fetch_horse_info(horse_id: str) -> dict:
     """馬の血統情報と基本情報を取得する。"""
+    # 馬プロフィールページ
     url = f"https://db.netkeiba.com/horse/{horse_id}/"
     html = fetch(url, encoding="euc-jp")
     soup = BeautifulSoup(html, "lxml")
@@ -22,8 +23,11 @@ def fetch_horse_info(horse_id: str) -> dict:
     name_tag = soup.select_one(".horse_title h1, .horse_name h1")
     info["horse_name"] = name_tag.get_text(strip=True) if name_tag else ""
 
-    # 血統テーブル
-    pedigree = _parse_pedigree(soup)
+    # 血統テーブル（専用ページから取得）
+    ped_url = f"https://db.netkeiba.com/horse/ped/{horse_id}/"
+    ped_html = fetch(ped_url, encoding="euc-jp")
+    ped_soup = BeautifulSoup(ped_html, "lxml")
+    pedigree = _parse_pedigree(ped_soup)
     info.update(pedigree)
 
     # 過去成績
@@ -33,7 +37,14 @@ def fetch_horse_info(horse_id: str) -> dict:
 
 
 def _parse_pedigree(soup) -> dict:
-    """血統テーブルから父・母父・母母父を抽出する。"""
+    """血統ページ(/horse/ped/)から父・母父・母母父を抽出する。
+
+    5代血統表の構造（32行×62セル）:
+    - row0  cell0 (rowspan=16) = 父
+    - row16 cell0 (rowspan=16) = 母
+    - row16 cell1 (rowspan=8)  = 母父（BMS）
+    - row24 cell1 (rowspan=4)  = 母母父
+    """
     result = {
         "sire": "",
         "sire_id": "",
@@ -43,61 +54,58 @@ def _parse_pedigree(soup) -> dict:
         "dam_dam_sire_id": "",
     }
 
-    # 血統テーブル
-    ped_table = soup.select_one(".blood_table, table[summary*='血統']")
-    if not ped_table:
-        # 別の構造を試す
-        ped_table = soup.select_one("#horse_blood_table")
+    ped_table = soup.select_one(".blood_table")
     if not ped_table:
         logger.warning("Pedigree table not found")
         return result
 
-    links = ped_table.select("a[href*='/horse/ped_sire/'], a[href*='/horse/']")
-    tds = ped_table.select("td")
+    rows = ped_table.select("tr")
+    if len(rows) < 25:
+        logger.warning(f"Pedigree table has only {len(rows)} rows")
+        return result
 
-    # netkeiba の血統テーブル構造:
-    # 5世代血統表で、左から父系が並ぶ
-    # 簡易版: td のテキストとリンクから主要な祖先を抽出
-
-    # 全リンクを取得
-    all_ancestors = []
-    for td in tds:
+    def _get_cell_info(row_idx, cell_idx):
+        """指定行・セルから馬名とIDを取得する。"""
+        if row_idx >= len(rows):
+            return "", ""
+        cells = rows[row_idx].select("td")
+        if cell_idx >= len(cells):
+            return "", ""
+        td = cells[cell_idx]
         a = td.select_one("a")
         if a:
             name = a.get_text(strip=True)
             href = a.get("href", "")
             hid_m = re.search(r"/horse/(?:ped_sire/)?(\w+)", href)
             hid = hid_m.group(1) if hid_m else ""
-            all_ancestors.append({"name": name, "id": hid})
-        else:
-            text = td.get_text(strip=True)
-            if text:
-                all_ancestors.append({"name": text, "id": ""})
+            return name, hid
+        return td.get_text(strip=True), ""
 
-    # 血統テーブルは通常 62 セル（5世代）
-    # 位置:
-    #   父 = index 0 (rowspan=16)
-    #   母 = index 1 (rowspan=16)
-    #   父父 = index 2 (rowspan=8)  ... 等
-    # 簡易的に、最初の行の最初のセルが父
+    # 父: row0, cell0
+    result["sire"], result["sire_id"] = _get_cell_info(0, 0)
+    # 母父: row16, cell1
+    result["dam_sire"], result["dam_sire_id"] = _get_cell_info(16, 1)
+    # 母母父: row24, cell1
+    result["dam_dam_sire"], result["dam_dam_sire_id"] = _get_cell_info(24, 1)
 
-    if len(all_ancestors) >= 1:
-        result["sire"] = all_ancestors[0]["name"]
-        result["sire_id"] = all_ancestors[0]["id"]
-
-    # 母父（BMS）を探す: 通常3番目か4番目
-    # 血統表の構造に応じて調整
-    if len(all_ancestors) >= 4:
-        # 父 -> 父父 -> 母 -> 母父 の順が典型
-        # ただし rowspan の影響で順序が変わることがある
-        # 母父は通常 index 3 付近
-        result["dam_sire"] = all_ancestors[3]["name"]
-        result["dam_sire_id"] = all_ancestors[3]["id"]
-
-    if len(all_ancestors) >= 8:
-        # 母母父は通常 index 7 付近
-        result["dam_dam_sire"] = all_ancestors[7]["name"]
-        result["dam_dam_sire_id"] = all_ancestors[7]["id"]
+    # 国名表記を除去（例: "エンパイアメーカーEmpire Maker(米)" → "エンパイアメーカー"）
+    for key in ["sire", "dam_sire", "dam_dam_sire"]:
+        name = result[key]
+        # 日本語名があれば英語部分を除去
+        import unicodedata
+        jp_part = ""
+        for ch in name:
+            if unicodedata.category(ch).startswith('L') and ord(ch) > 0x2FFF:
+                jp_part += ch
+            elif jp_part and (ch in "ーァ-ヶ" or unicodedata.category(ch).startswith('L') and ord(ch) > 0x2FFF):
+                jp_part += ch
+            elif jp_part:
+                break
+        # カタカナが含まれる場合はカタカナ部分を使用
+        katakana = re.findall(r'[ァ-ヶー]+', name)
+        if katakana:
+            result[key] = max(katakana, key=len)
+        # そうでなければそのまま
 
     logger.debug(f"Pedigree: sire={result['sire']}, dam_sire={result['dam_sire']}, dam_dam_sire={result['dam_dam_sire']}")
     return result
