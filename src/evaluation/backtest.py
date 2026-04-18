@@ -120,8 +120,8 @@ def _pattern_b(df: pd.DataFrame) -> dict:
 
 
 def _pattern_c(df: pd.DataFrame) -> dict:
-    """パターンC: 1日予算3,000円、全レースEV降順で合計3,000円以内。"""
-    daily_budget = 3000
+    """パターンC: 1レース予算3,000円、EV降順で配分。"""
+    race_budget = 3000
     bet_unit = 100
 
     total_investment = 0
@@ -130,25 +130,10 @@ def _pattern_c(df: pd.DataFrame) -> dict:
     hits = 0
     details = []
 
-    if "date" in df.columns:
-        for dt, day_df in df.groupby(df["date"].dt.date):
-            day_sorted = day_df.sort_values("expected_value", ascending=False)
-            budget = daily_budget
-            for _, row in day_sorted.iterrows():
-                if budget < bet_unit:
-                    break
-                total_investment += bet_unit
-                total_bets += 1
-                budget -= bet_unit
-                if row.get("hit", 0) == 1:
-                    total_return += row.get("payout_per_100", 0)
-                    hits += 1
-                details.append(row)
-    else:
-        # 日付なしの場合は全体をバジェットで制限
-        sorted_df = df.sort_values("expected_value", ascending=False)
-        budget = daily_budget
-        for _, row in sorted_df.iterrows():
+    for race_id, race_df in df.groupby("race_id"):
+        race_sorted = race_df.sort_values("expected_value", ascending=False)
+        budget = race_budget
+        for _, row in race_sorted.iterrows():
             if budget < bet_unit:
                 break
             total_investment += bet_unit
@@ -161,7 +146,7 @@ def _pattern_c(df: pd.DataFrame) -> dict:
 
     details_df = pd.DataFrame(details)
     return {
-        "name": "C: 1日予算3000円",
+        "name": "C: 1レース予算3000円",
         "total_bets": total_bets,
         "total_investment": total_investment,
         "total_return": total_return,

@@ -57,8 +57,8 @@ backtest:
     name: "1レース上限1000円"
     max_per_race: 1000
   pattern_c:
-    name: "1日予算3000円"
-    daily_budget: 3000
+    name: "1レース予算3000円"
+    race_budget: 3000
 
 # パス
 paths:
