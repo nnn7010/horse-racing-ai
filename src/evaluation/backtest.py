@@ -17,7 +17,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 # 日本語フォント対応
-plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.family"] = "Hiragino Sans"
 
 
 def run_backtest(recommendations_df: pd.DataFrame, output_dir: str = "outputs") -> dict:
