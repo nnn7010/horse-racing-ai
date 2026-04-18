@@ -80,24 +80,16 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
     if prev_3f_cols:
         df["avg_last_3f_5"] = df[prev_3f_cols].mean(axis=1)
 
-    # 当該コース複勝率（同コース・距離・芝ダート）
+    # 当該コース複勝率（同コース・距離・芝ダート、累積・過去のみ）
     if all(c in df.columns for c in ["surface", "distance", "finish_position"]):
         course_key = df["surface"].astype(str) + "_" + df["distance"].astype(str)
         df["_course_key"] = course_key
-
-        course_stats = (
-            df.groupby(["horse_id", "_course_key"])
-            .apply(
-                lambda g: pd.Series({
-                    "horse_course_top3_rate": (g["finish_position"].shift(1).rolling(100, min_periods=1).apply(lambda x: (x <= 3).mean())).iloc[-1] if len(g) > 0 else 0.0,
-                    "horse_course_runs": len(g) - 1,
-                }),
-                include_groups=False,
-            )
-            .reset_index()
+        df["_ht3"] = (df["finish_position"] <= 3).astype(float)
+        df["horse_course_top3_rate"] = df.groupby(["horse_id", "_course_key"])["_ht3"].transform(
+            lambda x: x.expanding().mean().shift(1)
         )
-        df = df.merge(course_stats, on=["horse_id", "_course_key"], how="left")
-        df.drop("_course_key", axis=1, inplace=True)
+        df["horse_course_runs"] = df.groupby(["horse_id", "_course_key"]).cumcount()
+        df.drop(["_course_key", "_ht3"], axis=1, inplace=True)
 
     # 前走間隔（日数）
     if "date" in df.columns:
@@ -118,54 +110,38 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _add_jockey_trainer_features(df: pd.DataFrame) -> pd.DataFrame:
-    """騎手・調教師の成績特徴量を追加する。"""
+    """騎手・調教師の成績特徴量を追加する（過去のみ使用、リーク防止）。"""
     df = df.copy()
 
-    # 騎手の直近1年成績（累積で計算）
+    # 騎手の累積成績（各行で自分より前のデータのみ使用）
     if "jockey_id" in df.columns and "finish_position" in df.columns:
-        jockey_stats = (
-            df.groupby("jockey_id")
-            .apply(
-                lambda g: pd.Series({
-                    "jockey_win_rate": (g["finish_position"] == 1).expanding().mean().shift(1).iloc[-1] if len(g) > 1 else 0.0,
-                    "jockey_top3_rate": (g["finish_position"] <= 3).expanding().mean().shift(1).iloc[-1] if len(g) > 1 else 0.0,
-                    "jockey_rides": len(g),
-                }),
-                include_groups=False,
-            )
-            .reset_index()
-        )
-        df = df.merge(jockey_stats, on="jockey_id", how="left")
+        win_flag = (df["finish_position"] == 1).astype(float)
+        top3_flag = (df["finish_position"] <= 3).astype(float)
+        df["jockey_win_rate"] = df.groupby("jockey_id")[win_flag.name if hasattr(win_flag, 'name') else 0].transform(
+            lambda x: x.expanding().mean().shift(1)
+        ) if False else 0.0
+        # Simpler approach: compute expanding stats with shift
+        df["_jw"] = win_flag
+        df["_jt"] = top3_flag
+        df["jockey_win_rate"] = df.groupby("jockey_id")["_jw"].transform(lambda x: x.expanding().mean().shift(1))
+        df["jockey_top3_rate"] = df.groupby("jockey_id")["_jt"].transform(lambda x: x.expanding().mean().shift(1))
+        df["jockey_rides"] = df.groupby("jockey_id").cumcount()
+        df.drop(["_jw", "_jt"], axis=1, inplace=True)
 
-    # 調教師の直近1年成績
+    # 調教師の累積成績
     if "trainer_id" in df.columns and "finish_position" in df.columns:
-        trainer_stats = (
-            df.groupby("trainer_id")
-            .apply(
-                lambda g: pd.Series({
-                    "trainer_win_rate": (g["finish_position"] == 1).expanding().mean().shift(1).iloc[-1] if len(g) > 1 else 0.0,
-                    "trainer_top3_rate": (g["finish_position"] <= 3).expanding().mean().shift(1).iloc[-1] if len(g) > 1 else 0.0,
-                }),
-                include_groups=False,
-            )
-            .reset_index()
-        )
-        df = df.merge(trainer_stats, on="trainer_id", how="left")
+        df["_tw"] = (df["finish_position"] == 1).astype(float)
+        df["_tt"] = (df["finish_position"] <= 3).astype(float)
+        df["trainer_win_rate"] = df.groupby("trainer_id")["_tw"].transform(lambda x: x.expanding().mean().shift(1))
+        df["trainer_top3_rate"] = df.groupby("trainer_id")["_tt"].transform(lambda x: x.expanding().mean().shift(1))
+        df.drop(["_tw", "_tt"], axis=1, inplace=True)
 
-    # 騎手×馬コンビ成績
+    # 騎手×馬コンビ成績（累積）
     if all(c in df.columns for c in ["jockey_id", "horse_id", "finish_position"]):
-        combo_stats = (
-            df.groupby(["jockey_id", "horse_id"])
-            .apply(
-                lambda g: pd.Series({
-                    "combo_top3_rate": (g["finish_position"] <= 3).mean() if len(g) > 0 else 0.0,
-                    "combo_rides": len(g),
-                }),
-                include_groups=False,
-            )
-            .reset_index()
-        )
-        df = df.merge(combo_stats, on=["jockey_id", "horse_id"], how="left")
+        df["_ct"] = (df["finish_position"] <= 3).astype(float)
+        df["combo_top3_rate"] = df.groupby(["jockey_id", "horse_id"])["_ct"].transform(lambda x: x.expanding().mean().shift(1))
+        df["combo_rides"] = df.groupby(["jockey_id", "horse_id"]).cumcount()
+        df.drop("_ct", axis=1, inplace=True)
 
     return df
 
@@ -241,6 +217,7 @@ def get_feature_columns(df: pd.DataFrame) -> list[str]:
         "class", "race_name", "time_str", "margin", "passing", "sex_age",
         "place_code", "sire_line", "dam_sire_line", "dam_dam_sire_line",
         "win_odds", "place_odds",
+        "target", "popularity", "time", "last_3f",  # prevent leakage
     }
     feature_cols = [
         c for c in df.columns
