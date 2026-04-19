@@ -723,23 +723,29 @@ def main():
                 st.write(f"✅ {place} {r_num}R {name}: {res['1st']}→{res['2nd']}→{res['3rd']}")
 
             st.markdown("---")
-            st.markdown("#### 解析結果")
-            b = st.session_state.bias
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                ia = b["inner_advantage"]
-                st.metric("枠バイアス", "内枠有利" if ia > 0.05 else "外枠有利" if ia < -0.05 else "フラット",
-                          delta=f"{ia:+.2f}")
-            with col2:
-                ut = b["upset_tendency"]
-                st.metric("波乱度", "荒れ" if ut > 0.05 else "堅い" if ut < -0.05 else "平常",
-                          delta=f"{ut:+.2f}")
-            with col3:
-                ma = b["model_accuracy"]
-                st.metric("AI精度", "好調" if ma > 0.05 else "不調" if ma < -0.05 else "通常",
-                          delta=f"{ma:+.2f}")
-            with col4:
-                st.metric("分析済み", f"{b['races_analyzed']}R")
+            st.markdown("#### 解析結果（場×芝ダート別）")
+            full_bias = st.session_state.bias
+            for key, b in sorted(full_bias.get("_by_key", {}).items()):
+                if "_" not in key or b.get("races", 0) < 1:
+                    continue
+                parts = key.split("_")
+                if len(parts) == 2:
+                    label = f"{parts[0]} {parts[1]}"
+                    ia = b.get("inner_advantage", 0)
+                    ut = b.get("upset_tendency", 0)
+                    ma = b.get("model_accuracy", 0)
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric(label, f"{b['races']}R")
+                    with col2:
+                        st.metric("枠", "内有利" if ia > 0.05 else "外有利" if ia < -0.05 else "フラット",
+                                  delta=f"{ia:+.2f}")
+                    with col3:
+                        st.metric("傾向", "荒" if ut > 0.05 else "堅" if ut < -0.05 else "平常",
+                                  delta=f"{ut:+.2f}")
+                    with col4:
+                        st.metric("AI精度", "好調" if ma > 0.05 else "不調" if ma < -0.05 else "通常",
+                                  delta=f"{ma:+.2f}")
 
 
 if __name__ == "__main__":
