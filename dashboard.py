@@ -9,9 +9,20 @@ import streamlit as st
 
 st.set_page_config(page_title="競馬予想AI", page_icon="🏇", layout="wide")
 
+# 60秒ごとに自動リフレッシュ（結果自動取得用）
+try:
+    from streamlit_autorefresh import st_autorefresh
+    auto_refresh_count = st_autorefresh(interval=60000, limit=None, key="auto_refresh")
+except ImportError:
+    auto_refresh_count = 0
+
 # --- セッションステート初期化 ---
 if "results" not in st.session_state:
     st.session_state.results = {}  # {race_id: {"1st": 馬番, "2nd": 馬番, "3rd": 馬番}}
+if "auto_fetch" not in st.session_state:
+    st.session_state.auto_fetch = False
+if "last_fetch_time" not in st.session_state:
+    st.session_state.last_fetch_time = ""
 if "bias" not in st.session_state:
     st.session_state.bias = {
         "inner_advantage": 0.0,    # 内枠バイアス（+で内有利）
@@ -62,16 +73,22 @@ def load_odds_from_cache(race_ids):
 def fetch_live_odds(race_id):
     """リアルタイムでオッズをAPIから取得する（キャッシュを使わない）"""
     import requests
+    from datetime import datetime
     url = f"https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update"
     try:
         resp = requests.get(url, headers={"User-Agent": "horse-racing-ai research bot"}, timeout=10)
         data = resp.json()
-        if data.get("status") == "result":
-            result = data["data"]["odds"]
-            result["_updated"] = data["data"].get("official_datetime", "")
+        status = data.get("status", "")
+        odds = data.get("data", {}).get("odds", {})
+        if odds and odds.get("1"):
+            result = odds
+            if status == "result":
+                result["_updated"] = data["data"].get("official_datetime", "")
+                result["_status"] = "確定"
+            else:
+                result["_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                result["_status"] = "発売中（変動あり）"
             return result
-        elif data.get("status") == "middle":
-            return None  # まだ未発売
     except:
         pass
     return None
@@ -266,36 +283,58 @@ def main():
     if "live_odds" not in st.session_state:
         st.session_state.live_odds = {}
 
+    # 自動リフレッシュ時にレース結果を自動取得
+    if auto_refresh_count > 0:
+        from src.scraping.live_results import check_all_results
+        from datetime import datetime
+        new = check_all_results(all_race_ids, st.session_state.results)
+        if new:
+            st.session_state.results.update(new)
+            st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
+
     # バイアス解析
     bias = analyze_results(races, preds_raw, odds_map)
     st.session_state.bias = bias
 
-    # --- サイドバー ---
-    st.sidebar.title("🏇 競馬予想AI")
-    st.sidebar.markdown("---")
+    # --- ヘッダー: レース選択 ---
+    st.markdown("## 🏇 競馬予想AI")
 
-    # 日付選択
+    # 1段目: 開催日 + 開催場所
     dates = sorted(set(r.get("date", "") for r in races))
     date_labels = {d: "4/18(土)" if "0418" in str(d) else "4/19(日)" for d in dates}
-    selected_date = st.sidebar.radio("開催日", dates, format_func=lambda d: date_labels.get(d, d))
+
+    hdr1, hdr2, hdr3 = st.columns([1, 1, 2])
+    with hdr1:
+        selected_date = st.selectbox("開催日", dates, format_func=lambda d: date_labels.get(d, d))
 
     day_races = [r for r in races if str(r.get("date", "")) == str(selected_date)]
 
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("レース選択")
+    # 開催場所
+    places = sorted(set(r.get("place_name", "") for r in day_races))
+    with hdr2:
+        selected_place = st.selectbox("開催場所", places)
 
-    race_options = {}
-    for r in day_races:
-        rid = r["race_id"]
-        done = "✅ " if rid in st.session_state.results else ""
-        label = f"{done}{r.get('place_name','')} {rid[-2:]}R {r.get('race_name','')}"
-        race_options[label] = r
+    place_races = [r for r in day_races if r.get("place_name", "") == selected_place]
 
-    selected_label = st.sidebar.radio("", list(race_options.keys()), label_visibility="collapsed")
+    # 2段目: レース番号
+    with hdr3:
+        race_options = {}
+        for r in sorted(place_races, key=lambda x: x["race_id"]):
+            rid = r["race_id"]
+            r_num = rid[-2:]
+            done = "✅" if rid in st.session_state.results else ""
+            label = f"{done}{r_num}R {r.get('race_name','')} ({r.get('surface','')}{r.get('distance','')}m)"
+            race_options[label] = r
+        selected_label = st.selectbox("レース", list(race_options.keys()))
+
     selected_race = race_options[selected_label]
 
+    st.markdown("---")
+
+    # --- サイドバー ---
+    st.sidebar.title("📊 情報")
+
     # 本日収支
-    st.sidebar.markdown("---")
     st.sidebar.subheader("💰 本日の収支")
     inv = st.session_state.bets_today["invested"]
     ret = st.session_state.bets_today["returned"]
@@ -379,7 +418,8 @@ def main():
         if odds_updated:
             st.caption(f"オッズ更新時刻: {odds_updated}")
         if race_id in st.session_state.live_odds:
-            st.caption("📡 ライブオッズ使用中")
+            odds_status = st.session_state.live_odds[race_id].get("_status", "")
+            st.caption(f"📡 ライブオッズ使用中 ({odds_status})")
 
     if race_id in st.session_state.results:
         res = st.session_state.results[race_id]
@@ -455,7 +495,8 @@ def main():
                     if bets:
                         bet_df = pd.DataFrame([{
                             "券種": b["bet_type"],
-                            "買い目": b["reason"],
+                            "買い目": b["numbers"],
+                            "馬名": b["reason"],
                             "金額": f"{b['amount']:,}円",
                             "的中率": f"{b['probability']:.1%}",
                             "的中時": f"{b['payout']:,.0f}円",
@@ -505,7 +546,35 @@ def main():
 
     with tab4:
         st.subheader("✏️ レース結果入力")
-        st.caption("結果を入力すると、残りレースの予測にバイアス補正が反映されます")
+
+        # 自動取得セクション
+        from src.scraping.live_results import check_all_results
+        from datetime import datetime
+
+        auto_col1, auto_col2, auto_col3 = st.columns([1, 1, 2])
+        with auto_col1:
+            if st.button("📡 全レース結果を取得", type="primary", use_container_width=True):
+                day_race_ids = [r["race_id"] for r in day_races]
+                with st.spinner("結果を取得中..."):
+                    new = check_all_results(day_race_ids, st.session_state.results)
+                    if new:
+                        st.session_state.results.update(new)
+                        st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
+                        st.success(f"{len(new)}レースの結果を取得しました")
+                        st.rerun()
+                    else:
+                        st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
+                        st.info("新しい確定結果はありません")
+        with auto_col2:
+            confirmed = sum(1 for r in day_races if r["race_id"] in st.session_state.results)
+            st.metric("確定済み", f"{confirmed}/{len(day_races)}R")
+        with auto_col3:
+            if st.session_state.last_fetch_time:
+                st.caption(f"最終取得: {st.session_state.last_fetch_time}")
+            st.caption("レース確定後にボタンを押すと自動取得します")
+
+        st.markdown("---")
+        st.caption("手動入力も可能です")
 
         entries = selected_race.get("entries", [])
         horse_options = {0: "（未選択）"}
