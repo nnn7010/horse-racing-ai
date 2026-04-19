@@ -68,6 +68,8 @@ def fetch_all_odds(race_id: str) -> dict:
         elif bet_type in ("quinella", "wide"):
             # key構造: {"3": {"0102": ["4.6","0.0","1"], ...}} or {"4": {...}}
             inner = odds_data.get(str(type_num), {})
+            if not isinstance(inner, dict):
+                continue
             parsed = {}
             for key, val in inner.items():
                 if len(key) == 4:
@@ -80,8 +82,9 @@ def fetch_all_odds(race_id: str) -> dict:
             result[bet_type] = parsed
 
         elif bet_type == "exacta":
-            # 馬単: {"5": {"0102": ["11.0","12.0","11"], ...}}
             inner = odds_data.get(str(type_num), {})
+            if not isinstance(inner, dict):
+                continue
             parsed = {}
             for key, val in inner.items():
                 if len(key) == 4:
@@ -94,9 +97,9 @@ def fetch_all_odds(race_id: str) -> dict:
             result[bet_type] = parsed
 
         elif bet_type == "trio":
-            # 三連複: {"6": {"0102": ["54.0",...], "0103": ...}}
-            # キーは最初の2頭、3頭目は暗黙
             inner = odds_data.get(str(type_num), {})
+            if not isinstance(inner, dict):
+                continue
             parsed = {}
             for key, val in inner.items():
                 if len(key) == 4:
@@ -110,8 +113,9 @@ def fetch_all_odds(race_id: str) -> dict:
             result[bet_type] = parsed
 
         elif bet_type == "trifecta":
-            # 三連単: {"7": {"010203": ["53.3",...], ...}}
             inner = odds_data.get(str(type_num), {})
+            if not isinstance(inner, dict):
+                continue
             parsed = {}
             for key, val in inner.items():
                 if len(key) == 6:

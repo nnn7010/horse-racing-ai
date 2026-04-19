@@ -31,7 +31,7 @@ def simulate_race(race_df, race_result, payouts):
 
     optimizer を使って買い目を選定し、実際の結果と照合する。
     """
-    from src.betting.optimizer import generate_candidates, optimize_bets
+    from src.betting.optimizer import build_recommendations
 
     # 実際のオッズを race_df の win_odds 列から構築
     all_odds = {"win": {}, "quinella": {}, "wide": {}, "exacta": {},
@@ -54,15 +54,11 @@ def simulate_race(race_df, race_result, payouts):
             all_odds["exacta"][f"{i:02d}→{j:02d}"] = max(oi * oj * 0.5, 5.0)
             all_odds["exacta"][f"{j:02d}→{i:02d}"] = max(oj * oi * 0.5, 5.0)
 
-    # 候補生成 & 最適化
-    candidates = generate_candidates(race_df, all_odds)
-    if not candidates:
-        return []
-
+    # 新エンジンで買い目生成
     results = []
 
     for budget, pattern in [(1000, "B"), (3000, "C")]:
-        opt = optimize_bets(candidates, budget)
+        opt = build_recommendations(race_df, all_odds, budget)
         bets = opt["bets"]
 
         for bet in bets:
