@@ -102,24 +102,31 @@ def load_backtest():
 
 
 # --- 補正ロジック ---
+def _distance_category(distance):
+    """距離をカテゴリに分類"""
+    if distance <= 1400:
+        return "短距離"
+    elif distance <= 1800:
+        return "マイル〜中距離"
+    else:
+        return "中長距離"
+
+
 def analyze_results(races, preds, odds_map):
-    """入力済みレース結果から馬場バイアス等を解析する"""
-    bias = {
-        "inner_advantage": 0.0,
-        "front_runner": 0.0,
-        "model_accuracy": 0.0,
-        "upset_tendency": 0.0,
-        "races_analyzed": 0,
-    }
+    """入力済みレース結果から場×芝ダート×距離別のバイアスを解析する。
+
+    3層構造:
+      1. 場×芝ダート（例: 阪神ダート）
+      2. 場×芝ダート×距離カテゴリ（例: 阪神ダート短距離）
+      3. 全体（フォールバック）
+    """
+    bias = {"_all": _empty_bias(), "_by_key": {}, "races_analyzed": 0}
 
     if not st.session_state.results:
         return bias
 
-    inner_wins = 0
-    outer_wins = 0
-    ai_top3_hits = 0
-    upset_count = 0
-    total = 0
+    # 各レースの結果を場×芝ダートで分類して集計
+    groups = {}  # key -> [レース結果リスト]
 
     for race_id, result in st.session_state.results.items():
         race = next((r for r in races if r["race_id"] == race_id), None)
@@ -130,47 +137,111 @@ def analyze_results(races, preds, odds_map):
         if race_preds.empty:
             continue
 
-        total += 1
-        winner_num = result.get("1st", 0)
+        place = race.get("place_name", "")
+        surface = race.get("surface", "")
+        distance = race.get("distance", 0)
+        dist_cat = _distance_category(distance)
 
-        # 内枠/外枠バイアス
-        entries = race.get("entries", [])
-        n_runners = len(entries)
-        winner_entry = next((e for e in entries if e.get("number") == winner_num), None)
-        if winner_entry:
-            bracket = winner_entry.get("bracket", 4)
-            if bracket <= 3:
-                inner_wins += 1
-            elif bracket >= 6:
-                outer_wins += 1
+        entry = _analyze_single_race(race, result, race_preds, odds_map)
+        if not entry:
+            continue
 
-        # AI精度: AI上位3頭が3着以内に入ったか
-        ai_top3 = race_preds.sort_values("win_prob", ascending=False).head(3)["number"].values
-        top3_nums = [result.get("1st", 0), result.get("2nd", 0), result.get("3rd", 0)]
-        hits = sum(1 for n in ai_top3 if n in top3_nums)
-        ai_top3_hits += hits
+        # 3つのキーに分類
+        key_place_surface = f"{place}_{surface}"
+        key_detail = f"{place}_{surface}_{dist_cat}"
 
-        # 波乱度: 勝ち馬の人気
-        odds_data = odds_map.get(race_id, {})
-        win_odds = odds_data.get("1", {})
-        winner_str = str(winner_num).zfill(2)
-        if winner_str in win_odds:
-            winner_pop = int(win_odds[winner_str][2])
-            if winner_pop >= 6:
-                upset_count += 1
+        for key in [key_place_surface, key_detail, "_all"]:
+            if key not in groups:
+                groups[key] = []
+            groups[key].append(entry)
 
-    if total > 0:
-        bias["inner_advantage"] = (inner_wins - outer_wins) / total * 0.3
-        bias["model_accuracy"] = (ai_top3_hits / (total * 3)) - 0.33  # 期待値33%からの乖離
-        bias["upset_tendency"] = (upset_count / total - 0.2) * 0.5    # 基準20%からの乖離
-        bias["races_analyzed"] = total
+    # 各グループでバイアスを集計
+    for key, entries in groups.items():
+        b = _aggregate_bias(entries)
+        if key == "_all":
+            bias["_all"] = b
+        else:
+            bias["_by_key"][key] = b
 
+    bias["races_analyzed"] = len(st.session_state.results)
     return bias
 
 
+def _empty_bias():
+    return {"inner_advantage": 0.0, "upset_tendency": 0.0, "model_accuracy": 0.0, "races": 0}
+
+
+def _analyze_single_race(race, result, race_preds, odds_map):
+    """1レース分のバイアスデータを抽出"""
+    winner_num = result.get("1st", 0)
+    entries = race.get("entries", [])
+    winner_entry = next((e for e in entries if e.get("number") == winner_num), None)
+    if not winner_entry:
+        return None
+
+    bracket = winner_entry.get("bracket", 4)
+    inner = 1 if bracket <= 3 else (-1 if bracket >= 6 else 0)
+
+    # AI精度
+    ai_top3 = race_preds.sort_values("win_prob", ascending=False).head(3)["number"].values
+    top3_nums = [result.get("1st", 0), result.get("2nd", 0), result.get("3rd", 0)]
+    ai_hits = sum(1 for n in ai_top3 if n in top3_nums)
+
+    # 波乱度
+    odds_data = odds_map.get(race.get("race_id", ""), {})
+    win_odds = odds_data.get("1", {})
+    winner_str = str(winner_num).zfill(2)
+    winner_pop = int(win_odds[winner_str][2]) if winner_str in win_odds else 0
+    upset = 1 if winner_pop >= 6 else 0
+
+    return {"inner": inner, "ai_hits": ai_hits, "upset": upset}
+
+
+def _aggregate_bias(entries):
+    """レース結果リストからバイアスを集計"""
+    n = len(entries)
+    if n == 0:
+        return _empty_bias()
+    inner_sum = sum(e["inner"] for e in entries)
+    ai_hits_sum = sum(e["ai_hits"] for e in entries)
+    upset_sum = sum(e["upset"] for e in entries)
+
+    return {
+        "inner_advantage": inner_sum / n * 0.3,
+        "upset_tendency": (upset_sum / n - 0.2) * 0.5,
+        "model_accuracy": (ai_hits_sum / (n * 3)) - 0.33,
+        "races": n,
+    }
+
+
+def _get_bias_for_race(bias, race):
+    """レースに最も合うバイアスを3層から選択する"""
+    place = race.get("place_name", "")
+    surface = race.get("surface", "")
+    distance = race.get("distance", 0)
+    dist_cat = _distance_category(distance)
+
+    # 1. 場×芝ダート×距離カテゴリ（最も詳細）
+    key_detail = f"{place}_{surface}_{dist_cat}"
+    if key_detail in bias.get("_by_key", {}) and bias["_by_key"][key_detail]["races"] >= 2:
+        return bias["_by_key"][key_detail], key_detail
+
+    # 2. 場×芝ダート
+    key_surface = f"{place}_{surface}"
+    if key_surface in bias.get("_by_key", {}) and bias["_by_key"][key_surface]["races"] >= 2:
+        return bias["_by_key"][key_surface], key_surface
+
+    # 3. 全体（フォールバック）
+    return bias.get("_all", _empty_bias()), "全体"
+
+
 def apply_correction(race_preds, race, bias):
-    """バイアスに基づいて予測を補正する"""
-    if bias["races_analyzed"] == 0:
+    """レースに合ったバイアスで予測を補正する"""
+    if bias.get("races_analyzed", 0) == 0:
+        return race_preds
+
+    b, _ = _get_bias_for_race(bias, race)
+    if b["races"] == 0:
         return race_preds
 
     corrected = race_preds.copy()
@@ -187,16 +258,16 @@ def apply_correction(race_preds, race, bias):
         # 内枠バイアス
         bracket = entry.get("bracket", 4)
         if bracket <= 3:
-            adj += bias["inner_advantage"]
+            adj += b["inner_advantage"]
         elif bracket >= 6:
-            adj -= bias["inner_advantage"]
+            adj -= b["inner_advantage"]
 
-        # 波乱傾向: 人気薄を上げる/人気馬を下げる
+        # 波乱傾向
         prob = row["win_prob"]
-        if prob < 0.05:  # 不人気馬
-            adj += bias["upset_tendency"]
-        elif prob > 0.15:  # 人気馬
-            adj -= bias["upset_tendency"] * 0.5
+        if prob < 0.05:
+            adj += b["upset_tendency"]
+        elif prob > 0.15:
+            adj -= b["upset_tendency"] * 0.5
 
         corrected.at[idx, "win_prob"] = max(row["win_prob"] * adj, 0.005)
         corrected.at[idx, "pred_top3_prob"] = max(row["pred_top3_prob"] * adj, 0.01)
@@ -345,17 +416,24 @@ def main():
         color = "green" if roi >= 100 else "red"
         st.sidebar.markdown(f"回収率: :{color}[**{roi:.0f}%**]")
 
-    # 当日バイアス
-    if bias["races_analyzed"] > 0:
+    # 当日バイアス（場×芝ダート別）
+    if bias.get("races_analyzed", 0) > 0:
         st.sidebar.markdown("---")
         st.sidebar.subheader("📡 当日バイアス")
         st.sidebar.caption(f"{bias['races_analyzed']}R分析済み")
-        ia = bias["inner_advantage"]
-        st.sidebar.write(f"枠: {'内枠有利' if ia > 0.05 else '外枠有利' if ia < -0.05 else 'フラット'}")
-        ut = bias["upset_tendency"]
-        st.sidebar.write(f"傾向: {'荒れ傾向' if ut > 0.05 else '堅い傾向' if ut < -0.05 else '平常'}")
-        ma = bias["model_accuracy"]
-        st.sidebar.write(f"AI精度: {'好調' if ma > 0.05 else '不調' if ma < -0.05 else '通常'}")
+
+        for key, b in sorted(bias.get("_by_key", {}).items()):
+            if "_" not in key or b["races"] < 1:
+                continue
+            # 場×芝ダートレベルのみ表示（距離カテゴリは詳細すぎる）
+            parts = key.split("_")
+            if len(parts) == 2:
+                label = f"{parts[0]} {parts[1]}"
+                ia = b["inner_advantage"]
+                ut = b["upset_tendency"]
+                枠 = "内有利" if ia > 0.05 else "外有利" if ia < -0.05 else "フラット"
+                傾向 = "荒" if ut > 0.05 else "堅" if ut < -0.05 else "平常"
+                st.sidebar.write(f"**{label}** ({b['races']}R): 枠={枠} / {傾向}")
 
     # バックテスト
     st.sidebar.markdown("---")
@@ -396,8 +474,10 @@ def main():
     with col3:
         st.metric("出走頭数", f"{len(race_preds)}頭")
     with col4:
-        if bias["races_analyzed"] > 0:
-            st.metric("補正", f"{bias['races_analyzed']}R反映")
+        if bias.get("races_analyzed", 0) > 0:
+            b_applied, b_key = _get_bias_for_race(bias, selected_race)
+            st.metric("補正", f"{b_applied['races']}R")
+            st.caption(f"({b_key})")
         else:
             st.metric("補正", "なし")
 
