@@ -389,30 +389,56 @@ def main():
     bias = analyze_results(races, preds_raw, odds_map)
     st.session_state.bias = bias
 
-    # --- ヘッダー: レース選択（1つのセレクトボックス）---
+    # --- ヘッダー: レース選択 ---
     st.markdown("## 🏇 競馬予想AI")
 
-    date_labels = {d: "4/18(土)" if "0418" in str(d) else "4/19(日)" for d in sorted(set(r.get("date","") for r in races))}
+    # 開催日選択
+    dates = sorted(set(r.get("date", "") for r in races))
+    date_labels = {d: "4/18(土)" if "0418" in str(d) else "4/19(日)" for d in dates}
+    selected_date = st.radio("開催日", dates, format_func=lambda d: date_labels.get(d, d), horizontal=True)
 
-    race_options = {}
-    for r in sorted(races, key=lambda x: (x.get("date",""), x.get("place_name",""), x["race_id"])):
-        rid = r["race_id"]
-        dt = date_labels.get(r.get("date",""), "")
-        place = r.get("place_name","")
-        r_num = rid[-2:]
-        rname = r.get("race_name","")
-        surface = r.get("surface","")
-        dist = r.get("distance",0)
-        done = "✅ " if rid in st.session_state.results else ""
-        label = f"{done}{dt} {place} {r_num}R {rname} ({surface}{dist}m)"
-        race_options[label] = r
+    day_races = [r for r in races if str(r.get("date", "")) == str(selected_date)]
 
-    selected_label = st.selectbox("レース選択", list(race_options.keys()), label_visibility="visible")
-    selected_race = race_options[selected_label]
+    # 場ごとにレース一覧を横並び表示
+    places_list = sorted(set(r.get("place_name", "") for r in day_races))
+    cols = st.columns(len(places_list))
 
-    # 当日レースリスト（サイドバーのバイアス解析等で使用）
-    selected_date = selected_race.get("date", "")
-    day_races = [r for r in races if str(r.get("date","")) == str(selected_date)]
+    if "selected_race_id" not in st.session_state:
+        st.session_state.selected_race_id = day_races[0]["race_id"] if day_races else ""
+
+    for col, place in zip(cols, places_list):
+        with col:
+            st.markdown(f"**{place}**")
+            place_races = sorted(
+                [r for r in day_races if r.get("place_name", "") == place],
+                key=lambda x: x["race_id"],
+            )
+            for r in place_races:
+                rid = r["race_id"]
+                r_num = rid[-2:]
+                rname = r.get("race_name", "")
+                surface = r.get("surface", "")
+                dist = r.get("distance", 0)
+                done = "✅" if rid in st.session_state.results else ""
+                is_selected = rid == st.session_state.selected_race_id
+
+                label = f"{done}{r_num}R {rname}"
+                sub = f"{surface}{dist}m"
+
+                if st.button(
+                    f"{label}\n{sub}",
+                    key=f"race_{rid}",
+                    use_container_width=True,
+                    type="primary" if is_selected else "secondary",
+                ):
+                    st.session_state.selected_race_id = rid
+                    st.rerun()
+
+    # 選択されたレース
+    selected_race = next((r for r in races if r["race_id"] == st.session_state.selected_race_id), day_races[0] if day_races else None)
+    if not selected_race:
+        st.error("レースが見つかりません")
+        return
 
     st.markdown("---")
 
