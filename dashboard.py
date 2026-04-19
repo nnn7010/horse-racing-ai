@@ -823,19 +823,29 @@ def main():
 
         from src.betting.win5 import generate_win5, analyze_win5_races
 
-        # WIN5対象レース（各場の後半5レース：通常8R-12R）
-        # 実際のWIN5対象は日によって異なるので手動選択も可能に
+        # WIN5対象レースをnetkeibaから取得
+        import re as _re
+        import requests as _req
+        try:
+            _resp = _req.get("https://race.netkeiba.com/top/win5.html",
+                           headers={"User-Agent": "horse-racing-ai research bot"}, timeout=10)
+            _resp.encoding = "utf-8"
+            _win5_html = _resp.text
+            _win5_ids = _re.findall(r"race_id=(\d{12})", _win5_html)
+            # 重複除去して順序保持
+            _win5_ids = list(dict.fromkeys(_win5_ids))
+        except:
+            _win5_ids = []
+
         win5_candidates = []
-        for r in sorted(day_races, key=lambda x: x["race_id"]):
-            rid = r["race_id"]
-            r_num = int(rid[-2:])
-            if r_num >= 8:
-                win5_candidates.append(r)
+        for wid in _win5_ids:
+            matched = next((r for r in races if r["race_id"] == wid), None)
+            if matched:
+                win5_candidates.append(matched)
 
         if len(win5_candidates) < 5:
-            st.warning("WIN5対象レースが5レース未満です")
+            st.warning(f"WIN5対象レースが{len(win5_candidates)}レースしか見つかりません")
         else:
-            # 対象レース表示
             st.markdown("#### 対象レース")
             for i, r in enumerate(win5_candidates[:5], 1):
                 rid = r["race_id"]
