@@ -38,15 +38,24 @@ def predict_probabilities(
     X = df[feature_cols].astype(float).fillna(-999)
     probs = model.predict(X)
 
-    df["pred_top3_prob"] = probs
+    df["pred_top3_prob_raw"] = probs
 
-    # レース内で正規化（確率の合計調整）
+    # レース内で正規化（合計=3に調整。3頭が3着以内に入るので）
     if "race_id" in df.columns:
-        df["pred_top3_prob_norm"] = df.groupby("race_id")["pred_top3_prob"].transform(
-            lambda x: x / x.sum() * min(3, len(x))  # 3着以内なので期待値は3
+        df["pred_top3_prob"] = df.groupby("race_id")["pred_top3_prob_raw"].transform(
+            lambda x: x / x.sum() * min(3, len(x))
         )
     else:
-        df["pred_top3_prob_norm"] = probs
+        total = probs.sum()
+        df["pred_top3_prob"] = probs / total * 3 if total > 0 else probs
+
+    # 0〜80%にクリップし、再正規化
+    df["pred_top3_prob"] = df["pred_top3_prob"].clip(0.01, 0.80)
+    if "race_id" in df.columns:
+        df["pred_top3_prob"] = df.groupby("race_id")["pred_top3_prob"].transform(
+            lambda x: x / x.sum() * min(3, len(x))
+        )
+    df["pred_top3_prob"] = df["pred_top3_prob"].clip(0.01, 0.80)
 
     logger.info(f"Predicted {len(df)} entries")
     return df
