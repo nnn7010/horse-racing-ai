@@ -629,48 +629,95 @@ def main():
                     total_prob = group["total_prob"]
                     min_odds = group.get("min_composite_odds", 0)
                     n_bets = group.get("n_bets", 0)
-                    summary = group.get("summary", "")
 
+                    # --- 単勝 ---
                     if bt == "単勝":
-                        st.markdown(f"#### {bt}　{n_bets}点")
-                    else:
-                        st.markdown(f"#### {bt}　{n_bets}点　的中率 {total_prob:.1%}　合成オッズ {min_odds:.1f}倍以上で買い")
+                        with st.container(border=True):
+                            st.markdown(f"**🎯 {bt}**　{n_bets}点")
+                            for p in group["picks"]:
+                                prob = p["prob"]
+                                min_ind = (1.0 / prob) * 1.3 if prob > 0 else 999
+                                current = p["odds"]
+                                c1, c2, c3 = st.columns([1, 2, 2])
+                                with c1:
+                                    st.markdown(f"### {p['numbers']}番")
+                                with c2:
+                                    st.write(f"{p['names']}")
+                                    st.caption(f"的中率 {prob:.1%}")
+                                with c3:
+                                    if current > 0:
+                                        if current >= min_ind:
+                                            st.success(f"{current:.1f}倍 ≧ {min_ind:.1f}倍 → 買い")
+                                        else:
+                                            st.error(f"{current:.1f}倍 < {min_ind:.1f}倍 → 見送り")
+                                    else:
+                                        st.info(f"{min_ind:.1f}倍以上なら買い")
 
-                    # まとめ表示
-                    if bt == "三連単" and "formation" in group:
-                        fm = group["formation"]
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.markdown("**1着**")
-                            for h in fm["1着"]:
-                                st.write(f"{h['num']}番 {h['name']}")
-                        with col2:
-                            st.markdown("**2着**")
-                            for h in fm["2着"]:
-                                st.write(f"{h['num']}番 {h['name']}")
-                        with col3:
-                            st.markdown("**3着**")
-                            for h in fm["3着"]:
-                                st.write(f"{h['num']}番 {h['name']}")
-                    elif bt == "単勝":
-                        for p in group["picks"]:
-                            prob = p["prob"]
-                            # 個別の最低オッズ = (1/的中率) × 1.3
-                            min_individual = (1.0 / prob) * 1.3 if prob > 0 else 999
-                            current = p["odds"]
-                            if current > 0:
-                                if current >= min_individual:
-                                    verdict = f"✅ 現在{current:.1f}倍 ≧ {min_individual:.1f}倍 → **買い**"
-                                else:
-                                    verdict = f"❌ 現在{current:.1f}倍 < {min_individual:.1f}倍 → 見送り"
-                            else:
-                                verdict = f"→ {min_individual:.1f}倍以上なら買い"
-                            st.write(f"　{p['numbers']}番 {p['names']}　的中率{prob:.1%}　{verdict}")
-                    else:
-                        st.write(f"　{summary}")
+                    # --- ワイド・馬連・馬単 ---
+                    elif bt in ("ワイド", "馬連", "馬単"):
+                        with st.container(border=True):
+                            st.markdown(f"**🎯 {bt}**　{n_bets}点　合成{min_odds:.1f}倍以上")
+                            picks = group["picks"]
+                            # 軸と相手を分離
+                            axis_num = picks[0]["numbers"].split("-")[0].split("→")[0]
+                            partners = []
+                            for p in picks:
+                                parts = p["numbers"].replace("→", "-").split("-")
+                                partner = parts[1] if len(parts) > 1 else parts[0]
+                                partners.append(partner)
 
-                    st.markdown("---")
+                            c1, c2 = st.columns([1, 3])
+                            with c1:
+                                st.markdown(f"### 軸 {axis_num}番")
+                            with c2:
+                                sep = "→" if bt == "馬単" else "−"
+                                st.write(f"相手: **{'　'.join(f'{p}番' for p in partners)}**")
+                                st.caption(f"的中率 {total_prob:.1%}")
 
+                    # --- 三連複 ---
+                    elif bt == "三連複":
+                        with st.container(border=True):
+                            st.markdown(f"**🎯 {bt}**　{n_bets}点　合成{min_odds:.1f}倍以上")
+                            # 軸2頭と相手を抽出
+                            all_nums = set()
+                            for p in group["picks"]:
+                                for x in p["numbers"].split("-"):
+                                    all_nums.add(int(x))
+                            # 最も出現頻度が高い2頭が軸
+                            from collections import Counter
+                            num_count = Counter()
+                            for p in group["picks"]:
+                                for x in p["numbers"].split("-"):
+                                    num_count[int(x)] += 1
+                            sorted_nums = [n for n, _ in num_count.most_common()]
+                            axis = sorted_nums[:2]
+                            partners = sorted(set(sorted_nums[2:]))
+
+                            def _name(num):
+                                r = race_preds[race_preds["number"] == num]["horse_name"].values
+                                return r[0] if len(r) > 0 else ""
+
+                            c1, c2 = st.columns([2, 3])
+                            with c1:
+                                st.markdown(f"### 軸 {axis[0]}−{axis[1]}番")
+                                st.caption(f"{_name(axis[0])}・{_name(axis[1])}")
+                            with c2:
+                                st.write(f"相手: **{'　'.join(f'{p}番' for p in partners)}**")
+                                st.caption(f"的中率 {total_prob:.1%}")
+
+                    # --- 三連単 ---
+                    elif bt == "三連単" and "formation" in group:
+                        with st.container(border=True):
+                            st.markdown(f"**🎯 {bt}**　{n_bets}点　合成{min_odds:.1f}倍以上")
+                            fm = group["formation"]
+                            c1, c2, c3 = st.columns(3)
+                            for col, pos in [(c1, "1着"), (c2, "2着"), (c3, "3着")]:
+                                with col:
+                                    st.markdown(f"**{pos}**")
+                                    for h in fm[pos]:
+                                        st.markdown(f"**{h['num']}番** {h['name']}")
+
+                st.markdown("---")
                 st.markdown(f"**いずれかが的中する確率: {result['any_hit_probability']:.0%}**")
                 st.caption("※ 単勝以外のオッズは各自で確認し、合成オッズが表示基準以上なら購入")
             else:
