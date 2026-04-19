@@ -562,7 +562,7 @@ def main():
     st.markdown("---")
 
     # タブ
-    tab1, tab2, tab3, tab4 = st.tabs(["📋 予測一覧", "🎯 推奨買い目", "📈 分析", "✏️ 結果入力"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📋 予測一覧", "🎯 推奨買い目", "📈 分析", "✏️ 結果入力", "🏆 WIN5"])
 
     with tab1:
         odds_data = odds_map.get(race_id, {})
@@ -816,6 +816,75 @@ def main():
                     with col4:
                         st.metric("AI精度", "好調" if ma > 0.05 else "不調" if ma < -0.05 else "通常",
                                   delta=f"{ma:+.2f}")
+
+
+    with tab5:
+        st.subheader("🏆 WIN5 予測")
+
+        from src.betting.win5 import generate_win5, analyze_win5_races
+
+        # WIN5対象レース（各場の後半5レース：通常8R-12R）
+        # 実際のWIN5対象は日によって異なるので手動選択も可能に
+        win5_candidates = []
+        for r in sorted(day_races, key=lambda x: x["race_id"]):
+            rid = r["race_id"]
+            r_num = int(rid[-2:])
+            if r_num >= 8:
+                win5_candidates.append(r)
+
+        if len(win5_candidates) < 5:
+            st.warning("WIN5対象レースが5レース未満です")
+        else:
+            # 対象レース表示
+            st.markdown("#### 対象レース")
+            for i, r in enumerate(win5_candidates[:5], 1):
+                rid = r["race_id"]
+                place = r.get("place_name", "")
+                rname = r.get("race_name", "")
+                surface = r.get("surface", "")
+                dist = r.get("distance", 0)
+                st.write(f"**{i}R目**: {place} {rid[-2:]}R {rname} ({surface}{dist}m)")
+
+            st.markdown("---")
+
+            # 各レースのAI上位馬
+            target_ids = [r["race_id"] for r in win5_candidates[:5]]
+            race_predictions = analyze_win5_races(preds_raw, target_ids)
+
+            if len(race_predictions) == 5:
+                # 各レース上位表示
+                st.markdown("#### 各レースのAI予測（上位3頭）")
+                for rp in race_predictions:
+                    cols = st.columns([1, 3])
+                    with cols[0]:
+                        st.write(f"**{rp['race_name']}**")
+                    with cols[1]:
+                        top3 = rp["picks"][:3]
+                        st.write(" / ".join(f"{p['num']}番{p['name']}({p['prob']:.0%})" for p in top3))
+
+                st.markdown("---")
+
+                # WIN5組み合わせ生成
+                max_per_race = st.select_slider("各レースの候補頭数", [1, 2, 3], value=2)
+                combos = generate_win5(race_predictions, max_per_race=max_per_race, max_combos=30)
+
+                total_points = max_per_race ** 5
+                st.markdown(f"#### 組み合わせ（{total_points}通り中 上位{len(combos)}通り）")
+
+                if combos:
+                    combo_data = []
+                    for i, c in enumerate(combos, 1):
+                        row = {"#": i, "的中率": f"{c.probability:.4%}"}
+                        for j, (rid, rname, num, name, prob) in enumerate(c.picks, 1):
+                            row[f"{j}R目"] = f"{num}番{name}"
+                        combo_data.append(row)
+
+                    st.dataframe(pd.DataFrame(combo_data), hide_index=True, use_container_width=True)
+
+                    st.caption(f"1点100円 × {total_points}通り = {total_points * 100:,}円")
+                    st.caption(f"上位1通りの的中率: {combos[0].probability:.2%}")
+            else:
+                st.warning("対象レースの予測データが不足しています")
 
 
 if __name__ == "__main__":
