@@ -559,10 +559,25 @@ def main():
         st.subheader("推奨買い目")
 
         from src.betting.optimizer import generate_candidates, optimize_bets
+        from src.scraping.odds import fetch_all_odds
 
-        odds_data_tab2 = odds_map.get(race_id, {})
-        if odds_data_tab2:
-            candidates = generate_candidates(race_preds, odds_data_tab2)
+        # 実オッズを取得（キャッシュ or ライブ）
+        if f"all_odds_{race_id}" not in st.session_state:
+            all_odds = fetch_all_odds(race_id)
+            if all_odds.get("win"):
+                st.session_state[f"all_odds_{race_id}"] = all_odds
+        else:
+            all_odds = st.session_state[f"all_odds_{race_id}"]
+
+        if st.button("🔄 最新オッズで再計算", key=f"refresh_odds_{race_id}"):
+            all_odds = fetch_all_odds(race_id)
+            if all_odds.get("win"):
+                st.session_state[f"all_odds_{race_id}"] = all_odds
+                st.success(f"更新: 馬連{len(all_odds.get('quinella',{}))}件, ワイド{len(all_odds.get('wide',{}))}件, 三連複{len(all_odds.get('trio',{}))}件")
+                st.rerun()
+
+        if all_odds.get("win"):
+            candidates = generate_candidates(race_preds, all_odds)
 
             col_b, col_c = st.columns(2)
 
@@ -576,8 +591,9 @@ def main():
                         bet_df = pd.DataFrame([{
                             "券種": b["bet_type"],
                             "買い目": b["numbers"],
-                            "馬名": b["reason"],
+                            "馬名": b["names"],
                             "金額": f"{b['amount']:,}円",
+                            "オッズ": f"{b['odds']:.1f}倍",
                             "的中率": f"{b['probability']:.1%}",
                             "的中時": f"{b['payout']:,.0f}円",
                             "EV": f"{b['ev']:.2f}",
