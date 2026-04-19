@@ -133,6 +133,18 @@ def main():
             }
         logger.info(f"Ability lookup: {len(ability_lookup)} horses")
 
+    # 単勝オッズ取得用
+    import hashlib as _hl
+
+    def _get_win_odds_for_race(race_id):
+        cache = f"data/cache/{_hl.md5(f'https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update'.encode()).hexdigest()}.html"
+        try:
+            with open(cache) as f:
+                data = json.loads(f.read())
+            return {k: float(v[0]) for k, v in data["data"]["odds"]["1"].items()}
+        except:
+            return {}
+
     all_predictions = []
 
     for race in target_races:
@@ -140,6 +152,9 @@ def main():
         entries = race.get("entries", [])
         if not entries:
             continue
+
+        # オッズ取得
+        race_win_odds = _get_win_odds_for_race(race_id)
 
         rows = []
         for entry in entries:
@@ -159,6 +174,19 @@ def main():
                 "weight_change": 0,
                 "has_history": 0,
             }
+
+            # オッズ特徴量
+            import math
+            num_str = str(entry.get("number", 0)).zfill(2)
+            odds_val = race_win_odds.get(num_str, 0)
+            if odds_val > 0:
+                row["win_odds"] = odds_val
+                row["log_odds"] = math.log(max(odds_val, 1.0))
+                row["market_prob"] = 1.0 / max(odds_val, 1.0)
+            else:
+                row["win_odds"] = 0
+                row["log_odds"] = 0
+                row["market_prob"] = 0
 
             # クラスレベル
             class_map = {
@@ -214,6 +242,11 @@ def main():
             rows.append(row)
 
         entry_df = pd.DataFrame(rows)
+
+        # odds_rank（レース内の人気順位）
+        if "win_odds" in entry_df.columns:
+            entry_df["odds_rank"] = entry_df["win_odds"].rank(method="min")
+            entry_df["odds_rank"] = entry_df["odds_rank"].fillna(0)
 
         # 不足列を0で補完
         for col in feature_cols:
