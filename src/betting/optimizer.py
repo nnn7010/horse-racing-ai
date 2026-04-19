@@ -196,31 +196,20 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
             "n_bets": len(picks),
         })
 
-    # === 6. 三連単フォーメーション（最大12点）===
-    # 1着: AI1位を固定（1頭）
-    # 2着: AI上位から勝率順に選定
-    # 3着: さらに広げる
-    # 点数 = 1 × 2着頭数 × 3着頭数 - 重複 ≦ 12点
-    tri_first = [numbers[0]]  # 1着固定
-
-    # 2着・3着の頭数を調整して12点以内に
-    # 1 × 3 × 5 → 3着から同一馬除外で 3×4=12点
-    tri_second = list(numbers[1:4])  # 2着: AI2-4位（3頭）
-    tri_third = list(numbers[1:6])   # 3着: AI2-6位（5頭）
-
-    tri_picks = []
-    for a in tri_first:
-        for b in tri_second:
+    # === 6. 三連単（確率上位12点 → フォーメーション逆算）===
+    # 1着は最大2頭、2着・3着は広めに候補を生成し、確率上位12点を採用
+    tri_all = []
+    for a in numbers[:2]:       # 1着: AI上位2頭
+        for b in numbers[:6]:   # 2着: AI上位6頭
             if b == a: continue
-            for c in tri_third:
+            for c in numbers[:8]:  # 3着: AI上位8頭
                 if c == a or c == b: continue
                 prob = probs["trifecta"].get((a, b, c), 0)
                 if prob > 0:
-                    tri_picks.append({"a": a, "b": b, "c": c, "prob": prob})
+                    tri_all.append({"a": a, "b": b, "c": c, "prob": prob})
 
-    # 12点超えたら確率上位で絞る
-    tri_picks.sort(key=lambda x: x["prob"], reverse=True)
-    picks = tri_picks[:12]
+    tri_all.sort(key=lambda x: x["prob"], reverse=True)
+    picks = tri_all[:12]
 
     if picks:
         total_prob = sum(p["prob"] for p in picks)
