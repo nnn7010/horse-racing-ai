@@ -577,7 +577,10 @@ def main():
                     n_bets = group.get("n_bets", 0)
                     summary = group.get("summary", "")
 
-                    st.markdown(f"#### {bt}　{n_bets}点　的中率 {total_prob:.1%}　合成オッズ {min_odds:.1f}倍以上で買い")
+                    if bt == "単勝":
+                        st.markdown(f"#### {bt}　{n_bets}点")
+                    else:
+                        st.markdown(f"#### {bt}　{n_bets}点　的中率 {total_prob:.1%}　合成オッズ {min_odds:.1f}倍以上で買い")
 
                     # まとめ表示
                     if bt == "三連単" and "formation" in group:
@@ -597,10 +600,18 @@ def main():
                                 st.write(f"{h['num']}番 {h['name']}")
                     elif bt == "単勝":
                         for p in group["picks"]:
-                            odds_str = f"（{p['odds']:.1f}倍）" if p["odds"] > 0 else ""
-                            st.write(f"　{p['numbers']}番 {p['names']}　的中率{p['prob']:.1%} {odds_str}")
-                        if group["composite_odds"] > 0:
-                            st.caption(f"現在の合成オッズ: {group['composite_odds']:.1f}倍")
+                            prob = p["prob"]
+                            # 個別の最低オッズ = (1/的中率) × 1.3
+                            min_individual = (1.0 / prob) * 1.3 if prob > 0 else 999
+                            current = p["odds"]
+                            if current > 0:
+                                if current >= min_individual:
+                                    verdict = f"✅ 現在{current:.1f}倍 ≧ {min_individual:.1f}倍 → **買い**"
+                                else:
+                                    verdict = f"❌ 現在{current:.1f}倍 < {min_individual:.1f}倍 → 見送り"
+                            else:
+                                verdict = f"→ {min_individual:.1f}倍以上なら買い"
+                            st.write(f"　{p['numbers']}番 {p['names']}　的中率{prob:.1%}　{verdict}")
                     else:
                         st.write(f"　{summary}")
 
