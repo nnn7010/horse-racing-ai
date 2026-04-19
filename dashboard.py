@@ -43,7 +43,7 @@ def load_horses():
     return {}
 
 @st.cache_data
-def load_odds(race_ids):
+def load_odds_from_cache(race_ids):
     odds_map = {}
     for race_id in race_ids:
         import hashlib
@@ -53,9 +53,28 @@ def load_odds(race_ids):
                 data = json.loads(cache_path.read_text())
                 if data.get("status") == "result":
                     odds_map[race_id] = data["data"]["odds"]
+                    odds_map[race_id]["_updated"] = data["data"].get("official_datetime", "")
             except:
                 pass
     return odds_map
+
+
+def fetch_live_odds(race_id):
+    """リアルタイムでオッズをAPIから取得する（キャッシュを使わない）"""
+    import requests
+    url = f"https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update"
+    try:
+        resp = requests.get(url, headers={"User-Agent": "horse-racing-ai research bot"}, timeout=10)
+        data = resp.json()
+        if data.get("status") == "result":
+            result = data["data"]["odds"]
+            result["_updated"] = data["data"].get("official_datetime", "")
+            return result
+        elif data.get("status") == "middle":
+            return None  # まだ未発売
+    except:
+        pass
+    return None
 
 @st.cache_data
 def load_backtest():
@@ -240,8 +259,12 @@ def main():
     races = load_target_races()
     horses = load_horses()
     all_race_ids = [r["race_id"] for r in races]
-    odds_map = load_odds(all_race_ids)
+    odds_map = load_odds_from_cache(all_race_ids)
     backtest = load_backtest()
+
+    # ライブオッズをセッションに保持
+    if "live_odds" not in st.session_state:
+        st.session_state.live_odds = {}
 
     # バイアス解析
     bias = analyze_results(races, preds_raw, odds_map)
@@ -312,11 +335,18 @@ def main():
         st.warning("このレースの予測データがありません")
         return
 
+    # ライブオッズがあればそちらを使う
+    if race_id in st.session_state.live_odds:
+        odds_map[race_id] = st.session_state.live_odds[race_id]
+
     # 補正適用
     race_preds = apply_correction(race_preds, selected_race, bias)
 
     # ヘッダ
     confidence = calc_confidence(race_preds)
+
+    # オッズ更新時刻
+    odds_updated = odds_map.get(race_id, {}).get("_updated", "")
 
     col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
     with col1:
@@ -331,6 +361,25 @@ def main():
             st.metric("補正", f"{bias['races_analyzed']}R反映")
         else:
             st.metric("補正", "なし")
+
+    # オッズ更新ボタン
+    odds_col1, odds_col2 = st.columns([1, 3])
+    with odds_col1:
+        if st.button("🔄 オッズ更新", key=f"odds_{race_id}", type="primary"):
+            with st.spinner("最新オッズを取得中..."):
+                live = fetch_live_odds(race_id)
+                if live:
+                    st.session_state.live_odds[race_id] = live
+                    odds_map[race_id] = live
+                    st.success(f"更新完了: {live.get('_updated', '')}")
+                    st.rerun()
+                else:
+                    st.warning("オッズ未発売またはエラー")
+    with odds_col2:
+        if odds_updated:
+            st.caption(f"オッズ更新時刻: {odds_updated}")
+        if race_id in st.session_state.live_odds:
+            st.caption("📡 ライブオッズ使用中")
 
     if race_id in st.session_state.results:
         res = st.session_state.results[race_id]
