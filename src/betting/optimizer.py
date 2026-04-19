@@ -204,10 +204,9 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
     tri_first = [numbers[0]]  # 1着固定
 
     # 2着・3着の頭数を調整して12点以内に
-    # 1 × 3 × 5 = 15 → 重複除外で約12点
-    # 1 × 3 × 4 = 12 → 重複除外で約9点
-    tri_second = list(numbers[1:5])  # 2着: AI2-5位（4頭）
-    tri_third = list(numbers[1:7])   # 3着: AI2-7位（6頭）
+    # 1 × 3 × 5 → 3着から同一馬除外で 3×4=12点
+    tri_second = list(numbers[1:4])  # 2着: AI2-4位（3頭）
+    tri_third = list(numbers[1:6])   # 3着: AI2-6位（5頭）
 
     tri_picks = []
     for a in tri_first:
