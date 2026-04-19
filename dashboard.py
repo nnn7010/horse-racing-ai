@@ -280,20 +280,42 @@ def apply_correction(race_preds, race, bias):
     return corrected
 
 
-def calc_confidence(race_preds):
-    """レースの自信度を計算する"""
+def calc_upset_score(race_preds, course_features=None):
+    """レースの荒れ度を計算する（高いほど荒れやすい）。
+
+    指標:
+    - 確率の分散が大きい = 混戦 = 荒れやすい
+    - 頭数が多い = 荒れやすい
+    - AI1位の確率が低い = 荒れやすい
+    - コースの過去荒れ度（avg_winner_odds）
+    """
     probs = race_preds["win_prob"].values
     if len(probs) == 0:
-        return 0
+        return 50
+
     sorted_probs = sorted(probs, reverse=True)
-    top1 = sorted_probs[0]
-    top2 = sorted_probs[1] if len(sorted_probs) > 1 else 0
-    concentration = min((top1 - top2) / max(top1, 0.01) * 100, 40)
-    top_strength = min(top1 * 200, 30)
     n = len(probs)
-    field_score = max(0, (18 - n) * 2)
-    confidence = int(concentration + top_strength + field_score)
-    return min(max(confidence, 10), 95)
+    top1 = sorted_probs[0]
+    top2 = sorted_probs[1] if n > 1 else 0
+
+    # AI1位の確率が低いほど荒れる（max30点）
+    low_top1 = max(0, min(30, (0.20 - top1) * 200))
+
+    # 1位と2位の差が小さいほど荒れる（max25点）
+    gap = top1 - top2
+    tight_race = max(0, min(25, (0.05 - gap) * 500))
+
+    # 頭数が多いほど荒れる（max20点）
+    many_runners = max(0, min(20, (n - 8) * 2))
+
+    # コースの過去荒れ度（max25点）
+    course_upset = 0
+    if course_features is not None:
+        avg_odds = course_features.get("avg_winner_odds", 8)
+        course_upset = max(0, min(25, (avg_odds - 5) * 2))
+
+    score = int(low_top1 + tight_race + many_runners + course_upset)
+    return min(max(score, 5), 95)
 
 
 def get_comment(row, race_preds, odds_val, pop):
@@ -460,7 +482,20 @@ def main():
     race_preds = apply_correction(race_preds, selected_race, bias)
 
     # ヘッダ
-    confidence = calc_confidence(race_preds)
+    # コース特徴を取得
+    import pandas as _cf_pd
+    _cf_path = Path("data/processed/course_features.csv")
+    _course_feat = {}
+    if _cf_path.exists():
+        _cf_df = _cf_pd.read_csv(_cf_path)
+        _place_name = selected_race.get("place_name", "")
+        _surface = selected_race.get("surface", "")
+        _dist = selected_race.get("distance", 0)
+        _match = _cf_df[(_cf_df["place"]==_place_name) & (_cf_df["surface"]==_surface) & (_cf_df["distance"]==_dist)]
+        if not _match.empty:
+            _course_feat = _match.iloc[0].to_dict()
+
+    upset_score = calc_upset_score(race_preds, _course_feat)
 
     # オッズ更新時刻
     odds_updated = odds_map.get(race_id, {}).get("_updated", "")
@@ -470,7 +505,8 @@ def main():
         st.title(f"{selected_race.get('place_name','')} {selected_race.get('race_name','')}")
         st.caption(f"{selected_race.get('surface','')}{selected_race.get('distance','')}m / {selected_race.get('class','')}")
     with col2:
-        st.metric("自信度", f"{confidence}%")
+        upset_label = "大荒れ" if upset_score >= 70 else "荒れ" if upset_score >= 50 else "やや荒れ" if upset_score >= 30 else "堅い"
+        st.metric("荒れ度", f"{upset_score}% ({upset_label})")
     with col3:
         st.metric("出走頭数", f"{len(race_preds)}頭")
     with col4:
