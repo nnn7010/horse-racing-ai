@@ -558,7 +558,7 @@ def main():
     with tab2:
         st.subheader("推奨買い目")
 
-        from src.betting.optimizer import generate_candidates, optimize_bets
+        from src.betting.optimizer import build_recommendations
         from src.scraping.odds import fetch_all_odds
 
         # 実オッズを取得（キャッシュ or ライブ）
@@ -573,18 +573,16 @@ def main():
             all_odds = fetch_all_odds(race_id)
             if all_odds.get("win"):
                 st.session_state[f"all_odds_{race_id}"] = all_odds
-                st.success(f"更新: 馬連{len(all_odds.get('quinella',{}))}件, ワイド{len(all_odds.get('wide',{}))}件, 三連複{len(all_odds.get('trio',{}))}件")
+                st.success(f"更新完了")
                 st.rerun()
 
         if all_odds.get("win"):
-            candidates = generate_candidates(race_preds, all_odds)
-
             col_b, col_c = st.columns(2)
 
             for col, budget, label in [(col_b, 1000, "B"), (col_c, 3000, "C")]:
                 with col:
                     st.markdown(f"### パターン{label}（1R上限{budget:,}円）")
-                    result = optimize_bets(candidates, budget)
+                    result = build_recommendations(race_preds, all_odds, budget)
                     bets = result["bets"]
 
                     if bets:
@@ -601,10 +599,12 @@ def main():
                         st.dataframe(bet_df, hide_index=True, use_container_width=True)
 
                         st.caption(f"合計投資: **{result['total_investment']:,}円**")
+                        if result["unused_budget"] > 0:
+                            st.caption(f"未使用予算: {result['unused_budget']:,}円（妙味なしで見送り）")
                         st.caption(f"少なくとも1つ的中する確率: **{result['any_hit_probability']:.0%}**")
                         st.caption(f"的中時回収レンジ: {result['min_payout']:,.0f}〜{result['max_payout']:,.0f}円")
                     else:
-                        st.write("推奨馬券なし")
+                        st.info("妙味のある馬券がないため見送り推奨")
         else:
             st.warning("オッズデータが読み込めません")
 
