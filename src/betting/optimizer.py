@@ -37,17 +37,26 @@ MIN_COMPOSITE_ODDS = {
 }
 
 
-def calc_composite_odds(odds_list: list[float]) -> float:
+def calc_composite_odds(odds_list: list[float], amounts: list[float] | None = None) -> float:
     """合成オッズを計算する。
 
-    合成オッズ = 1 / Σ(1/各オッズ)
+    合成オッズ = 総投資額 / Σ(各投資額 / 各オッズ)
+
+    均等配分の場合: n / Σ(1/各オッズ)
+
+    Args:
+        odds_list: 各買い目のオッズ
+        amounts: 各買い目の投資額（Noneなら均等配分）
     """
     if not odds_list:
         return 0.0
-    inv_sum = sum(1.0 / o for o in odds_list if o > 0)
-    if inv_sum <= 0:
+    if amounts is None:
+        amounts = [1.0] * len(odds_list)
+    total_inv = sum(amounts)
+    denom = sum(a / o for a, o in zip(amounts, odds_list) if o > 0)
+    if denom <= 0:
         return 0.0
-    return 1.0 / inv_sum
+    return total_inv / denom
 
 
 def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) -> dict:
