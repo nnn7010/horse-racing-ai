@@ -389,38 +389,30 @@ def main():
     bias = analyze_results(races, preds_raw, odds_map)
     st.session_state.bias = bias
 
-    # --- ヘッダー: レース選択 ---
+    # --- ヘッダー: レース選択（1つのセレクトボックス）---
     st.markdown("## 🏇 競馬予想AI")
 
-    # 1段目: 開催日 + 開催場所
-    dates = sorted(set(r.get("date", "") for r in races))
-    date_labels = {d: "4/18(土)" if "0418" in str(d) else "4/19(日)" for d in dates}
+    date_labels = {d: "4/18(土)" if "0418" in str(d) else "4/19(日)" for d in sorted(set(r.get("date","") for r in races))}
 
-    hdr1, hdr2, hdr3 = st.columns([1, 1, 2])
-    with hdr1:
-        selected_date = st.selectbox("開催日", dates, format_func=lambda d: date_labels.get(d, d))
+    race_options = {}
+    for r in sorted(races, key=lambda x: (x.get("date",""), x.get("place_name",""), x["race_id"])):
+        rid = r["race_id"]
+        dt = date_labels.get(r.get("date",""), "")
+        place = r.get("place_name","")
+        r_num = rid[-2:]
+        rname = r.get("race_name","")
+        surface = r.get("surface","")
+        dist = r.get("distance",0)
+        done = "✅ " if rid in st.session_state.results else ""
+        label = f"{done}{dt} {place} {r_num}R {rname} ({surface}{dist}m)"
+        race_options[label] = r
 
-    day_races = [r for r in races if str(r.get("date", "")) == str(selected_date)]
-
-    # 開催場所
-    places = sorted(set(r.get("place_name", "") for r in day_races))
-    with hdr2:
-        selected_place = st.selectbox("開催場所", places)
-
-    place_races = [r for r in day_races if r.get("place_name", "") == selected_place]
-
-    # 2段目: レース番号
-    with hdr3:
-        race_options = {}
-        for r in sorted(place_races, key=lambda x: x["race_id"]):
-            rid = r["race_id"]
-            r_num = rid[-2:]
-            done = "✅" if rid in st.session_state.results else ""
-            label = f"{done}{r_num}R {r.get('race_name','')} ({r.get('surface','')}{r.get('distance','')}m)"
-            race_options[label] = r
-        selected_label = st.selectbox("レース", list(race_options.keys()))
-
+    selected_label = st.selectbox("レース選択", list(race_options.keys()), label_visibility="visible")
     selected_race = race_options[selected_label]
+
+    # 当日レースリスト（サイドバーのバイアス解析等で使用）
+    selected_date = selected_race.get("date", "")
+    day_races = [r for r in races if str(r.get("date","")) == str(selected_date)]
 
     st.markdown("---")
 
