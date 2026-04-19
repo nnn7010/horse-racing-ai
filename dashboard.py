@@ -857,9 +857,23 @@ def main():
 
             st.markdown("---")
 
-            # 各レースのAI上位馬
+            # 各レースのAI上位馬（補正後データを使用）
+            # 各WIN5対象レースにバイアス補正を適用
             target_ids = [r["race_id"] for r in win5_candidates[:5]]
-            race_predictions = analyze_win5_races(preds_raw, target_ids)
+
+            corrected_preds = preds_raw.copy()
+            corrected_preds["race_id"] = corrected_preds["race_id"].astype(str)
+            for wr in win5_candidates[:5]:
+                wrid = wr["race_id"]
+                wrp = corrected_preds[corrected_preds["race_id"] == wrid].copy()
+                if wrp.empty: continue
+                p = wrp["pred_top3_prob"].values
+                t = p.sum()
+                wrp["win_prob"] = p / t if t > 0 else 1.0/len(wrp)
+                wrp = apply_correction(wrp, wr, bias)
+                corrected_preds.loc[wrp.index, "win_prob"] = wrp["win_prob"]
+
+            race_predictions = analyze_win5_races(corrected_preds, target_ids)
 
             if len(race_predictions) == 5:
                 # 各レース上位表示
