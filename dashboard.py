@@ -577,34 +577,40 @@ def main():
                 st.rerun()
 
         if all_odds.get("win"):
-            col_b, col_c = st.columns(2)
+            result = build_recommendations(race_preds, all_odds, budget=3000)
+            groups = result.get("ticket_groups", [])
 
-            for col, budget, label in [(col_b, 1000, "B"), (col_c, 3000, "C")]:
-                with col:
-                    st.markdown(f"### パターン{label}（1R上限{budget:,}円）")
-                    result = build_recommendations(race_preds, all_odds, budget)
-                    bets = result["bets"]
+            if groups:
+                for group in groups:
+                    bt = group["bet_type"]
+                    comp = group["composite_odds"]
+                    min_o = group["min_odds"]
+                    buy = group["buy"]
+                    total_prob = group["total_prob"]
 
-                    if bets:
-                        bet_df = pd.DataFrame([{
-                            "券種": b["bet_type"],
-                            "買い目": b["numbers"],
-                            "馬名": b["names"],
-                            "金額": f"{b['amount']:,}円",
-                            "オッズ": f"{b['odds']:.1f}倍",
-                            "的中率": f"{b['probability']:.1%}",
-                            "的中時": f"{b['payout']:,.0f}円",
-                            "EV": f"{b['ev']:.2f}",
-                        } for b in bets])
-                        st.dataframe(bet_df, hide_index=True, use_container_width=True)
-
-                        st.caption(f"合計投資: **{result['total_investment']:,}円**")
-                        if result["unused_budget"] > 0:
-                            st.caption(f"未使用予算: {result['unused_budget']:,}円（妙味なしで見送り）")
-                        st.caption(f"少なくとも1つ的中する確率: **{result['any_hit_probability']:.0%}**")
-                        st.caption(f"的中時回収レンジ: {result['min_payout']:,.0f}〜{result['max_payout']:,.0f}円")
+                    if buy:
+                        st.markdown(f"#### ✅ {bt}（合成オッズ {comp:.1f}倍 ≧ {min_o:.1f}倍 → **買い**）")
                     else:
-                        st.info("妙味のある馬券がないため見送り推奨")
+                        st.markdown(f"#### ❌ {bt}（合成オッズ {comp:.1f}倍 < {min_o:.1f}倍 → **見送り**）")
+
+                    picks_df = pd.DataFrame([{
+                        "買い目": p["numbers"],
+                        "馬名": p["names"],
+                        "オッズ": f"{p['odds']:.1f}倍",
+                        "的中率": f"{p['prob']:.1%}",
+                    } for p in group["picks"]])
+                    st.dataframe(picks_df, hide_index=True, use_container_width=True)
+                    st.caption(f"合計的中率: {total_prob:.1%} / 合成オッズ: {comp:.1f}倍")
+                    st.markdown("---")
+
+                # サマリー
+                buy_count = result["n_buy"]
+                skip_count = result["n_skip"]
+                st.markdown(f"**買い: {buy_count}券種 / 見送り: {skip_count}券種**")
+                if buy_count > 0:
+                    st.caption(f"少なくとも1つ的中する確率: **{result['any_hit_probability']:.0%}**")
+            else:
+                st.info("推奨馬券なし")
         else:
             st.warning("オッズデータが読み込めません")
 

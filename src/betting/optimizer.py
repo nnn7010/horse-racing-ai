@@ -1,19 +1,22 @@
-"""買い目最適化エンジン v2。
+"""買い目最適化エンジン v3。
 
-券種別ルールに基づき、的中率とオッズのバランスで買い目を選定する。
-妙味がなければ買わない。予算を使い切る義務もない。
+AI予測で買い目を決定し、実オッズで買うかどうかを判断する。
+複数点買いの券種は合成オッズで判断。
 
-券種別上限:
-  単勝: 2点
-  ワイド: 1頭軸流し 2点
+合成オッズ = 1 / Σ(1/各オッズ)
+= どの買い目が的中しても同額になるよう資金配分した場合の倍率
+
+券種別ルール:
+  単勝: 最大2点
+  ワイド: 1頭軸流し 最大2点
   馬連: 1頭軸 × 相手3頭
   馬単: 1頭軸 → 相手3頭
   三連複: 2頭軸 × 相手5頭流し
-  三連単: フォーメーション 12点
+  三連単: フォーメーション 最大12点
 """
 
 import itertools
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
@@ -23,24 +26,32 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# 妙味の最低基準（これ以下は買わない）
-MIN_VALUE_SCORE = 0.5  # 的中率 × オッズ のバランス指標
+# 券種別の合成オッズ最低基準（これ以下なら買わない）
+MIN_COMPOSITE_ODDS = {
+    "単勝": 3.0,
+    "ワイド": 2.5,
+    "馬連": 5.0,
+    "馬単": 8.0,
+    "三連複": 10.0,
+    "三連単": 30.0,
+}
 
 
-@dataclass
-class Bet:
-    bet_type: str
-    numbers: str
-    names: str
-    amount: int
-    probability: float
-    odds: float
-    ev: float
-    reason: str = ""
+def calc_composite_odds(odds_list: list[float]) -> float:
+    """合成オッズを計算する。
+
+    合成オッズ = 1 / Σ(1/各オッズ)
+    """
+    if not odds_list:
+        return 0.0
+    inv_sum = sum(1.0 / o for o in odds_list if o > 0)
+    if inv_sum <= 0:
+        return 0.0
+    return 1.0 / inv_sum
 
 
 def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) -> dict:
-    """レースの予測とオッズから、ルールに基づいた買い目を生成する。"""
+    """AI予測で買い目を選定し、合成オッズで買い判断する。"""
 
     probs = compute_race_probabilities(race_df)
     sorted_df = race_df.sort_values("win_prob", ascending=False)
@@ -62,137 +73,131 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
     trio_odds = all_odds.get("trio", {})
     trifecta_odds = all_odds.get("trifecta", {})
 
-    bets = []
-    spent = 0
+    ticket_groups = []  # 券種ごとのグループ
 
     # === 1. 単勝（最大2点）===
-    win_candidates = []
-    for num in numbers:
+    win_picks = []
+    for num in numbers[:6]:
         ns = str(num).zfill(2)
         if ns not in win_odds or win_odds[ns] <= 0:
             continue
         odds = win_odds[ns]
         prob = probs["win"].get(num, 0)
-        ev = prob * odds
-        # 妙味判定: 的中率とオッズのバランス
-        # 低オッズ高的中(2倍30%)も高オッズ低的中(50倍1%)も避ける
-        # 5-30倍 × 3-15%あたりが狙い目
-        value = prob * min(odds, 30)  # オッズ30倍以上は頭打ち
-        if value > MIN_VALUE_SCORE and odds >= 3.0:
-            win_candidates.append({
-                "num": num, "odds": odds, "prob": prob, "ev": ev, "value": value,
-            })
+        # 的中率重視: AI上位で妙味がある馬
+        if prob >= 0.08:  # 勝率8%以上
+            win_picks.append({"num": num, "odds": odds, "prob": prob})
 
-    win_candidates.sort(key=lambda x: x["value"], reverse=True)
-    for c in win_candidates[:2]:
-        if spent + 100 > budget:
-            break
-        bets.append(Bet(
-            bet_type="単勝", numbers=str(c["num"]), names=name(c["num"]),
-            amount=100, probability=c["prob"], odds=c["odds"], ev=c["ev"],
-            reason=f"勝率{c['prob']:.1%} × {c['odds']:.1f}倍",
-        ))
-        spent += 100
+    if win_picks:
+        win_picks.sort(key=lambda x: x["prob"], reverse=True)
+        picks = win_picks[:2]
+        odds_list = [p["odds"] for p in picks]
+        comp_odds = calc_composite_odds(odds_list)
+        min_odds = MIN_COMPOSITE_ODDS["単勝"]
+        ticket_groups.append({
+            "bet_type": "単勝",
+            "picks": [{"numbers": str(p["num"]), "names": name(p["num"]),
+                       "odds": p["odds"], "prob": p["prob"]} for p in picks],
+            "composite_odds": comp_odds,
+            "min_odds": min_odds,
+            "buy": comp_odds >= min_odds,
+            "total_prob": sum(p["prob"] for p in picks),
+        })
 
     # === 2. ワイド（1頭軸流し、最大2点）===
-    # 軸: 複勝率最高の馬
-    axis_wide = numbers[0]  # AI1位
-    wide_candidates = []
-    for partner in numbers[1:8]:
-        key = f"{min(axis_wide, partner):02d}-{max(axis_wide, partner):02d}"
+    axis = numbers[0]
+    wide_picks = []
+    for partner in numbers[1:6]:
+        key = f"{min(axis, partner):02d}-{max(axis, partner):02d}"
         if key not in wide_odds or wide_odds[key] <= 0:
             continue
         odds = wide_odds[key]
-        prob = top3_prob(axis_wide) * top3_prob(partner) * 0.8
-        ev = prob * odds
-        value = prob * min(odds, 15)
-        if value > MIN_VALUE_SCORE and odds >= 2.0:
-            wide_candidates.append({
-                "nums": f"{axis_wide}-{partner}", "names": f"{name(axis_wide)}-{name(partner)}",
-                "odds": odds, "prob": prob, "ev": ev, "value": value,
-            })
+        prob = top3_prob(axis) * top3_prob(partner) * 0.8
+        if prob >= 0.05:
+            wide_picks.append({"nums": f"{axis}-{partner}", "names": f"{name(axis)}-{name(partner)}",
+                               "odds": odds, "prob": prob})
 
-    wide_candidates.sort(key=lambda x: x["value"], reverse=True)
-    for c in wide_candidates[:2]:
-        if spent + 100 > budget:
-            break
-        bets.append(Bet(
-            bet_type="ワイド", numbers=c["nums"], names=c["names"],
-            amount=100, probability=c["prob"], odds=c["odds"], ev=c["ev"],
-            reason=f"軸{name(axis_wide)}",
-        ))
-        spent += 100
+    if wide_picks:
+        wide_picks.sort(key=lambda x: x["prob"], reverse=True)
+        picks = wide_picks[:2]
+        comp_odds = calc_composite_odds([p["odds"] for p in picks])
+        min_odds = MIN_COMPOSITE_ODDS["ワイド"]
+        ticket_groups.append({
+            "bet_type": "ワイド",
+            "picks": [{"numbers": p["nums"], "names": p["names"],
+                       "odds": p["odds"], "prob": p["prob"]} for p in picks],
+            "composite_odds": comp_odds,
+            "min_odds": min_odds,
+            "buy": comp_odds >= min_odds,
+            "total_prob": sum(p["prob"] for p in picks),
+        })
 
     # === 3. 馬連（1頭軸 × 相手3頭）===
-    axis_quin = numbers[0]
-    quin_candidates = []
+    quin_picks = []
     for partner in numbers[1:8]:
-        key = f"{min(axis_quin, partner):02d}-{max(axis_quin, partner):02d}"
+        key = f"{min(axis, partner):02d}-{max(axis, partner):02d}"
         if key not in quinella_odds or quinella_odds[key] <= 0:
             continue
         odds = quinella_odds[key]
-        wi = probs["win"].get(axis_quin, 0)
+        wi = probs["win"].get(axis, 0)
         wj = probs["win"].get(partner, 0)
         prob = wi * wj / max(1 - wi, 0.01) + wj * wi / max(1 - wj, 0.01)
         prob = min(prob, 0.3)
-        ev = prob * odds
-        value = prob * min(odds, 30)
-        if value > MIN_VALUE_SCORE and odds >= 5.0:
-            quin_candidates.append({
-                "nums": f"{axis_quin}-{partner}", "names": f"{name(axis_quin)}-{name(partner)}",
-                "odds": odds, "prob": prob, "ev": ev, "value": value,
-            })
+        if prob >= 0.02:
+            quin_picks.append({"nums": f"{axis}-{partner}", "names": f"{name(axis)}-{name(partner)}",
+                               "odds": odds, "prob": prob})
 
-    quin_candidates.sort(key=lambda x: x["value"], reverse=True)
-    for c in quin_candidates[:3]:
-        if spent + 100 > budget:
-            break
-        bets.append(Bet(
-            bet_type="馬連", numbers=c["nums"], names=c["names"],
-            amount=100, probability=c["prob"], odds=c["odds"], ev=c["ev"],
-            reason=f"軸{name(axis_quin)}",
-        ))
-        spent += 100
+    if quin_picks:
+        quin_picks.sort(key=lambda x: x["prob"], reverse=True)
+        picks = quin_picks[:3]
+        comp_odds = calc_composite_odds([p["odds"] for p in picks])
+        min_odds = MIN_COMPOSITE_ODDS["馬連"]
+        ticket_groups.append({
+            "bet_type": "馬連",
+            "picks": [{"numbers": p["nums"], "names": p["names"],
+                       "odds": p["odds"], "prob": p["prob"]} for p in picks],
+            "composite_odds": comp_odds,
+            "min_odds": min_odds,
+            "buy": comp_odds >= min_odds,
+            "total_prob": sum(p["prob"] for p in picks),
+        })
 
     # === 4. 馬単（1頭軸 → 相手3頭）===
-    axis_exacta = numbers[0]
-    exacta_candidates = []
+    exacta_picks = []
     for partner in numbers[1:8]:
-        # 軸が1着 → 相手が2着
-        key = f"{axis_exacta:02d}→{partner:02d}"
+        key = f"{axis:02d}→{partner:02d}"
         if key not in exacta_odds or exacta_odds[key] <= 0:
             continue
         odds = exacta_odds[key]
-        prob = probs["win"].get(axis_exacta, 0) * probs["win"].get(partner, 0) / max(1 - probs["win"].get(axis_exacta, 0), 0.01)
-        ev = prob * odds
-        value = prob * min(odds, 50)
-        if value > MIN_VALUE_SCORE and odds >= 8.0:
-            exacta_candidates.append({
-                "nums": f"{axis_exacta}→{partner}", "names": f"{name(axis_exacta)}→{name(partner)}",
-                "odds": odds, "prob": prob, "ev": ev, "value": value,
-            })
+        prob = probs["win"].get(axis, 0) * probs["win"].get(partner, 0) / max(1 - probs["win"].get(axis, 0), 0.01)
+        if prob >= 0.01:
+            exacta_picks.append({"nums": f"{axis}→{partner}", "names": f"{name(axis)}→{name(partner)}",
+                                 "odds": odds, "prob": prob})
 
-    exacta_candidates.sort(key=lambda x: x["value"], reverse=True)
-    for c in exacta_candidates[:3]:
-        if spent + 100 > budget:
-            break
-        bets.append(Bet(
-            bet_type="馬単", numbers=c["nums"], names=c["names"],
-            amount=100, probability=c["prob"], odds=c["odds"], ev=c["ev"],
-            reason=f"1着固定{name(axis_exacta)}",
-        ))
-        spent += 100
+    if exacta_picks:
+        exacta_picks.sort(key=lambda x: x["prob"], reverse=True)
+        picks = exacta_picks[:3]
+        comp_odds = calc_composite_odds([p["odds"] for p in picks])
+        min_odds = MIN_COMPOSITE_ODDS["馬単"]
+        ticket_groups.append({
+            "bet_type": "馬単",
+            "picks": [{"numbers": p["nums"], "names": p["names"],
+                       "odds": p["odds"], "prob": p["prob"]} for p in picks],
+            "composite_odds": comp_odds,
+            "min_odds": min_odds,
+            "buy": comp_odds >= min_odds,
+            "total_prob": sum(p["prob"] for p in picks),
+        })
 
     # === 5. 三連複（2頭軸 × 相手5頭流し）===
     axis1, axis2 = numbers[0], numbers[1]
-    trio_candidates = []
+    trio_picks = []
     for partner in numbers[2:10]:
         combo = sorted([axis1, axis2, partner])
         combo_fs = frozenset(combo)
         prob = probs["trio"].get(combo_fs, 0)
-        if prob <= 0:
+        if prob <= 0.005:
             continue
-        # オッズ取得（APIのキー構造に合わせる）
+        # オッズ: 2頭軸のオッズを近似値として使う
         key = f"{combo[0]:02d}-{combo[1]:02d}"
         odds = trio_odds.get(key, 0)
         if odds <= 0:
@@ -200,98 +205,104 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
             odds = trio_odds.get(key2, 0)
         if odds <= 0:
             continue
-        ev = prob * odds
-        value = prob * min(odds, 100)
-        if value > MIN_VALUE_SCORE and odds >= 10.0:
-            trio_candidates.append({
-                "nums": f"{combo[0]}-{combo[1]}-{combo[2]}",
-                "names": f"{name(combo[0])}-{name(combo[1])}-{name(combo[2])}",
-                "odds": odds, "prob": prob, "ev": ev, "value": value,
-            })
+        trio_picks.append({
+            "nums": f"{combo[0]}-{combo[1]}-{combo[2]}",
+            "names": f"{name(combo[0])}-{name(combo[1])}-{name(combo[2])}",
+            "odds": odds, "prob": prob,
+        })
 
-    trio_candidates.sort(key=lambda x: x["value"], reverse=True)
-    for c in trio_candidates[:10]:
-        if spent + 100 > budget:
-            break
-        bets.append(Bet(
-            bet_type="三連複", numbers=c["nums"], names=c["names"],
-            amount=100, probability=c["prob"], odds=c["odds"], ev=c["ev"],
-            reason=f"軸{name(axis1)}-{name(axis2)}",
-        ))
-        spent += 100
+    if trio_picks:
+        trio_picks.sort(key=lambda x: x["prob"], reverse=True)
+        picks = trio_picks[:10]
+        comp_odds = calc_composite_odds([p["odds"] for p in picks])
+        min_odds = MIN_COMPOSITE_ODDS["三連複"]
+        ticket_groups.append({
+            "bet_type": "三連複",
+            "picks": [{"numbers": p["nums"], "names": p["names"],
+                       "odds": p["odds"], "prob": p["prob"]} for p in picks],
+            "composite_odds": comp_odds,
+            "min_odds": min_odds,
+            "buy": comp_odds >= min_odds,
+            "total_prob": sum(p["prob"] for p in picks),
+        })
 
     # === 6. 三連単フォーメーション（最大12点）===
-    # 1着候補 × 2着候補 × 3着候補
-    first_candidates = numbers[:3]   # AI上位3頭
-    second_candidates = numbers[:5]  # AI上位5頭
-    third_candidates = numbers[:7]   # AI上位7頭
-
-    tri_candidates = []
-    for a in first_candidates:
-        for b in second_candidates:
-            if b == a:
-                continue
-            for c in third_candidates:
-                if c == a or c == b:
-                    continue
+    first_cands = numbers[:3]
+    second_cands = numbers[:5]
+    third_cands = numbers[:7]
+    tri_picks = []
+    for a in first_cands:
+        for b in second_cands:
+            if b == a: continue
+            for c in third_cands:
+                if c == a or c == b: continue
                 combo = (a, b, c)
                 prob = probs["trifecta"].get(combo, 0)
-                if prob <= 0:
+                if prob <= 0.002:
                     continue
                 key = f"{a:02d}→{b:02d}→{c:02d}"
                 odds = trifecta_odds.get(key, 0)
                 if odds <= 0:
                     continue
-                ev = prob * odds
-                value = prob * min(odds, 200)
-                if value > MIN_VALUE_SCORE and odds >= 20.0:
-                    tri_candidates.append({
-                        "nums": f"{a}→{b}→{c}",
-                        "names": f"{name(a)}→{name(b)}→{name(c)}",
-                        "odds": odds, "prob": prob, "ev": ev, "value": value,
-                    })
+                tri_picks.append({
+                    "nums": f"{a}→{b}→{c}",
+                    "names": f"{name(a)}→{name(b)}→{name(c)}",
+                    "odds": odds, "prob": prob,
+                })
 
-    tri_candidates.sort(key=lambda x: x["value"], reverse=True)
-    for c in tri_candidates[:12]:
-        if spent + 100 > budget:
-            break
-        bets.append(Bet(
-            bet_type="三連単", numbers=c["nums"], names=c["names"],
-            amount=100, probability=c["prob"], odds=c["odds"], ev=c["ev"],
-            reason="フォーメーション",
-        ))
-        spent += 100
+    if tri_picks:
+        tri_picks.sort(key=lambda x: x["prob"], reverse=True)
+        picks = tri_picks[:12]
+        comp_odds = calc_composite_odds([p["odds"] for p in picks])
+        min_odds = MIN_COMPOSITE_ODDS["三連単"]
+        ticket_groups.append({
+            "bet_type": "三連単",
+            "picks": [{"numbers": p["nums"], "names": p["names"],
+                       "odds": p["odds"], "prob": p["prob"]} for p in picks],
+            "composite_odds": comp_odds,
+            "min_odds": min_odds,
+            "buy": comp_odds >= min_odds,
+            "total_prob": sum(p["prob"] for p in picks),
+        })
 
-    # 的中確率の計算
+    # === 結果整理 ===
+    bets = []
+    total_investment = 0
+    for group in ticket_groups:
+        for pick in group["picks"]:
+            bets.append({
+                "bet_type": group["bet_type"],
+                "numbers": pick["numbers"],
+                "names": pick["names"],
+                "amount": 100,  # 実際は合成オッズで均等配分するが、表示上は100円
+                "probability": pick["prob"],
+                "odds": pick["odds"],
+                "payout": pick["odds"] * 100,
+                "ev": pick["prob"] * pick["odds"],
+                "composite_odds": group["composite_odds"],
+                "min_odds": group["min_odds"],
+                "buy": group["buy"],
+            })
+            if group["buy"]:
+                total_investment += 100
+
+    # 的中確率（買い推奨の券種のみ）
+    buy_groups = [g for g in ticket_groups if g["buy"]]
     miss_prob = 1.0
-    for b in bets:
-        miss_prob *= (1 - b.probability)
+    for g in buy_groups:
+        miss_prob *= (1 - g["total_prob"])
     any_hit = 1 - miss_prob
 
-    payouts = [b.odds * b.amount for b in bets]
+    buy_bets = [b for b in bets if b["buy"]]
+    payouts = [b["payout"] for b in buy_bets] if buy_bets else [0]
 
     return {
-        "bets": [{
-            "bet_type": b.bet_type, "numbers": b.numbers, "names": b.names,
-            "amount": b.amount, "probability": b.probability, "odds": b.odds,
-            "payout": b.odds * b.amount, "ev": b.ev, "reason": b.reason,
-        } for b in bets],
-        "total_investment": spent,
+        "bets": bets,
+        "ticket_groups": ticket_groups,
+        "total_investment": total_investment,
         "any_hit_probability": any_hit,
         "min_payout": min(payouts) if payouts else 0,
         "max_payout": max(payouts) if payouts else 0,
-        "n_patterns": len(bets),
-        "unused_budget": budget - spent,
+        "n_buy": sum(1 for g in ticket_groups if g["buy"]),
+        "n_skip": sum(1 for g in ticket_groups if not g["buy"]),
     }
-
-
-# 後方互換（ダッシュボードから呼ばれる旧インターフェース）
-def generate_candidates(race_df, all_odds):
-    """旧インターフェース互換。内部でbuild_recommendationsを呼ぶ。"""
-    return []  # 使われなくなる
-
-
-def optimize_bets(candidates, budget):
-    """旧インターフェース互換。"""
-    return {"bets": [], "total_investment": 0, "any_hit_probability": 0,
-            "min_payout": 0, "max_payout": 0, "n_patterns": 0}
