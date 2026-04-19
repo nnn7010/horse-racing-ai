@@ -196,27 +196,25 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
             "n_bets": len(picks),
         })
 
-    # === 6. 三連単フォーメーション（最大12点）===
-    first_cands = list(numbers[:3])
-    second_cands = list(numbers[:5])
-    third_cands = list(numbers[:7])
-    tri_picks = []
-    for a in first_cands:
-        for b in second_cands:
+    # === 6. 三連単（確率上位12点）===
+    # 広めの候補から全組み合わせを生成し、確率上位12点を選ぶ
+    tri_all = []
+    for a in numbers[:6]:
+        for b in numbers[:8]:
             if b == a: continue
-            for c in third_cands:
+            for c in numbers[:10]:
                 if c == a or c == b: continue
                 prob = probs["trifecta"].get((a, b, c), 0)
-                if prob >= 0.002:
-                    tri_picks.append({"a": a, "b": b, "c": c, "prob": prob})
+                if prob > 0:
+                    tri_all.append({"a": a, "b": b, "c": c, "prob": prob})
 
-    if tri_picks:
-        tri_picks.sort(key=lambda x: x["prob"], reverse=True)
-        picks = tri_picks[:12]
+    if tri_all:
+        tri_all.sort(key=lambda x: x["prob"], reverse=True)
+        picks = tri_all[:12]
         total_prob = sum(p["prob"] for p in picks)
         min_odds = calc_min_composite_odds(total_prob)
 
-        # フォーメーション表示用に階層を抽出
+        # 選ばれた12点からフォーメーション構造を逆算
         firsts = sorted(set(p["a"] for p in picks))
         seconds = sorted(set(p["b"] for p in picks))
         thirds = sorted(set(p["c"] for p in picks))
