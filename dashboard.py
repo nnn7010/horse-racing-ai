@@ -559,22 +559,11 @@ def main():
         st.subheader("推奨買い目")
 
         from src.betting.optimizer import build_recommendations
-        from src.scraping.odds import fetch_all_odds
 
-        # 実オッズを取得（キャッシュ or ライブ）
-        if f"all_odds_{race_id}" not in st.session_state:
-            all_odds = fetch_all_odds(race_id)
-            if all_odds.get("win"):
-                st.session_state[f"all_odds_{race_id}"] = all_odds
-        else:
-            all_odds = st.session_state[f"all_odds_{race_id}"]
-
-        if st.button("🔄 最新オッズで再計算", key=f"refresh_odds_{race_id}"):
-            all_odds = fetch_all_odds(race_id)
-            if all_odds.get("win"):
-                st.session_state[f"all_odds_{race_id}"] = all_odds
-                st.success(f"更新完了")
-                st.rerun()
+        # 単勝オッズのみ使用（他券種はユーザーが確認）
+        odds_data_t2 = odds_map.get(race_id, {})
+        win_odds_t2 = odds_data_t2.get("1", {})
+        all_odds = {"win": {k: float(v[0]) for k, v in win_odds_t2.items() if v[0]}} if win_odds_t2 else {}
 
         if all_odds.get("win"):
             result = build_recommendations(race_preds, all_odds, budget=3000)
@@ -583,32 +572,32 @@ def main():
             if groups:
                 for group in groups:
                     bt = group["bet_type"]
-                    comp = group["composite_odds"]
-                    min_o = group["min_odds"]
-                    buy = group["buy"]
                     total_prob = group["total_prob"]
 
-                    if buy:
-                        st.markdown(f"#### ✅ {bt}（合成オッズ {comp:.1f}倍 ≧ {min_o:.1f}倍 → **買い**）")
-                    else:
-                        st.markdown(f"#### ❌ {bt}（合成オッズ {comp:.1f}倍 < {min_o:.1f}倍 → **見送り**）")
+                    st.markdown(f"#### {bt}（合計的中率 {total_prob:.1%}）")
 
-                    picks_df = pd.DataFrame([{
-                        "買い目": p["numbers"],
-                        "馬名": p["names"],
-                        "オッズ": f"{p['odds']:.1f}倍",
-                        "的中率": f"{p['prob']:.1%}",
-                    } for p in group["picks"]])
-                    st.dataframe(picks_df, hide_index=True, use_container_width=True)
-                    st.caption(f"合計的中率: {total_prob:.1%} / 合成オッズ: {comp:.1f}倍")
+                    picks_data = []
+                    for p in group["picks"]:
+                        row_data = {
+                            "買い目": p["numbers"],
+                            "馬名": p["names"],
+                            "的中率": f"{p['prob']:.1%}",
+                        }
+                        # 単勝のみ実オッズを表示
+                        if bt == "単勝":
+                            row_data["オッズ"] = f"{p['odds']:.1f}倍"
+                        picks_data.append(row_data)
+
+                    st.dataframe(pd.DataFrame(picks_data), hide_index=True, use_container_width=True)
+
+                    if bt == "単勝" and len(group["picks"]) > 1:
+                        comp = group["composite_odds"]
+                        st.caption(f"合成オッズ: {comp:.1f}倍")
                     st.markdown("---")
 
-                # サマリー
-                buy_count = result["n_buy"]
-                skip_count = result["n_skip"]
-                st.markdown(f"**買い: {buy_count}券種 / 見送り: {skip_count}券種**")
-                if buy_count > 0:
-                    st.caption(f"少なくとも1つ的中する確率: **{result['any_hit_probability']:.0%}**")
+                st.caption(f"少なくとも1つ的中する確率: **{result['any_hit_probability']:.0%}**")
+                st.caption("※ 単勝以外のオッズは各自で確認し、合成オッズが基準以上なら購入してください")
+                st.caption(f"基準: ワイド≧2.5倍 / 馬連≧5倍 / 馬単≧8倍 / 三連複≧10倍 / 三連単≧30倍")
             else:
                 st.info("推奨馬券なし")
         else:
