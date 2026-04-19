@@ -121,6 +121,18 @@ def main():
     from src.features.pedigree_dict import classify_sire_line
     from src.features.pedigree import encode_sire_lines
 
+    # 能力パラメータ読み込み
+    ability_file = processed_dir / "ability_features.csv"
+    ability_lookup = {}
+    if ability_file.exists():
+        import pandas as _pd
+        ability_df = _pd.read_csv(ability_file)
+        for _, row in ability_df.iterrows():
+            ability_lookup[row["horse_id"]] = {
+                k: row[k] for k in row.index if k.startswith("ability_")
+            }
+        logger.info(f"Ability lookup: {len(ability_lookup)} horses")
+
     all_predictions = []
 
     for race in target_races:
@@ -183,6 +195,10 @@ def main():
             # コンビ統計
             if (jid, hid) in lookup["combo"]:
                 row.update(lookup["combo"][(jid, hid)])
+
+            # 能力パラメータをマージ
+            if hid in ability_lookup:
+                row.update(ability_lookup[hid])
 
             # 血統情報をマージ
             if hid in pedigree_lookup:
