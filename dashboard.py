@@ -573,31 +573,41 @@ def main():
                 for group in groups:
                     bt = group["bet_type"]
                     total_prob = group["total_prob"]
+                    min_odds = group.get("min_composite_odds", 0)
+                    n_bets = group.get("n_bets", 0)
+                    summary = group.get("summary", "")
 
-                    st.markdown(f"#### {bt}（合計的中率 {total_prob:.1%}）")
+                    st.markdown(f"#### {bt}　{n_bets}点　的中率 {total_prob:.1%}　合成オッズ {min_odds:.1f}倍以上で買い")
 
-                    picks_data = []
-                    for p in group["picks"]:
-                        row_data = {
-                            "買い目": p["numbers"],
-                            "馬名": p["names"],
-                            "的中率": f"{p['prob']:.1%}",
-                        }
-                        # 単勝のみ実オッズを表示
-                        if bt == "単勝":
-                            row_data["オッズ"] = f"{p['odds']:.1f}倍"
-                        picks_data.append(row_data)
+                    # まとめ表示
+                    if bt == "三連単" and "formation" in group:
+                        fm = group["formation"]
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.markdown("**1着**")
+                            for h in fm["1着"]:
+                                st.write(f"{h['num']}番 {h['name']}")
+                        with col2:
+                            st.markdown("**2着**")
+                            for h in fm["2着"]:
+                                st.write(f"{h['num']}番 {h['name']}")
+                        with col3:
+                            st.markdown("**3着**")
+                            for h in fm["3着"]:
+                                st.write(f"{h['num']}番 {h['name']}")
+                    elif bt == "単勝":
+                        for p in group["picks"]:
+                            odds_str = f"（{p['odds']:.1f}倍）" if p["odds"] > 0 else ""
+                            st.write(f"　{p['numbers']}番 {p['names']}　的中率{p['prob']:.1%} {odds_str}")
+                        if group["composite_odds"] > 0:
+                            st.caption(f"現在の合成オッズ: {group['composite_odds']:.1f}倍")
+                    else:
+                        st.write(f"　{summary}")
 
-                    st.dataframe(pd.DataFrame(picks_data), hide_index=True, use_container_width=True)
-
-                    if bt == "単勝" and len(group["picks"]) > 1:
-                        comp = group["composite_odds"]
-                        st.caption(f"合成オッズ: {comp:.1f}倍")
                     st.markdown("---")
 
-                st.caption(f"少なくとも1つ的中する確率: **{result['any_hit_probability']:.0%}**")
-                st.caption("※ 単勝以外のオッズは各自で確認し、合成オッズが基準以上なら購入してください")
-                st.caption(f"基準: ワイド≧2.5倍 / 馬連≧5倍 / 馬単≧8倍 / 三連複≧10倍 / 三連単≧30倍")
+                st.markdown(f"**いずれかが的中する確率: {result['any_hit_probability']:.0%}**")
+                st.caption("※ 単勝以外のオッズは各自で確認し、合成オッズが表示基準以上なら購入")
             else:
                 st.info("推奨馬券なし")
         else:
