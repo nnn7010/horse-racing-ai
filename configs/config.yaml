@@ -2,23 +2,23 @@
 
 # 対象日
 target_dates:
-  - "2026-04-18"
-  - "2026-04-19"
+  - "2026-04-25"
+  - "2026-04-26"
 
 # 学習期間
 train_period:
-  start: "2025-04-18"
-  end: "2026-04-18"
+  start: "2023-04-18"
+  end: "2026-04-24"
 
 # 時系列分割
 split:
   train_end: "2026-02-28"
   valid_start: "2026-03-01"
-  valid_end: "2026-04-17"
+  valid_end: "2026-04-24"
 
 # スクレイピング設定
 scraping:
-  interval: 1.5
+  interval: 0.5
   user_agent: "horse-racing-ai research bot"
   max_retries: 3
   cache_dir: "data/cache"

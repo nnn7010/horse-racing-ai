@@ -54,6 +54,14 @@ def fetch(url: str, encoding: str = "euc-jp") -> str:
             cached.write_text(html, encoding="utf-8")
             logger.info(f"Fetched: {url}")
             return html
+        except requests.HTTPError as e:
+            _last_request_time = time.time()
+            if resp.status_code < 500:
+                # 4xx はリトライしない（存在しないリソース）
+                raise RuntimeError(f"Client error {resp.status_code} for {url}") from e
+            wait = 2 ** attempt
+            logger.warning(f"Attempt {attempt}/{MAX_RETRIES} failed for {url}: {e}. Retry in {wait}s")
+            time.sleep(wait)
         except requests.RequestException as e:
             wait = 2 ** attempt
             logger.warning(f"Attempt {attempt}/{MAX_RETRIES} failed for {url}: {e}. Retry in {wait}s")

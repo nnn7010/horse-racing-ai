@@ -44,6 +44,7 @@ def main():
         num_runners = race.get("num_runners", 0)
         race_name = race.get("race_name", "")
         payouts = race.get("payouts", {})
+        exclude_from_train = race.get("exclude_from_train", False)
 
         # place_code をrace_idから抽出
         place_code = race_id[4:6] if len(race_id) >= 6 else ""
@@ -59,12 +60,14 @@ def main():
                 "num_runners": num_runners,
                 "race_name": race_name,
                 "place_code": place_code,
+                "exclude_from_train": exclude_from_train,
                 **r,
             }
             rows.append(row)
 
     results_df = pd.DataFrame(rows)
-    logger.info(f"Loaded {len(results_df)} entries from {len(historical)} races")
+    debut_races = results_df["exclude_from_train"].sum() if "exclude_from_train" in results_df.columns else 0
+    logger.info(f"Loaded {len(results_df)} entries from {len(historical)} races ({debut_races} excluded from train)")
 
     # 馬情報を読み込み
     horses_file = raw_dir / "horses.json"

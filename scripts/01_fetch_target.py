@@ -49,7 +49,7 @@ def main():
 
     logger.info(f"Saved {len(all_races)} target races to {output_file}")
 
-    # コース条件の一覧
+    # コース条件のログ出力
     courses = set()
     for r in all_races:
         if r.get("surface") and r.get("distance") and r.get("place_code"):
@@ -58,11 +58,6 @@ def main():
     logger.info(f"Unique course conditions: {len(courses)}")
     for c in sorted(courses):
         logger.info(f"  {c[0]} {c[1]} {c[2]}m")
-
-    # コース条件を保存
-    courses_list = [{"place_code": c[0], "surface": c[1], "distance": c[2]} for c in sorted(courses)]
-    with open(raw_dir / "target_courses.json", "w", encoding="utf-8") as f:
-        json.dump(courses_list, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

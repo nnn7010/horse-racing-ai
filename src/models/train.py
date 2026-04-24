@@ -11,6 +11,7 @@ import lightgbm as lgb
 import numpy as np
 import optuna
 import pandas as pd
+from sklearn.calibration import IsotonicRegression
 from sklearn.metrics import log_loss, roc_auc_score
 
 from src.features.build import get_feature_columns
@@ -42,8 +43,12 @@ def train_model(
     # ターゲット: 3着以内
     df["target"] = (df["finish_position"].between(1, 3)).astype(int)
 
-    # 無効行除去
+    # 無効行除去（着順不明 + 新馬戦は学習から除外）
     df = df[df["finish_position"] > 0].copy()
+    if "exclude_from_train" in df.columns:
+        before = len(df)
+        df = df[~df["exclude_from_train"]].copy()
+        logger.info(f"Excluded {before - len(df)} debut race entries from training")
 
     # 時系列分割
     train_end_dt = pd.Timestamp(train_end)
@@ -62,14 +67,10 @@ def train_model(
     feature_cols = get_feature_columns(df)
     logger.info(f"Feature columns ({len(feature_cols)}): {feature_cols[:10]}...")
 
-    X_train = train_df[feature_cols].astype(float)
-    y_train = train_df["target"]
-    X_valid = valid_df[feature_cols].astype(float)
-    y_valid = valid_df["target"]
-
-    # NaN処理
-    X_train = X_train.fillna(-999)
-    X_valid = X_valid.fillna(-999)
+    X_train = train_df[feature_cols].astype(float).fillna(-999).values
+    y_train = train_df["target"].values
+    X_valid = valid_df[feature_cols].astype(float).fillna(-999).values
+    y_valid = valid_df["target"].values
 
     # Optuna最適化
     def objective(trial):
@@ -79,7 +80,7 @@ def train_model(
             "boosting_type": "gbdt",
             "seed": seed,
             "verbose": -1,
-            "n_jobs": -1,
+            "n_jobs": 1,
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
             "num_leaves": trial.suggest_int("num_leaves", 16, 128),
             "max_depth": trial.suggest_int("max_depth", 3, 10),
@@ -90,8 +91,8 @@ def train_model(
             "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 10.0, log=True),
         }
 
-        dtrain = lgb.Dataset(X_train, label=y_train)
-        dvalid = lgb.Dataset(X_valid, label=y_valid, reference=dtrain)
+        dtrain = lgb.Dataset(X_train.copy(), label=y_train.copy(), free_raw_data=False)
+        dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), reference=dtrain, free_raw_data=False)
 
         callbacks = [
             lgb.early_stopping(50, verbose=False),
@@ -110,7 +111,7 @@ def train_model(
         return log_loss(y_valid, preds)
 
     study = optuna.create_study(direction="minimize", sampler=optuna.samplers.TPESampler(seed=seed))
-    study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
 
     logger.info(f"Best trial: {study.best_trial.number}, logloss={study.best_value:.4f}")
     logger.info(f"Best params: {study.best_params}")
@@ -122,12 +123,12 @@ def train_model(
         "boosting_type": "gbdt",
         "seed": seed,
         "verbose": -1,
-        "n_jobs": -1,
+        "n_jobs": 1,
         **study.best_params,
     }
 
-    dtrain = lgb.Dataset(X_train, label=y_train)
-    dvalid = lgb.Dataset(X_valid, label=y_valid, reference=dtrain)
+    dtrain = lgb.Dataset(X_train.copy(), label=y_train.copy(), free_raw_data=False)
+    dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), reference=dtrain, free_raw_data=False)
 
     callbacks = [
         lgb.early_stopping(50, verbose=False),
@@ -148,6 +149,25 @@ def train_model(
     logloss = log_loss(y_valid, valid_preds)
     logger.info(f"Final model - AUC: {auc:.4f}, LogLoss: {logloss:.4f}")
 
+    # Isotonic Regression でキャリブレーション
+    # 検証セットの生予測値 → 実ラベルでキャリブレーション曲線を学習
+    calibrator = IsotonicRegression(out_of_bounds="clip")
+    calibrator.fit(valid_preds, y_valid)
+    calibrated_preds = calibrator.predict(valid_preds)
+    calib_logloss = log_loss(y_valid, calibrated_preds)
+    logger.info(f"Calibrated LogLoss: {calib_logloss:.4f} (before: {logloss:.4f})")
+
+    # キャリブレーション効果の確認（確率帯別）
+    bins = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0]
+    calib_df = pd.DataFrame({"raw": valid_preds, "calibrated": calibrated_preds, "actual": y_valid})
+    calib_df["bin"] = pd.cut(calib_df["calibrated"], bins=bins)
+    calib_summary = calib_df.groupby("bin", observed=True).agg(
+        n=("actual", "count"),
+        mean_calib=("calibrated", "mean"),
+        actual_rate=("actual", "mean"),
+    )
+    logger.info(f"Calibration check:\n{calib_summary.to_string()}")
+
     # 特徴量重要度
     importance = pd.DataFrame({
         "feature": feature_cols,
@@ -159,6 +179,8 @@ def train_model(
     best_model.save_model(str(model_path / "lgbm_model.txt"))
     with open(model_path / "feature_cols.pkl", "wb") as f:
         pickle.dump(feature_cols, f)
+    with open(model_path / "calibrator.pkl", "wb") as f:
+        pickle.dump(calibrator, f)
     importance.to_csv(model_path / "feature_importance.csv", index=False)
 
     logger.info(f"Model saved to {model_path}")

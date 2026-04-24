@@ -2,8 +2,12 @@
 
 最適化: カレンダーから全開催日を一括取得し、
 レースIDを収集後、結果を取得してからコース条件でフィルタする。
+
+オプション:
+  --all-venues  全JRA競馬場・全コース条件を対象にする（場・距離フィルタなし）
 """
 
+import argparse
 import json
 import re
 import sys
@@ -47,28 +51,40 @@ def get_race_dates(start_date: date, end_date: date) -> list[date]:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--all-venues",
+        action="store_true",
+        help="全JRA競馬場・全コース条件を対象にする（場・距離フィルタなし）",
+    )
+    args = parser.parse_args()
+
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
 
     raw_dir = Path(config["paths"]["raw"])
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # 対象コース条件を読み込み
-    courses_file = raw_dir / "target_courses.json"
-    if not courses_file.exists():
-        logger.error("target_courses.json not found. Run 01_fetch_target.py first.")
-        sys.exit(1)
+    if args.all_venues:
+        logger.info("Mode: ALL venues / ALL course conditions")
+        target_place_codes = None  # フィルタなし
+        target_conditions = None
+    else:
+        # 対象コース条件を読み込み
+        courses_file = raw_dir / "target_courses.json"
+        if not courses_file.exists():
+            logger.error("target_courses.json not found. Run 01_fetch_target.py first.")
+            sys.exit(1)
 
-    with open(courses_file, encoding="utf-8") as f:
-        courses = json.load(f)
+        with open(courses_file, encoding="utf-8") as f:
+            courses = json.load(f)
 
-    # 対象場コード
-    target_place_codes = set(c["place_code"] for c in courses)
-    target_conditions = set(
-        (c["place_code"], c["surface"], c["distance"]) for c in courses
-    )
-    logger.info(f"Target place codes: {target_place_codes}")
-    logger.info(f"Target conditions: {len(target_conditions)}")
+        target_place_codes = set(c["place_code"] for c in courses)
+        target_conditions = set(
+            (c["place_code"], c["surface"], c["distance"]) for c in courses
+        )
+        logger.info(f"Target place codes: {target_place_codes}")
+        logger.info(f"Target conditions: {len(target_conditions)}")
 
     start_date = date.fromisoformat(config["train_period"]["start"])
     end_date = date.fromisoformat(config["train_period"]["end"])
@@ -77,13 +93,12 @@ def main():
     race_dates = get_race_dates(start_date, end_date)
     logger.info(f"Found {len(race_dates)} race dates from {start_date} to {end_date}")
 
-    # 2. 各開催日のレースIDを収集（対象場コードのみ）
+    # 2. 各開催日のレースIDを収集
     all_race_ids = []
     for dt in race_dates:
         race_ids = fetch_race_ids_by_date(dt)
         for rid in race_ids:
-            place_code = rid[4:6]
-            if place_code in target_place_codes:
+            if target_place_codes is None or rid[4:6] in target_place_codes:
                 all_race_ids.append(rid)
 
     all_race_ids = list(dict.fromkeys(all_race_ids))  # 重複除去
@@ -113,32 +128,35 @@ def main():
             logger.error(f"Failed to fetch {race_id}: {e}")
             continue
 
-        # 新馬・障害除外
-        if result.get("is_debut") or result.get("is_hurdle"):
+        # 障害除外
+        if result.get("is_hurdle"):
             continue
         race_name = result.get("race_name", "")
-        if any(w in race_name for w in EXCLUDE_WORDS):
+        if "障害" in race_name:
             continue
 
-        # コース条件フィルタ: 対象コースの±200m以内
-        r_surface = result.get("surface", "")
-        r_distance = result.get("distance", 0)
-        r_place = race_id[4:6]
+        # 新馬戦は学習対象外フラグを付けて保存（過去走特徴量に使うため除外しない）
+        is_debut = result.get("is_debut") or "新馬" in race_name
+        result["exclude_from_train"] = bool(is_debut)
 
-        is_match = False
-        for pc, sf, dist in target_conditions:
-            if pc == r_place and sf == r_surface and abs(dist - r_distance) <= 200:
-                is_match = True
-                break
+        # コース条件フィルタ（--all-venues 時はスキップ）
+        if target_conditions is not None:
+            r_surface = result.get("surface", "")
+            r_distance = result.get("distance", 0)
+            r_place = race_id[4:6]
 
-        if not is_match:
-            continue
+            is_match = any(
+                pc == r_place and sf == r_surface and abs(dist - r_distance) <= 200
+                for pc, sf, dist in target_conditions
+            )
+            if not is_match:
+                continue
 
         all_results.append(result)
         matched += 1
 
-        # 50レースごとに途中保存
-        if matched % 50 == 0:
+        # 100レースごとに途中保存
+        if matched % 100 == 0:
             logger.info(f"Progress: {i + 1}/{len(remaining)}, matched: {matched}")
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(all_results, f, ensure_ascii=False, indent=2, default=str)

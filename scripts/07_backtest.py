@@ -147,7 +147,7 @@ def main():
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    model, feature_cols = load_model(config["paths"]["models"])
+    model, feature_cols, calibrator = load_model(config["paths"]["models"])
 
     df = pd.read_parquet(processed_dir / "features.parquet")
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
@@ -163,7 +163,7 @@ def main():
         logger.error("No validation data")
         sys.exit(1)
 
-    valid_preds = predict_probabilities(model, feature_cols, valid_df)
+    valid_preds = predict_probabilities(model, feature_cols, valid_df, calibrator=calibrator)
 
     # win_prob を計算（Plackett-Luceで正規化）
     for race_id, race_df in valid_preds.groupby("race_id"):
