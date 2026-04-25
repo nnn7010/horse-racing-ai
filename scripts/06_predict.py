@@ -93,7 +93,7 @@ def main():
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    model, feature_cols, calibrator = load_model(config["paths"]["models"])
+    model, feature_cols, calibrator, win_model, win_calibrator = load_model(config["paths"]["models"])
 
     with open(raw_dir / "target_races.json", encoding="utf-8") as f:
         target_races = json.load(f)
@@ -254,7 +254,12 @@ def main():
                 entry_df[col] = 0.0
 
         # 予測
-        entry_preds = predict_probabilities(model, feature_cols, entry_df, calibrator=calibrator)
+        entry_preds = predict_probabilities(
+            model, feature_cols, entry_df,
+            calibrator=calibrator,
+            win_model=win_model,
+            win_calibrator=win_calibrator,
+        )
         probs = compute_race_probabilities(entry_preds)
 
         # 結果出力

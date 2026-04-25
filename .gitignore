@@ -208,7 +208,8 @@ __marimo__/
 
 # Horse Racing AI
 data/cache/
-data/raw/
+data/raw/*
+!data/raw/today_predictions.json
 data/processed/
 models/*.pkl
 models/*.txt

@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pandas as pd
 import yaml
 
-from src.models.train import train_model
+from src.models.train import train_model, train_win_model
 from src.utils.logger import get_logger
 
 logger = get_logger("05_train")
@@ -38,7 +38,20 @@ def main():
         model_dir=config["paths"]["models"],
     )
 
-    logger.info(f"Training complete. {len(feature_cols)} features used.")
+    logger.info(f"Top3 model training complete. {len(feature_cols)} features used.")
+
+    # 1着予測モデル（単勝・馬単・三連単用）
+    logger.info("=== 1着モデル学習開始 ===")
+    win_model, _ = train_win_model(
+        df,
+        train_end=config["split"]["train_end"],
+        valid_start=config["split"]["valid_start"],
+        valid_end=config["split"]["valid_end"],
+        n_trials=20,
+        seed=config["model"]["seed"],
+        model_dir=config["paths"]["models"],
+    )
+    logger.info("Win model training complete.")
 
 
 if __name__ == "__main__":

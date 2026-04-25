@@ -59,7 +59,19 @@ def simulate_race(race_df, race_result, payouts):
 
     for budget, pattern in [(1000, "B"), (3000, "C")]:
         opt = build_recommendations(race_df, all_odds, budget)
-        bets = opt["bets"]
+        # ticket_groups から個別買い目を展開
+        bets = []
+        for group in opt.get("ticket_groups", []):
+            bet_type = group["bet_type"]
+            n = max(group.get("n_bets", 1), 1)
+            amount = max(budget // n // 100 * 100, 100)
+            for pick in group.get("picks", []):
+                bets.append({
+                    "bet_type": bet_type,
+                    "numbers": pick["numbers"],
+                    "odds": pick.get("odds", 0),
+                    "amount": amount,
+                })
 
         for bet in bets:
             # 的中判定
@@ -85,26 +97,28 @@ def simulate_race(race_df, race_result, payouts):
                     payout = bet["odds"] * bet["amount"]
 
             elif bt == "馬連":
-                parts = [int(x) for x in nums_str.split("-")]
+                parts = sorted([int(x) for x in nums_str.split("-")])
                 if set(parts) == {actual_1st, actual_2nd}:
                     hit = 1
-                    # 実オッズは推定なので、payoutsから取得
-                    if payouts.get("quinella"):
-                        payout = payouts["quinella"] / 100 * bet["amount"]
-                    else:
-                        payout = bet["odds"] * bet["amount"]
+                    key = f"{parts[0]:02d}-{parts[1]:02d}"
+                    est = all_odds["quinella"].get(key, 0)
+                    payout = est * bet["amount"] if est > 0 else 0
 
             elif bt == "ワイド":
-                parts = [int(x) for x in nums_str.split("-")]
-                if set(parts).issubset({actual_1st, actual_2nd, actual_3rd}):
+                parts = sorted([int(x) for x in nums_str.split("-")])
+                if len(parts) == 2 and set(parts).issubset({actual_1st, actual_2nd, actual_3rd}):
                     hit = 1
-                    payout = bet["odds"] * bet["amount"]
+                    key = f"{parts[0]:02d}-{parts[1]:02d}"
+                    est = all_odds["wide"].get(key, 0)
+                    payout = est * bet["amount"] if est > 0 else 0
 
             elif bt == "馬単":
                 parts = [int(x) for x in nums_str.split("→")]
                 if len(parts) == 2 and parts[0] == actual_1st and parts[1] == actual_2nd:
                     hit = 1
-                    payout = bet["odds"] * bet["amount"]
+                    key = f"{parts[0]:02d}→{parts[1]:02d}"
+                    est = all_odds["exacta"].get(key, 0)
+                    payout = est * bet["amount"] if est > 0 else 0
 
             elif bt == "三連複":
                 parts = [int(x) for x in nums_str.split("-")]
@@ -147,7 +161,7 @@ def main():
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    model, feature_cols, calibrator = load_model(config["paths"]["models"])
+    model, feature_cols, calibrator, win_model, win_calibrator = load_model(config["paths"]["models"])
 
     df = pd.read_parquet(processed_dir / "features.parquet")
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
@@ -163,16 +177,24 @@ def main():
         logger.error("No validation data")
         sys.exit(1)
 
-    valid_preds = predict_probabilities(model, feature_cols, valid_df, calibrator=calibrator)
+    valid_preds = predict_probabilities(
+        model, feature_cols, valid_df,
+        calibrator=calibrator,
+        win_model=win_model,
+        win_calibrator=win_calibrator,
+    )
 
-    # win_prob を計算（Plackett-Luceで正規化）
-    for race_id, race_df in valid_preds.groupby("race_id"):
-        probs = race_df["pred_top3_prob"].values
-        total = probs.sum()
-        if total > 0:
-            valid_preds.loc[race_df.index, "win_prob"] = probs / total
-        else:
-            valid_preds.loc[race_df.index, "win_prob"] = 1.0 / len(race_df)
+    # win_prob: winモデルがあればpred_win_prob、なければpred_strengthから導出
+    if "pred_win_prob" in valid_preds.columns:
+        valid_preds["win_prob"] = valid_preds["pred_win_prob"]
+    else:
+        for race_id, race_df in valid_preds.groupby("race_id"):
+            strengths = race_df["pred_strength"].values if "pred_strength" in race_df.columns else race_df["pred_top3_prob"].values
+            total = strengths.sum()
+            if total > 0:
+                valid_preds.loc[race_df.index, "win_prob"] = strengths / total
+            else:
+                valid_preds.loc[race_df.index, "win_prob"] = 1.0 / len(race_df)
 
     # レース結果（着順）を取得
     history_file = raw_dir / "historical_results.json"

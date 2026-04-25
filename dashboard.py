@@ -1,6 +1,8 @@
 """競馬予想AI ダッシュボード"""
 
 import json
+import re
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -9,7 +11,6 @@ import streamlit as st
 
 st.set_page_config(page_title="競馬予想AI", page_icon="🏇", layout="wide")
 
-# 60秒ごとに自動リフレッシュ（結果自動取得用）
 try:
     from streamlit_autorefresh import st_autorefresh
     auto_refresh_count = st_autorefresh(interval=60000, limit=None, key="auto_refresh")
@@ -18,944 +19,429 @@ except ImportError:
 
 # --- セッションステート初期化 ---
 if "results" not in st.session_state:
-    st.session_state.results = {}  # {race_id: {"1st": 馬番, "2nd": 馬番, "3rd": 馬番}}
-if "auto_fetch" not in st.session_state:
-    st.session_state.auto_fetch = False
+    st.session_state.results = {}
 if "last_fetch_time" not in st.session_state:
     st.session_state.last_fetch_time = ""
-if "bias" not in st.session_state:
-    st.session_state.bias = {
-        "inner_advantage": 0.0,    # 内枠バイアス（+で内有利）
-        "front_runner": 0.0,       # 逃げ先行バイアス（+で前有利）
-        "model_accuracy": 0.0,     # モデル精度補正
-        "upset_tendency": 0.0,     # 波乱傾向（+で穴馬有利）
-        "races_analyzed": 0,
-    }
+if "live_odds" not in st.session_state:
+    st.session_state.live_odds = {}
+if "selected_race_id" not in st.session_state:
+    st.session_state.selected_race_id = None
 if "bets_today" not in st.session_state:
     st.session_state.bets_today = {"invested": 0, "returned": 0}
 
 
 # --- データ読み込み ---
-@st.cache_data
-def load_predictions():
-    return pd.read_csv("outputs/predictions.csv")
-
-@st.cache_data
-def load_target_races():
-    with open("data/raw/target_races.json", encoding="utf-8") as f:
+@st.cache_data(ttl=30)
+def load_today_predictions():
+    """today_predictions.json から予測を読み込む"""
+    path = Path("data/raw/today_predictions.json")
+    if not path.exists():
+        return None
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
-@st.cache_data
-def load_horses():
-    path = Path("data/raw/horses.json")
-    if path.exists():
-        with open(path, encoding="utf-8") as f:
-            return {h["horse_id"]: h for h in json.load(f)}
-    return {}
 
-@st.cache_data
-def load_odds_from_cache(race_ids):
-    odds_map = {}
-    for race_id in race_ids:
-        import hashlib
-        cache_path = Path(f"data/cache/{hashlib.md5(f'https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update'.encode()).hexdigest()}.html")
-        if cache_path.exists():
-            try:
-                data = json.loads(cache_path.read_text())
-                if data.get("status") == "result":
-                    odds_map[race_id] = data["data"]["odds"]
-                    odds_map[race_id]["_updated"] = data["data"].get("official_datetime", "")
-            except:
-                pass
-    return odds_map
+def predictions_to_df(pred_data):
+    """today_predictions.json の horses リストを DataFrame に変換"""
+    rows = []
+    for race in pred_data.get("races", []):
+        rid = race["race_id"]
+        for h in race.get("horses", []):
+            rows.append({
+                "race_id": rid,
+                "number": h["number"],
+                "horse_name": h["horse_name"],
+                "jockey_name": h.get("jockey_name", ""),
+                "impost": h.get("impost", 0),
+                "win_odds": h.get("win_odds", 0),
+                "win_prob": h["win_prob"],
+                "pred_top3_prob": h.get("place_prob", 0),
+            })
+    return pd.DataFrame(rows)
 
 
 def fetch_live_odds(race_id):
-    """リアルタイムでオッズをAPIから取得する（キャッシュを使わない）"""
     import requests
-    from datetime import datetime
     url = f"https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update"
     try:
         resp = requests.get(url, headers={"User-Agent": "horse-racing-ai research bot"}, timeout=10)
         data = resp.json()
-        status = data.get("status", "")
         odds = data.get("data", {}).get("odds", {})
         if odds and odds.get("1"):
             result = odds
-            if status == "result":
+            if data.get("status") == "result":
                 result["_updated"] = data["data"].get("official_datetime", "")
                 result["_status"] = "確定"
             else:
-                result["_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                result["_status"] = "発売中（変動あり）"
+                result["_updated"] = datetime.now().strftime("%H:%M:%S")
+                result["_status"] = "発売中"
             return result
     except:
         pass
     return None
 
-@st.cache_data
-def load_backtest():
-    path = Path("outputs/backtest_results.csv")
-    if path.exists():
-        return pd.read_csv(path)
-    return pd.DataFrame()
+
+def get_mark(rank):
+    return {1: "◎", 2: "○", 3: "▲", 4: "△", 5: "△"}.get(rank, "")
 
 
-# --- 補正ロジック ---
-def _distance_category(distance):
-    """距離をカテゴリに分類"""
-    if distance <= 1400:
-        return "短距離"
-    elif distance <= 1800:
-        return "マイル〜中距離"
-    else:
-        return "中長距離"
-
-
-def analyze_results(races, preds, odds_map):
-    """入力済みレース結果から場×芝ダート×距離別のバイアスを解析する。
-
-    3層構造:
-      1. 場×芝ダート（例: 阪神ダート）
-      2. 場×芝ダート×距離カテゴリ（例: 阪神ダート短距離）
-      3. 全体（フォールバック）
-    """
-    bias = {"_all": _empty_bias(), "_by_key": {}, "races_analyzed": 0}
-
-    if not st.session_state.results:
-        return bias
-
-    # 各レースの結果を場×芝ダートで分類して集計
-    groups = {}  # key -> [レース結果リスト]
-
-    for race_id, result in st.session_state.results.items():
-        race = next((r for r in races if r["race_id"] == race_id), None)
-        if not race:
-            continue
-
-        race_preds = preds[preds["race_id"] == race_id]
-        if race_preds.empty:
-            continue
-
-        place = race.get("place_name", "")
-        surface = race.get("surface", "")
-        distance = race.get("distance", 0)
-        dist_cat = _distance_category(distance)
-
-        entry = _analyze_single_race(race, result, race_preds, odds_map)
-        if not entry:
-            continue
-
-        # 3つのキーに分類
-        key_place_surface = f"{place}_{surface}"
-        key_detail = f"{place}_{surface}_{dist_cat}"
-
-        for key in [key_place_surface, key_detail, "_all"]:
-            if key not in groups:
-                groups[key] = []
-            groups[key].append(entry)
-
-    # 各グループでバイアスを集計
-    for key, entries in groups.items():
-        b = _aggregate_bias(entries)
-        if key == "_all":
-            bias["_all"] = b
-        else:
-            bias["_by_key"][key] = b
-
-    bias["races_analyzed"] = len(st.session_state.results)
-    return bias
-
-
-def _empty_bias():
-    return {"inner_advantage": 0.0, "upset_tendency": 0.0, "model_accuracy": 0.0, "races": 0}
-
-
-def _analyze_single_race(race, result, race_preds, odds_map):
-    """1レース分のバイアスデータを抽出"""
-    winner_num = result.get("1st", 0)
-    entries = race.get("entries", [])
-    winner_entry = next((e for e in entries if e.get("number") == winner_num), None)
-    if not winner_entry:
-        return None
-
-    bracket = winner_entry.get("bracket", 4)
-    inner = 1 if bracket <= 3 else (-1 if bracket >= 6 else 0)
-
-    # AI精度
-    ai_top3 = race_preds.sort_values("win_prob", ascending=False).head(3)["number"].values
-    top3_nums = [result.get("1st", 0), result.get("2nd", 0), result.get("3rd", 0)]
-    ai_hits = sum(1 for n in ai_top3 if n in top3_nums)
-
-    # 波乱度
-    odds_data = odds_map.get(race.get("race_id", ""), {})
-    win_odds = odds_data.get("1", {})
-    winner_str = str(winner_num).zfill(2)
-    winner_pop = int(win_odds[winner_str][2]) if winner_str in win_odds else 0
-    upset = 1 if winner_pop >= 6 else 0
-
-    return {"inner": inner, "ai_hits": ai_hits, "upset": upset}
-
-
-def _aggregate_bias(entries):
-    """レース結果リストからバイアスを集計"""
-    n = len(entries)
-    if n == 0:
-        return _empty_bias()
-    inner_sum = sum(e["inner"] for e in entries)
-    ai_hits_sum = sum(e["ai_hits"] for e in entries)
-    upset_sum = sum(e["upset"] for e in entries)
-
-    return {
-        "inner_advantage": inner_sum / n * 0.3,
-        "upset_tendency": (upset_sum / n - 0.2) * 0.5,
-        "model_accuracy": (ai_hits_sum / (n * 3)) - 0.33,
-        "races": n,
-    }
-
-
-def _get_bias_for_race(bias, race):
-    """レースに最も合うバイアスを3層から選択する"""
-    place = race.get("place_name", "")
-    surface = race.get("surface", "")
-    distance = race.get("distance", 0)
-    dist_cat = _distance_category(distance)
-
-    # 1. 場×芝ダート×距離カテゴリ（最も詳細）
-    key_detail = f"{place}_{surface}_{dist_cat}"
-    if key_detail in bias.get("_by_key", {}) and bias["_by_key"][key_detail]["races"] >= 2:
-        return bias["_by_key"][key_detail], key_detail
-
-    # 2. 場×芝ダート
-    key_surface = f"{place}_{surface}"
-    if key_surface in bias.get("_by_key", {}) and bias["_by_key"][key_surface]["races"] >= 2:
-        return bias["_by_key"][key_surface], key_surface
-
-    # 3. 全体（フォールバック）
-    return bias.get("_all", _empty_bias()), "全体"
-
-
-def apply_correction(race_preds, race, bias):
-    """レースに合ったバイアスで予測を補正する"""
-    if bias.get("races_analyzed", 0) == 0:
-        return race_preds
-
-    b, _ = _get_bias_for_race(bias, race)
-    if b["races"] == 0:
-        return race_preds
-
-    corrected = race_preds.copy()
-    entries = race.get("entries", [])
-
-    for idx, row in corrected.iterrows():
-        num = int(row["number"])
-        entry = next((e for e in entries if e.get("number") == num), None)
-        if not entry:
-            continue
-
-        adj = 1.0
-
-        # 内枠バイアス
-        bracket = entry.get("bracket", 4)
-        if bracket <= 3:
-            adj += b["inner_advantage"]
-        elif bracket >= 6:
-            adj -= b["inner_advantage"]
-
-        # 波乱傾向
-        prob = row["win_prob"]
-        if prob < 0.05:
-            adj += b["upset_tendency"]
-        elif prob > 0.15:
-            adj -= b["upset_tendency"] * 0.5
-
-        corrected.at[idx, "win_prob"] = max(row["win_prob"] * adj, 0.005)
-        corrected.at[idx, "pred_top3_prob"] = max(row["pred_top3_prob"] * adj, 0.01)
-
-    # 正規化
-    total_prob = corrected["win_prob"].sum()
-    if total_prob > 0:
-        corrected["win_prob"] = corrected["win_prob"] / total_prob
-
-    return corrected
-
-
-def calc_upset_score(race_preds, course_features=None):
-    """レースの荒れ度を計算する（高いほど荒れやすい）。
-
-    指標:
-    - 確率の分散が大きい = 混戦 = 荒れやすい
-    - 頭数が多い = 荒れやすい
-    - AI1位の確率が低い = 荒れやすい
-    - コースの過去荒れ度（avg_winner_odds）
-    """
-    probs = race_preds["win_prob"].values
-    if len(probs) == 0:
-        return 50
-
-    sorted_probs = sorted(probs, reverse=True)
+def calc_upset_score(horses):
+    if not horses: return 50
+    probs = [h["win_prob"] for h in horses]
     n = len(probs)
-    top1 = sorted_probs[0]
-    top2 = sorted_probs[1] if n > 1 else 0
-
-    # AI1位の確率が低いほど荒れる（max30点）
-    low_top1 = max(0, min(30, (0.20 - top1) * 200))
-
-    # 1位と2位の差が小さいほど荒れる（max25点）
-    gap = top1 - top2
-    tight_race = max(0, min(25, (0.05 - gap) * 500))
-
-    # 頭数が多いほど荒れる（max20点）
-    many_runners = max(0, min(20, (n - 8) * 2))
-
-    # コースの過去荒れ度（max25点）
-    course_upset = 0
-    if course_features is not None:
-        avg_odds = course_features.get("avg_winner_odds", 8)
-        course_upset = max(0, min(25, (avg_odds - 5) * 2))
-
-    score = int(low_top1 + tight_race + many_runners + course_upset)
-    return min(max(score, 5), 95)
-
-
-def get_comment(row, race_preds, odds_val, pop):
-    """馬ごとのコメントを生成"""
-    comments = []
-    sorted_df = race_preds.sort_values("win_prob", ascending=False)
-    my_rank = list(sorted_df["number"].values).index(row["number"]) + 1 if row["number"] in sorted_df["number"].values else 99
-
-    ev = row["win_prob"] * odds_val if odds_val > 0 else 0
-
-    if my_rank <= 3 and pop <= 3:
-        comments.append("実力通りの評価")
-    elif my_rank <= 3 and pop > 5:
-        comments.append(f"AI{my_rank}位評価だが{pop}番人気で妙味あり")
-    elif my_rank > 8 and pop <= 3:
-        comments.append(f"AI評価低い({my_rank}位)が{pop}番人気。過剰人気の可能性")
-
-    if ev >= 3.0:
-        comments.append(f"EV{ev:.1f}で期待値大")
-    elif ev >= 1.5:
-        comments.append(f"EV{ev:.1f}")
-    elif ev < 0.5 and odds_val > 0:
-        comments.append("オッズに対して割高")
-
-    top3 = row.get("pred_top3_prob", 0)
-    if top3 >= 0.4:
-        comments.append("複勝率高く軸向き")
-    elif top3 < 0.1:
-        comments.append("3着以内も厳しい")
-
-    if not comments:
-        comments.append("-")
-    return "。".join(comments)
-
-
-def get_mark(row, race_preds):
-    """印を決定"""
-    sorted_df = race_preds.sort_values("win_prob", ascending=False)
-    rank = list(sorted_df["number"].values).index(row["number"]) + 1 if row["number"] in sorted_df["number"].values else 99
-    if rank == 1: return "◎"
-    elif rank == 2: return "○"
-    elif rank == 3: return "▲"
-    elif rank <= 5: return "△"
-    else: return ""
+    top1 = probs[0]
+    top2 = probs[1] if n > 1 else 0
+    score = 0
+    score += max(0, min(30, (0.20 - top1) * 200))
+    score += max(0, min(25, (0.05 - (top1 - top2)) * 500))
+    score += max(0, min(20, (n - 8) * 2))
+    return min(max(int(score), 5), 95)
 
 
 # --- メイン ---
 def main():
-    preds_raw = load_predictions()
-    preds_raw["race_id"] = preds_raw["race_id"].astype(str)
-    races = load_target_races()
-    horses = load_horses()
-    all_race_ids = [r["race_id"] for r in races]
-    odds_map = load_odds_from_cache(all_race_ids)
-    backtest = load_backtest()
+    pred_data = load_today_predictions()
 
-    # ライブオッズをセッションに保持
-    if "live_odds" not in st.session_state:
-        st.session_state.live_odds = {}
+    st.markdown("## 🏇 競馬予想AI - 4/25(土)")
 
-    # 自動リフレッシュ時にレース結果を自動取得
+    if pred_data is None:
+        st.warning("⏳ 予測データを生成中... しばらくお待ちください")
+        if st.button("🔄 再読み込み"):
+            st.cache_data.clear()
+            st.rerun()
+        return
+
+    races = pred_data.get("races", [])
+    preds_df = predictions_to_df(pred_data)
+
+    # 自動リフレッシュ時に結果取得
     if auto_refresh_count > 0:
-        from src.scraping.live_results import check_all_results
-        from datetime import datetime
-        new = check_all_results(all_race_ids, st.session_state.results)
-        if new:
-            st.session_state.results.update(new)
-            st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
+        try:
+            from src.scraping.live_results import check_all_results
+            race_ids = [r["race_id"] for r in races]
+            new = check_all_results(race_ids, st.session_state.results)
+            if new:
+                st.session_state.results.update(new)
+                st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
+        except:
+            pass
 
-    # バイアス解析
-    bias = analyze_results(races, preds_raw, odds_map)
-    st.session_state.bias = bias
+    # --- 会場タブ ---
+    venues = []
+    seen = set()
+    for r in races:
+        p = r["place_name"]
+        if p not in seen:
+            venues.append(p)
+            seen.add(p)
 
-    # --- ヘッダー: レース選択 ---
-    st.markdown("## 🏇 競馬予想AI")
+    venue_tabs = st.tabs(["📋 全レース一覧"] + [f"🏟 {v}" for v in venues])
 
-    # 開催日選択
-    dates = sorted(set(r.get("date", "") for r in races))
-    date_labels = {d: "4/18(土)" if "0418" in str(d) else "4/19(日)" for d in dates}
-    selected_date = st.radio("開催日", dates, format_func=lambda d: date_labels.get(d, d), horizontal=True)
+    # ===== タブ0: 全レース一覧 =====
+    with venue_tabs[0]:
+        st.markdown("### 本日の全レース予想")
 
-    day_races = [r for r in races if str(r.get("date", "")) == str(selected_date)]
+        cols = st.columns(len(venues))
+        for col, venue in zip(cols, venues):
+            with col:
+                st.markdown(f"#### {venue}")
+                venue_races = [r for r in races if r["place_name"] == venue]
+                for race in sorted(venue_races, key=lambda x: x["race_id"]):
+                    rid = race["race_id"]
+                    rnum = int(rid[-2:])
+                    done = "✅" if rid in st.session_state.results else ""
+                    top3 = race["horses"][:3]
+                    upset = calc_upset_score(race["horses"])
+                    upset_icon = "🔥" if upset >= 70 else "⚠️" if upset >= 50 else ""
 
-    # 場ごとにレース一覧を横並び表示
-    places_list = sorted(set(r.get("place_name", "") for r in day_races))
-    cols = st.columns(len(places_list))
+                    with st.expander(
+                        f"{done}{rnum}R {race['race_name']} {race['surface']}{race['distance']}m "
+                        f"({race['track_condition']}) {upset_icon}",
+                        expanded=False
+                    ):
+                        # 本命・対抗・三番手
+                        for i, h in enumerate(top3, 1):
+                            mark = get_mark(i)
+                            col_a, col_b, col_c = st.columns([1, 3, 2])
+                            with col_a:
+                                st.markdown(f"**{mark} {h['number']}番**")
+                            with col_b:
+                                st.write(h["horse_name"])
+                                st.caption(h["jockey_name"])
+                            with col_c:
+                                st.write(f"{h['win_prob']:.0%} / {h['place_prob']:.0%}")
+                                if h["win_odds"] > 0:
+                                    ev = h["win_prob"] * h["win_odds"]
+                                    color = "🟢" if ev >= 1.10 else "🔴"
+                                    st.caption(f"{color} EV {ev:.2f} ({h['win_odds']}倍)")
 
-    if "selected_race_id" not in st.session_state:
-        st.session_state.selected_race_id = day_races[0]["race_id"] if day_races else ""
+                        # 三連複本命
+                        if race.get("trio_top5"):
+                            t = race["trio_top5"][0]
+                            nums = t["combo"]
+                            st.caption(f"三連複本命: {nums[0]}-{nums[1]}-{nums[2]} ({t['prob']:.2%})")
 
-    for col, place in zip(cols, places_list):
-        with col:
-            st.markdown(f"**{place}**")
-            place_races = sorted(
-                [r for r in day_races if r.get("place_name", "") == place],
-                key=lambda x: x["race_id"],
-            )
-            for r in place_races:
-                rid = r["race_id"]
-                r_num = rid[-2:]
-                rname = r.get("race_name", "")
-                surface = r.get("surface", "")
-                dist = r.get("distance", 0)
+                        if st.button("詳細を見る", key=f"detail_{rid}", use_container_width=True):
+                            st.session_state.selected_race_id = rid
+                            st.rerun()
+
+    # ===== タブ1〜3: 会場別詳細 =====
+    for tab_idx, (venue_tab, venue) in enumerate(zip(venue_tabs[1:], venues), 1):
+        with venue_tab:
+            venue_races = sorted([r for r in races if r["place_name"] == venue], key=lambda x: x["race_id"])
+
+            # レース選択ボタン
+            race_cols = st.columns(min(len(venue_races), 6))
+            for i, race in enumerate(venue_races):
+                rid = race["race_id"]
+                rnum = int(rid[-2:])
                 done = "✅" if rid in st.session_state.results else ""
-                is_selected = rid == st.session_state.selected_race_id
+                with race_cols[i % 6]:
+                    is_sel = (st.session_state.selected_race_id == rid)
+                    if st.button(
+                        f"{done}{rnum}R\n{race['race_name'][:6]}",
+                        key=f"btn_{rid}",
+                        use_container_width=True,
+                        type="primary" if is_sel else "secondary",
+                    ):
+                        st.session_state.selected_race_id = rid
+                        st.rerun()
 
-                label = f"{done}{r_num}R {rname}"
-                sub = f"{surface}{dist}m"
+            # 選択されたレースがこの会場のものなら詳細表示
+            sel_id = st.session_state.selected_race_id
+            sel_race = next((r for r in venue_races if r["race_id"] == sel_id), None)
+            if sel_race is None:
+                sel_race = venue_races[0] if venue_races else None
+                if sel_race:
+                    st.session_state.selected_race_id = sel_race["race_id"]
 
-                if st.button(
-                    f"{label}\n{sub}",
-                    key=f"race_{rid}",
-                    use_container_width=True,
-                    type="primary" if is_selected else "secondary",
-                ):
-                    st.session_state.selected_race_id = rid
-                    st.rerun()
-
-    # 選択されたレース
-    selected_race = next((r for r in races if r["race_id"] == st.session_state.selected_race_id), day_races[0] if day_races else None)
-    if not selected_race:
-        st.error("レースが見つかりません")
-        return
-
-    st.markdown("---")
-
-    # --- サイドバー ---
-    st.sidebar.title("📊 情報")
-
-    # 本日収支
-    st.sidebar.subheader("💰 本日の収支")
-    inv = st.session_state.bets_today["invested"]
-    ret = st.session_state.bets_today["returned"]
-    roi = ret / inv * 100 if inv > 0 else 0
-    st.sidebar.metric("投資", f"{inv:,}円")
-    st.sidebar.metric("回収", f"{ret:,}円", delta=f"{ret-inv:+,}円")
-    if inv > 0:
-        color = "green" if roi >= 100 else "red"
-        st.sidebar.markdown(f"回収率: :{color}[**{roi:.0f}%**]")
-
-    # 当日バイアス（場×芝ダート別）
-    if bias.get("races_analyzed", 0) > 0:
-        st.sidebar.markdown("---")
-        st.sidebar.subheader("📡 当日バイアス")
-        st.sidebar.caption(f"{bias['races_analyzed']}R分析済み")
-
-        for key, b in sorted(bias.get("_by_key", {}).items()):
-            if "_" not in key or b["races"] < 1:
+            if not sel_race:
                 continue
-            # 場×芝ダートレベルのみ表示（距離カテゴリは詳細すぎる）
-            parts = key.split("_")
-            if len(parts) == 2:
-                label = f"{parts[0]} {parts[1]}"
-                ia = b["inner_advantage"]
-                ut = b["upset_tendency"]
-                枠 = "内有利" if ia > 0.05 else "外有利" if ia < -0.05 else "フラット"
-                傾向 = "荒" if ut > 0.05 else "堅" if ut < -0.05 else "平常"
-                st.sidebar.write(f"**{label}** ({b['races']}R): 枠={枠} / {傾向}")
 
-    # バックテスト
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("📊 バックテスト")
-    if not backtest.empty:
-        for _, row in backtest.iterrows():
-            roi_bt = row.get("roi", 0)
-            color = "green" if roi_bt > 100 else "red"
-            st.sidebar.markdown(f"**{row.get('pattern','')}**: :{color}[{roi_bt:.0f}%]")
+            _show_race_detail(sel_race, preds_df, races)
 
-    # --- メインエリア ---
-    race_id = selected_race["race_id"]
-    race_preds = preds_raw[preds_raw["race_id"] == race_id].copy()
 
-    if race_preds.empty:
-        st.warning("このレースの予測データがありません")
-        return
+def _show_race_detail(race, preds_df, all_races):
+    """レース詳細表示"""
+    rid = race["race_id"]
+    rnum = int(rid[-2:])
+    horses = race["horses"]
+    upset = calc_upset_score(horses)
+    upset_label = "大荒れ" if upset >= 70 else "荒れ" if upset >= 50 else "やや荒れ" if upset >= 30 else "堅い"
 
-    # ライブオッズがあればそちらを使う
-    if race_id in st.session_state.live_odds:
-        odds_map[race_id] = st.session_state.live_odds[race_id]
-
-    # 補正適用
-    race_preds = apply_correction(race_preds, selected_race, bias)
-
-    # ヘッダ
-    # コース特徴を取得
-    import pandas as _cf_pd
-    _cf_path = Path("data/processed/course_features.csv")
-    _course_feat = {}
-    if _cf_path.exists():
-        _cf_df = _cf_pd.read_csv(_cf_path)
-        _place_name = selected_race.get("place_name", "")
-        _surface = selected_race.get("surface", "")
-        _dist = selected_race.get("distance", 0)
-        _match = _cf_df[(_cf_df["place"]==_place_name) & (_cf_df["surface"]==_surface) & (_cf_df["distance"]==_dist)]
-        if not _match.empty:
-            _course_feat = _match.iloc[0].to_dict()
-
-    upset_score = calc_upset_score(race_preds, _course_feat)
-
-    # オッズ更新時刻
-    odds_updated = odds_map.get(race_id, {}).get("_updated", "")
-
-    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
-    with col1:
-        st.title(f"{selected_race.get('place_name','')} {selected_race.get('race_name','')}")
-        st.caption(f"{selected_race.get('surface','')}{selected_race.get('distance','')}m / {selected_race.get('class','')}")
-    with col2:
-        upset_label = "大荒れ" if upset_score >= 70 else "荒れ" if upset_score >= 50 else "やや荒れ" if upset_score >= 30 else "堅い"
-        st.metric("荒れ度", f"{upset_score}% ({upset_label})")
-    with col3:
-        st.metric("出走頭数", f"{len(race_preds)}頭")
-    with col4:
-        if bias.get("races_analyzed", 0) > 0:
-            b_applied, b_key = _get_bias_for_race(bias, selected_race)
-            st.metric("補正", f"{b_applied['races']}R")
-            st.caption(f"({b_key})")
-        else:
-            st.metric("補正", "なし")
-
-    # オッズ更新ボタン
-    odds_col1, odds_col2 = st.columns([1, 3])
-    with odds_col1:
-        if st.button("🔄 オッズ更新", key=f"odds_{race_id}", type="primary"):
-            with st.spinner("最新オッズを取得中..."):
-                live = fetch_live_odds(race_id)
-                if live:
-                    st.session_state.live_odds[race_id] = live
-                    odds_map[race_id] = live
-                    st.success(f"更新完了: {live.get('_updated', '')}")
-                    st.rerun()
-                else:
-                    st.warning("オッズ未発売またはエラー")
-    with odds_col2:
-        if odds_updated:
-            st.caption(f"オッズ更新時刻: {odds_updated}")
-        if race_id in st.session_state.live_odds:
-            odds_status = st.session_state.live_odds[race_id].get("_status", "")
-            st.caption(f"📡 ライブオッズ使用中 ({odds_status})")
-
-    if race_id in st.session_state.results:
-        res = st.session_state.results[race_id]
-        st.success(f"結果入力済み: 1着={res.get('1st','-')}番, 2着={res.get('2nd','-')}番, 3着={res.get('3rd','-')}番")
+    # ライブオッズ取得
+    odds_data = st.session_state.live_odds.get(rid, {})
+    win_odds_api = odds_data.get("1", {})
 
     st.markdown("---")
+    h1, h2, h3, h4 = st.columns([3, 1, 1, 1])
+    with h1:
+        st.subheader(f"{race['place_name']} {rnum}R {race['race_name']}")
+        st.caption(f"{race['surface']}{race['distance']}m / 馬場:{race['track_condition']} / {race.get('start_time','')}発走 / {race['n_horses']}頭")
+    with h2:
+        st.metric("荒れ度", f"{upset}%", upset_label)
+    with h3:
+        o_col1, o_col2 = st.columns(2)
+        with o_col1:
+            if st.button("🔄 オッズ", key=f"odds_{rid}"):
+                with st.spinner("取得中..."):
+                    live = fetch_live_odds(rid)
+                    if live:
+                        st.session_state.live_odds[rid] = live
+                        st.rerun()
+                    else:
+                        st.warning("未発売")
+        with o_col2:
+            if odds_data.get("_status"):
+                st.caption(odds_data["_status"])
+    with h4:
+        if rid in st.session_state.results:
+            res = st.session_state.results[rid]
+            st.success(f"✅ {res.get('1st','-')}→{res.get('2nd','-')}→{res.get('3rd','-')}")
 
     # タブ
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📋 予測一覧", "🎯 推奨買い目", "📈 分析", "✏️ 結果入力", "🏆 WIN5"])
+    t1, t2, t3, t4 = st.tabs(["📋 予測", "🎯 買い目", "🏆 三連系", "✏️ 結果入力"])
 
-    with tab1:
-        odds_data = odds_map.get(race_id, {})
-        win_odds = odds_data.get("1", {})
+    with t1:
+        rows = []
+        for i, h in enumerate(horses, 1):
+            mark = get_mark(i)
+            num_str = str(h["number"]).zfill(2)
+            live_odds_val = float(win_odds_api[num_str][0]) if num_str in win_odds_api else h["win_odds"]
+            pop = int(win_odds_api[num_str][2]) if num_str in win_odds_api else 0
+            ev = h["win_prob"] * live_odds_val if live_odds_val > 0 else 0
+            min_odds = (1.0 / h["win_prob"]) * 1.1 if h["win_prob"] > 0 else 999
 
-        table_rows = []
-        for _, row in race_preds.sort_values("win_prob", ascending=False).iterrows():
-            num = int(row["number"])
-            num_str = str(num).zfill(2)
-            odds_val = float(win_odds[num_str][0]) if num_str in win_odds else 0
-            pop = int(win_odds[num_str][2]) if num_str in win_odds else 0
-            ev = row["win_prob"] * odds_val if odds_val > 0 else 0
+            buy = ""
+            if live_odds_val > 0:
+                buy = "✅ 買い" if ev >= 1.10 else "❌ 見送"
+            elif h["win_prob"] > 0:
+                buy = f"{min_odds:.1f}倍以上"
 
-            hid = ""
-            jockey = ""
-            for e in selected_race.get("entries", []):
-                if e["number"] == num:
-                    hid = e.get("horse_id", "")
-                    jockey = e.get("jockey_name", "")
-                    break
-            sire = horses.get(hid, {}).get("sire", "-")
-            dam_sire = horses.get(hid, {}).get("dam_sire", "-")
-            mark = get_mark(row, race_preds)
-            comment = get_comment(row, race_preds, odds_val, pop)
-
-            table_rows.append({
-                "印": mark, "馬番": num, "馬名": row["horse_name"],
-                "騎手": jockey, "父": sire, "母父": dam_sire,
-                "人気": f"{pop}番" if pop > 0 else "-",
-                "オッズ": f"{odds_val:.1f}" if odds_val > 0 else "-",
-                "勝率": f"{row['win_prob']:.1%}",
-                "複勝率": f"{row['pred_top3_prob']:.1%}",
+            rows.append({
+                "印": mark, "馬番": h["number"], "馬名": h["horse_name"],
+                "騎手": h["jockey_name"], "斤量": h["impost"],
+                "人気": f"{pop}" if pop > 0 else "-",
+                "単勝": f"{live_odds_val:.1f}" if live_odds_val > 0 else "-",
+                "勝率": f"{h['win_prob']:.1%}",
+                "複勝率": f"{h['place_prob']:.1%}",
                 "EV": f"{ev:.2f}" if ev > 0 else "-",
-                "コメント": comment,
+                "判定": buy,
             })
 
         st.dataframe(
-            pd.DataFrame(table_rows),
+            pd.DataFrame(rows),
             use_container_width=True, hide_index=True,
             column_config={
                 "印": st.column_config.TextColumn(width="small"),
                 "馬番": st.column_config.NumberColumn(width="small"),
-                "コメント": st.column_config.TextColumn(width="large"),
+                "判定": st.column_config.TextColumn(width="medium"),
             }
         )
 
-    with tab2:
-        st.subheader("推奨買い目")
-
-        from src.betting.optimizer import build_recommendations
-
-        # 単勝オッズのみ使用（他券種はユーザーが確認）
-        odds_data_t2 = odds_map.get(race_id, {})
-        win_odds_t2 = odds_data_t2.get("1", {})
-        all_odds = {"win": {k: float(v[0]) for k, v in win_odds_t2.items() if v[0]}} if win_odds_t2 else {}
-
-        if all_odds.get("win"):
+    with t2:
+        race_preds = preds_df[preds_df["race_id"] == rid].copy()
+        if not race_preds.empty and win_odds_api:
+            from src.betting.optimizer import build_recommendations
+            all_odds = {"win": {k: float(v[0]) for k, v in win_odds_api.items() if v[0]}}
             result = build_recommendations(race_preds, all_odds, budget=3000)
             groups = result.get("ticket_groups", [])
-
             if groups:
                 for group in groups:
                     bt = group["bet_type"]
-                    total_prob = group["total_prob"]
-                    min_odds = group.get("min_composite_odds", 0)
                     n_bets = group.get("n_bets", 0)
-
-                    # --- 単勝 ---
-                    if bt == "単勝":
-                        with st.container(border=True):
-                            st.markdown(f"**🎯 {bt}**　{n_bets}点")
-                            for p in group["picks"]:
-                                prob = p["prob"]
-                                min_ind = (1.0 / prob) * 1.3 if prob > 0 else 999
-                                current = p["odds"]
-                                c1, c2, c3 = st.columns([1, 2, 2])
-                                with c1:
-                                    st.markdown(f"### {p['numbers']}番")
-                                with c2:
-                                    st.write(f"{p['names']}")
-                                    st.caption(f"的中率 {prob:.1%}")
-                                with c3:
-                                    if current > 0:
-                                        if current >= min_ind:
-                                            st.success(f"{current:.1f}倍 ≧ {min_ind:.1f}倍 → 買い")
-                                        else:
-                                            st.error(f"{current:.1f}倍 < {min_ind:.1f}倍 → 見送り")
-                                    else:
-                                        st.info(f"{min_ind:.1f}倍以上なら買い")
-
-                    # --- ワイド・馬連・馬単 ---
-                    elif bt in ("ワイド", "馬連", "馬単"):
-                        with st.container(border=True):
-                            st.markdown(f"**🎯 {bt}**　{n_bets}点　合成{min_odds:.1f}倍以上")
-                            picks = group["picks"]
-                            # 軸と相手を分離
-                            axis_num = picks[0]["numbers"].split("-")[0].split("→")[0]
-                            partners = []
-                            for p in picks:
-                                parts = p["numbers"].replace("→", "-").split("-")
-                                partner = parts[1] if len(parts) > 1 else parts[0]
-                                partners.append(partner)
-
-                            c1, c2 = st.columns([1, 3])
-                            with c1:
-                                st.markdown(f"### 軸 {axis_num}番")
-                            with c2:
-                                sep = "→" if bt == "馬単" else "−"
-                                st.write(f"相手: **{'　'.join(f'{p}番' for p in partners)}**")
-                                st.caption(f"的中率 {total_prob:.1%}")
-
-                    # --- 三連複 ---
-                    elif bt == "三連複":
-                        with st.container(border=True):
-                            st.markdown(f"**🎯 {bt}**　{n_bets}点　合成{min_odds:.1f}倍以上")
-                            # 軸2頭と相手を抽出
-                            all_nums = set()
-                            for p in group["picks"]:
-                                for x in p["numbers"].split("-"):
-                                    all_nums.add(int(x))
-                            # 最も出現頻度が高い2頭が軸
-                            from collections import Counter
-                            num_count = Counter()
-                            for p in group["picks"]:
-                                for x in p["numbers"].split("-"):
-                                    num_count[int(x)] += 1
-                            sorted_nums = [n for n, _ in num_count.most_common()]
-                            axis = sorted_nums[:2]
-                            partners = sorted(set(sorted_nums[2:]))
-
-                            def _name(num):
-                                r = race_preds[race_preds["number"] == num]["horse_name"].values
-                                return r[0] if len(r) > 0 else ""
-
-                            c1, c2 = st.columns([2, 3])
-                            with c1:
-                                st.markdown(f"### 軸 {axis[0]}−{axis[1]}番")
-                                st.caption(f"{_name(axis[0])}・{_name(axis[1])}")
-                            with c2:
-                                st.write(f"相手: **{'　'.join(f'{p}番' for p in partners)}**")
-                                st.caption(f"的中率 {total_prob:.1%}")
-
-                    # --- 三連単 ---
-                    elif bt == "三連単" and "formation" in group:
-                        with st.container(border=True):
-                            st.markdown(f"**🎯 {bt}**　{n_bets}点　合成{min_odds:.1f}倍以上")
-                            fm = group["formation"]
-                            c1, c2, c3 = st.columns(3)
-                            for col, pos in [(c1, "1着"), (c2, "2着"), (c3, "3着")]:
-                                with col:
-                                    st.markdown(f"**{pos}**")
-                                    for h in fm[pos]:
-                                        st.markdown(f"**{h['num']}番** {h['name']}")
-
-                st.markdown("---")
-                st.markdown(f"**いずれかが的中する確率: {result['any_hit_probability']:.0%}**")
-                st.caption("※ 単勝以外のオッズは各自で確認し、合成オッズが表示基準以上なら購入")
+                    total_prob = group["total_prob"]
+                    min_c_odds = group.get("min_composite_odds", 0)
+                    with st.container(border=True):
+                        st.markdown(f"**🎯 {bt}** {n_bets}点  的中率:{total_prob:.1%}  合成オッズ:{min_c_odds:.1f}倍以上")
+                        for p in group.get("picks", [])[:5]:
+                            c1, c2, c3 = st.columns([2, 2, 2])
+                            with c1: st.write(f"**{p['numbers']}**")
+                            with c2: st.caption(p.get("names",""))
+                            with c3:
+                                cur = p.get("odds", 0)
+                                min_i = (1.0/p["prob"])*1.1 if p.get("prob",0) > 0 else 999
+                                if cur > 0:
+                                    if cur >= min_i: st.success(f"{cur:.1f}倍 → 買い")
+                                    else: st.error(f"{cur:.1f}倍 → 見送")
+                                else:
+                                    st.info(f"{min_i:.1f}倍以上なら買い")
+                st.caption(f"いずれか的中確率: {result['any_hit_probability']:.0%}")
             else:
-                st.info("推奨馬券なし")
-        else:
-            st.warning("オッズデータが読み込めません")
+                st.info("推奨買い目なし（オッズが割に合わない）")
+        elif not win_odds_api:
+            # オッズなしでも確率ベースで表示
+            st.info("💡 「🔄 オッズ」ボタンでオッズを取得すると、EV判定が可能になります")
+            st.markdown("**確率ベースの推奨（EV計算なし）**")
+            top3 = horses[:3]
+            for i, h in enumerate(top3, 1):
+                mark = get_mark(i)
+                min_odds = (1.0/h["win_prob"])*1.1 if h["win_prob"] > 0 else 999
+                st.write(f"{mark} **{h['number']}番 {h['horse_name']}**: 勝率{h['win_prob']:.1%} → {min_odds:.1f}倍以上なら単勝買い")
 
-    with tab3:
-        st.subheader("予測分析")
-        col_a, col_b = st.columns(2)
+            # 三連複
+            if race.get("trio_top5"):
+                st.markdown("---")
+                st.markdown("**三連複本命**")
+                for t in race["trio_top5"][:3]:
+                    nums = t["combo"]
+                    names = [next((h["horse_name"] for h in horses if h["number"]==n), str(n)) for n in nums]
+                    st.write(f"  {nums[0]}-{nums[1]}-{nums[2]}  ({names[0]}/{names[1]}/{names[2]})  {t['prob']:.2%}")
 
-        with col_a:
-            st.markdown("#### 勝率分布")
-            chart_data = race_preds[["horse_name", "win_prob"]].sort_values("win_prob", ascending=True)
-            st.bar_chart(chart_data.set_index("horse_name"), horizontal=True)
+    with t3:
+        st.markdown("#### 三連複 上位5組")
+        if race.get("trio_top5"):
+            rows3 = []
+            for t in race["trio_top5"]:
+                nums = t["combo"]
+                names = "/".join(next((h["horse_name"] for h in horses if h["number"]==n), str(n)) for n in nums)
+                rows3.append({"組み合わせ": f"{nums[0]}-{nums[1]}-{nums[2]}", "馬名": names, "確率": f"{t['prob']:.3%}"})
+            st.dataframe(pd.DataFrame(rows3), hide_index=True, use_container_width=True)
 
-        with col_b:
-            st.markdown("#### AI評価 vs 市場人気")
-            odds_data = odds_map.get(race_id, {})
-            win_odds = odds_data.get("1", {})
-            compare_rows = []
-            for _, row in race_preds.iterrows():
-                num_str = str(int(row["number"])).zfill(2)
-                if num_str in win_odds:
-                    odds_val = float(win_odds[num_str][0])
-                    market_prob = 1 / odds_val if odds_val > 0 else 0
-                    compare_rows.append({
-                        "馬名": row["horse_name"],
-                        "AI勝率": row["win_prob"],
-                        "市場確率": market_prob,
-                    })
-            if compare_rows:
-                st.bar_chart(pd.DataFrame(compare_rows).set_index("馬名"))
+        st.markdown("#### 三連単 上位5組")
+        if race.get("trifecta_top5"):
+            rows4 = []
+            for t in race["trifecta_top5"]:
+                nums = t["combo"]
+                names = "→".join(next((h["horse_name"] for h in horses if h["number"]==n), str(n)) for n in nums)
+                rows4.append({"組み合わせ": f"{nums[0]}→{nums[1]}→{nums[2]}", "馬名": names, "確率": f"{t['prob']:.3%}"})
+            st.dataframe(pd.DataFrame(rows4), hide_index=True, use_container_width=True)
 
-        bt_img = Path("outputs/backtest_daily_roi.png")
-        if bt_img.exists():
-            st.markdown("#### バックテスト 日別回収率")
-            st.image(str(bt_img))
-
-    with tab4:
-        st.subheader("✏️ レース結果入力")
-
-        # 自動取得セクション
-        from src.scraping.live_results import check_all_results
-        from datetime import datetime
-
-        auto_col1, auto_col2, auto_col3 = st.columns([1, 1, 2])
-        with auto_col1:
-            if st.button("📡 全レース結果を取得", type="primary", use_container_width=True):
-                day_race_ids = [r["race_id"] for r in day_races]
-                with st.spinner("結果を取得中..."):
-                    new = check_all_results(day_race_ids, st.session_state.results)
+    with t4:
+        auto_c1, auto_c2 = st.columns([1, 2])
+        with auto_c1:
+            if st.button("📡 結果を自動取得", type="primary", use_container_width=True, key=f"auto_{rid}"):
+                try:
+                    from src.scraping.live_results import check_all_results
+                    new = check_all_results([rid], st.session_state.results)
                     if new:
                         st.session_state.results.update(new)
-                        st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
-                        st.success(f"{len(new)}レースの結果を取得しました")
+                        st.success("取得完了")
                         st.rerun()
                     else:
-                        st.session_state.last_fetch_time = datetime.now().strftime("%H:%M:%S")
-                        st.info("新しい確定結果はありません")
-        with auto_col2:
-            confirmed = sum(1 for r in day_races if r["race_id"] in st.session_state.results)
-            st.metric("確定済み", f"{confirmed}/{len(day_races)}R")
-        with auto_col3:
+                        st.info("結果未確定")
+                except Exception as e:
+                    st.error(str(e))
+        with auto_c2:
             if st.session_state.last_fetch_time:
                 st.caption(f"最終取得: {st.session_state.last_fetch_time}")
-            st.caption("レース確定後にボタンを押すと自動取得します")
 
-        st.markdown("---")
-        st.caption("手動入力も可能です")
-
-        entries = selected_race.get("entries", [])
         horse_options = {0: "（未選択）"}
-        for e in sorted(entries, key=lambda x: x.get("number", 0)):
-            horse_options[e["number"]] = f"{e['number']}番 {e.get('horse_name', '')}"
+        for h in sorted(horses, key=lambda x: x["number"]):
+            horse_options[h["number"]] = f"{h['number']}番 {h['horse_name']}"
+        existing = st.session_state.results.get(rid, {})
 
-        existing = st.session_state.results.get(race_id, {})
-
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            first = st.selectbox("🥇 1着", options=list(horse_options.keys()),
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            first = st.selectbox("🥇 1着", list(horse_options.keys()),
                                  format_func=lambda x: horse_options[x],
-                                 index=list(horse_options.keys()).index(existing.get("1st", 0)) if existing.get("1st", 0) in horse_options else 0,
-                                 key=f"1st_{race_id}")
-        with col2:
-            second = st.selectbox("🥈 2着", options=list(horse_options.keys()),
+                                 index=list(horse_options.keys()).index(existing.get("1st",0)) if existing.get("1st",0) in horse_options else 0,
+                                 key=f"1st_{rid}")
+        with c2:
+            second = st.selectbox("🥈 2着", list(horse_options.keys()),
                                   format_func=lambda x: horse_options[x],
-                                  index=list(horse_options.keys()).index(existing.get("2nd", 0)) if existing.get("2nd", 0) in horse_options else 0,
-                                  key=f"2nd_{race_id}")
-        with col3:
-            third = st.selectbox("🥉 3着", options=list(horse_options.keys()),
+                                  index=list(horse_options.keys()).index(existing.get("2nd",0)) if existing.get("2nd",0) in horse_options else 0,
+                                  key=f"2nd_{rid}")
+        with c3:
+            third = st.selectbox("🥉 3着", list(horse_options.keys()),
                                  format_func=lambda x: horse_options[x],
-                                 index=list(horse_options.keys()).index(existing.get("3rd", 0)) if existing.get("3rd", 0) in horse_options else 0,
-                                 key=f"3rd_{race_id}")
+                                 index=list(horse_options.keys()).index(existing.get("3rd",0)) if existing.get("3rd",0) in horse_options else 0,
+                                 key=f"3rd_{rid}")
 
-        col_save, col_clear = st.columns(2)
-        with col_save:
-            if st.button("💾 結果を保存", key=f"save_{race_id}", type="primary", use_container_width=True):
+        sc1, sc2 = st.columns(2)
+        with sc1:
+            if st.button("💾 保存", key=f"save_{rid}", type="primary", use_container_width=True):
                 if first > 0 and second > 0 and third > 0:
-                    st.session_state.results[race_id] = {"1st": first, "2nd": second, "3rd": third}
-                    st.success(f"保存しました！（{len(st.session_state.results)}レース分のバイアス解析に反映）")
+                    st.session_state.results[rid] = {"1st": first, "2nd": second, "3rd": third}
+                    # 的中チェック
+                    pred_1st = horses[0]["number"] if horses else 0
+                    hit = "★的中" if first == pred_1st else ""
+                    st.success(f"保存しました {hit}")
                     st.rerun()
                 else:
-                    st.error("1着〜3着を全て選択してください")
-        with col_clear:
-            if st.button("🗑️ クリア", key=f"clear_{race_id}", use_container_width=True):
-                if race_id in st.session_state.results:
-                    del st.session_state.results[race_id]
-                    st.rerun()
+                    st.error("1〜3着を全て選択してください")
+        with sc2:
+            if st.button("🗑️ クリア", key=f"clear_{rid}", use_container_width=True):
+                st.session_state.results.pop(rid, None)
+                st.rerun()
 
-        # 入力済みレース一覧
+        # --- 収支サマリー（結果入力済みレース）---
         if st.session_state.results:
             st.markdown("---")
-            st.markdown("#### 入力済みレース")
-            for rid, res in st.session_state.results.items():
-                race_info = next((r for r in races if r["race_id"] == rid), {})
-                place = race_info.get("place_name", "")
-                name = race_info.get("race_name", "")
-                r_num = rid[-2:]
-                st.write(f"✅ {place} {r_num}R {name}: {res['1st']}→{res['2nd']}→{res['3rd']}")
-
-            st.markdown("---")
-            st.markdown("#### 解析結果（場×芝ダート別）")
-            full_bias = st.session_state.bias
-            for key, b in sorted(full_bias.get("_by_key", {}).items()):
-                if "_" not in key or b.get("races", 0) < 1:
-                    continue
-                parts = key.split("_")
-                if len(parts) == 2:
-                    label = f"{parts[0]} {parts[1]}"
-                    ia = b.get("inner_advantage", 0)
-                    ut = b.get("upset_tendency", 0)
-                    ma = b.get("model_accuracy", 0)
-                    col1, col2, col3, col4 = st.columns(4)
-                    with col1:
-                        st.metric(label, f"{b['races']}R")
-                    with col2:
-                        st.metric("枠", "内有利" if ia > 0.05 else "外有利" if ia < -0.05 else "フラット",
-                                  delta=f"{ia:+.2f}")
-                    with col3:
-                        st.metric("傾向", "荒" if ut > 0.05 else "堅" if ut < -0.05 else "平常",
-                                  delta=f"{ut:+.2f}")
-                    with col4:
-                        st.metric("AI精度", "好調" if ma > 0.05 else "不調" if ma < -0.05 else "通常",
-                                  delta=f"{ma:+.2f}")
-
-
-    with tab5:
-        st.subheader("🏆 WIN5 予測")
-
-        from src.betting.win5 import generate_win5, analyze_win5_races
-
-        # WIN5対象レースをnetkeibaから取得
-        import re as _re
-        import requests as _req
-        try:
-            _resp = _req.get("https://race.netkeiba.com/top/win5.html",
-                           headers={"User-Agent": "horse-racing-ai research bot"}, timeout=10)
-            _resp.encoding = "utf-8"
-            _win5_html = _resp.text
-            _win5_ids = _re.findall(r"race_id=(\d{12})", _win5_html)
-            # 重複除去して順序保持
-            _win5_ids = list(dict.fromkeys(_win5_ids))
-        except:
-            _win5_ids = []
-
-        win5_candidates = []
-        for wid in _win5_ids:
-            matched = next((r for r in races if r["race_id"] == wid), None)
-            if matched:
-                win5_candidates.append(matched)
-
-        if len(win5_candidates) < 5:
-            st.warning(f"WIN5対象レースが{len(win5_candidates)}レースしか見つかりません")
-        else:
-            st.markdown("#### 対象レース")
-            for i, r in enumerate(win5_candidates[:5], 1):
-                rid = r["race_id"]
-                place = r.get("place_name", "")
-                rname = r.get("race_name", "")
-                surface = r.get("surface", "")
-                dist = r.get("distance", 0)
-                st.write(f"**{i}R目**: {place} {rid[-2:]}R {rname} ({surface}{dist}m)")
-
-            st.markdown("---")
-
-            # 各レースのAI上位馬（補正後データを使用）
-            # 各WIN5対象レースにバイアス補正を適用
-            target_ids = [r["race_id"] for r in win5_candidates[:5]]
-
-            corrected_preds = preds_raw.copy()
-            corrected_preds["race_id"] = corrected_preds["race_id"].astype(str)
-            for wr in win5_candidates[:5]:
-                wrid = wr["race_id"]
-                wrp = corrected_preds[corrected_preds["race_id"] == wrid].copy()
-                if wrp.empty: continue
-                p = wrp["pred_top3_prob"].values
-                t = p.sum()
-                wrp["win_prob"] = p / t if t > 0 else 1.0/len(wrp)
-                wrp = apply_correction(wrp, wr, bias)
-                corrected_preds.loc[wrp.index, "win_prob"] = wrp["win_prob"]
-
-            race_predictions = analyze_win5_races(corrected_preds, target_ids)
-
-            if len(race_predictions) == 5:
-                # 各レース上位表示
-                st.markdown("#### 各レースのAI予測（上位3頭）")
-                for rp in race_predictions:
-                    cols = st.columns([1, 3])
-                    with cols[0]:
-                        st.write(f"**{rp['race_name']}**")
-                    with cols[1]:
-                        top3 = rp["picks"][:3]
-                        st.write(" / ".join(f"{p['num']}番{p['name']}({p['prob']:.0%})" for p in top3))
-
-                st.markdown("---")
-
-                # WIN5組み合わせ生成
-                max_per_race = st.select_slider("各レースの候補頭数", [1, 2, 3], value=2)
-                combos = generate_win5(race_predictions, max_per_race=max_per_race, max_combos=30)
-
-                total_points = max_per_race ** 5
-                st.markdown(f"#### 組み合わせ（{total_points}通り中 上位{len(combos)}通り）")
-
-                if combos:
-                    combo_data = []
-                    for i, c in enumerate(combos, 1):
-                        row = {"#": i, "的中率": f"{c.probability:.4%}"}
-                        for j, (rid, rname, num, name, prob) in enumerate(c.picks, 1):
-                            row[f"{j}R目"] = f"{num}番{name}"
-                        combo_data.append(row)
-
-                    st.dataframe(pd.DataFrame(combo_data), hide_index=True, use_container_width=True)
-
-                    st.caption(f"1点100円 × {total_points}通り = {total_points * 100:,}円")
-                    st.caption(f"上位1通りの的中率: {combos[0].probability:.2%}")
-            else:
-                st.warning("対象レースの予測データが不足しています")
+            st.markdown("#### 本日の結果サマリー")
+            hit_count = 0
+            for r_id, res in st.session_state.results.items():
+                r_info = next((r for r in all_races if r["race_id"] == r_id), None)
+                if not r_info: continue
+                pred_1 = r_info["horses"][0]["number"] if r_info.get("horses") else 0
+                actual_1 = res.get("1st", 0)
+                is_hit = (pred_1 == actual_1)
+                if is_hit: hit_count += 1
+                rn = int(r_id[-2:])
+                icon = "✅" if is_hit else "❌"
+                st.write(f"{icon} {r_info['place_name']}{rn}R: 予測{pred_1}番 → 実際{actual_1}番")
+            total = len(st.session_state.results)
+            st.metric("単勝的中率", f"{hit_count}/{total} = {hit_count/total*100:.0f}%" if total > 0 else "0/0")
 
 
 if __name__ == "__main__":

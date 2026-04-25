@@ -87,25 +87,39 @@ def compute_race_probabilities(race_df: pd.DataFrame) -> dict:
         trifecta: {(1着,2着,3着): 確率}
         trio: {frozenset: 確率}
     """
-    probs = race_df["pred_top3_prob"].values.copy()
     numbers = race_df["number"].values.copy()
-    n = len(probs)
+    n = len(numbers)
 
-    # 確率を正規化（Plackett-Luceの強さパラメータとして使用）
-    probs = np.maximum(probs, 1e-6)
+    # Plackett-Luceの強さパラメータ
+    # pred_strength（生のodds比）があればそれを使用、なければpred_top3_probにフォールバック
+    if "pred_strength" in race_df.columns:
+        strengths = race_df["pred_strength"].values.copy()
+    else:
+        strengths = race_df["pred_top3_prob"].values.copy()
+    strengths = np.maximum(strengths, 1e-6)
 
-    # 単勝確率: PLモデルの1着確率
-    total = probs.sum()
-    win_probs = probs / total
+    # 単勝確率: winモデルがあればpred_win_prob、なければPL強さから導出
+    if "pred_win_prob" in race_df.columns:
+        win_probs = race_df["pred_win_prob"].values.copy()
+        win_probs = np.maximum(win_probs, 1e-6)
+        # 正規化（合計=1を保証）
+        win_total = win_probs.sum()
+        if win_total > 0:
+            win_probs = win_probs / win_total
+    else:
+        total = strengths.sum()
+        win_probs = strengths / total if total > 0 else np.ones(n) / n
 
-    # 複勝確率: 3着以内に入る確率（正規化済み）
-    place_probs = race_df["pred_top3_prob_norm"].values.copy() if "pred_top3_prob_norm" in race_df.columns else probs / total * 3
+    # 複勝確率: キャリブレーション済みのpred_top3_probを使用
+    place_raw = race_df["pred_top3_prob"].values.copy()
+    place_raw = np.maximum(place_raw, 1e-6)
+    place_probs = np.minimum(place_raw, 0.99)
 
     win = dict(zip(numbers, win_probs))
-    place = dict(zip(numbers, np.minimum(place_probs, 0.99)))
+    place = dict(zip(numbers, place_probs))
 
-    # 三連複・三連単
-    pl_result = plackett_luce_top3(probs, numbers)
+    # 三連複・三連単: 強さパラメータで計算（winモデルのstrengthを使用）
+    pl_result = plackett_luce_top3(strengths, numbers)
 
     return {
         "win": win,
