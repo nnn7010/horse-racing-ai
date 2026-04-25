@@ -438,21 +438,31 @@ async function refreshOdds() {{
 refreshOdds();
 setInterval(refreshOdds, 30000);
 
-// レース別オッズ更新（CORSプロキシ経由でnetkeiba直接フェッチ）
-const CORS_PROXIES = [
-  'https://api.allorigins.win/raw?url=',
-  'https://corsproxy.io/?',
-];
+// レース別オッズ更新ボタン
+// 1) サーバー側 odds.json を即時再取得（必ず成功）
+// 2) 並行して netkeiba 直接フェッチを試みる（成功すれば上書き）
+async function fetchWithTimeout(url, ms = 5000) {{
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try {{
+    const r = await fetch(url, {{signal: ctrl.signal, cache: 'no-store'}});
+    return r;
+  }} finally {{
+    clearTimeout(id);
+  }}
+}}
 
-async function fetchOddsViaProxy(raceId) {{
+async function fetchProxyOdds(raceId) {{
   const target = `https://race.netkeiba.com/api/api_get_jra_odds.html?race_id=${{raceId}}&type=1&action=update`;
-  for (const proxy of CORS_PROXIES) {{
+  const proxies = [
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(target),
+    'https://corsproxy.io/?' + encodeURIComponent(target),
+  ];
+  for (const p of proxies) {{
     try {{
-      const resp = await fetch(proxy + encodeURIComponent(target), {{
-        headers: {{'Accept': 'application/json'}},
-      }});
-      if (!resp.ok) continue;
-      const data = await resp.json();
+      const r = await fetchWithTimeout(p, 4000);
+      if (!r.ok) continue;
+      const data = await r.json();
       if (data && data.data && data.data.odds && data.data.odds['1']) {{
         const out = {{}};
         for (const [k, v] of Object.entries(data.data.odds['1'])) {{
@@ -461,50 +471,77 @@ async function fetchOddsViaProxy(raceId) {{
         return out;
       }}
     }} catch (e) {{
-      console.warn('Proxy failed:', proxy, e);
+      console.warn('proxy', p.slice(0, 30), 'failed:', e.message);
     }}
   }}
   return null;
+}}
+
+async function fetchServerOddsForRace(raceId) {{
+  try {{
+    const r = await fetchWithTimeout('odds.json?t=' + Date.now(), 3000);
+    if (!r.ok) return null;
+    const data = await r.json();
+    return {{
+      odds: (data.odds && data.odds[raceId]) || null,
+      updated: data.updated || null,
+    }};
+  }} catch (e) {{
+    return null;
+  }}
+}}
+
+function applyOddsToRace(rid, oddsMap) {{
+  let n = 0;
+  document.querySelectorAll(`.odds-cell[data-rid="${{rid}}"]`).forEach(td => {{
+    const num = td.dataset.num;
+    let v = oddsMap[num];
+    // server data形式 ({{win, place}}) に対応
+    if (v && typeof v === 'object') v = v.win;
+    if (v && v > 0) {{
+      const oldVal = td.textContent.trim();
+      const newVal = parseFloat(v).toFixed(1);
+      if (oldVal !== newVal) {{
+        td.classList.add('odds-flash');
+        setTimeout(() => td.classList.remove('odds-flash'), 1200);
+      }}
+      td.textContent = newVal;
+      n++;
+    }}
+  }});
+  return n;
 }}
 
 async function updateRaceOdds(btn) {{
   const rid = btn.dataset.rid;
   const status = document.querySelector(`.race-odds-status[data-rid="${{rid}}"]`);
   btn.disabled = true;
-  btn.textContent = '⏳ 取得中...';
+  btn.textContent = '⏳';
   status.className = 'race-odds-status';
-  status.textContent = '';
+  status.textContent = '取得中...';
 
-  const odds = await fetchOddsViaProxy(rid);
-  if (odds) {{
-    let n = 0;
-    document.querySelectorAll(`.odds-cell[data-rid="${{rid}}"]`).forEach(td => {{
-      const num = td.dataset.num;
-      const v = odds[num];
-      if (v && v > 0) {{
-        const oldVal = td.textContent.trim();
-        const newVal = v.toFixed(1);
-        if (oldVal !== newVal) {{
-          td.classList.add('odds-flash');
-          setTimeout(() => td.classList.remove('odds-flash'), 1200);
-        }}
-        td.textContent = newVal;
-        n++;
-      }}
-    }});
+  // まずサーバー版を反映（必ず成功するよう）
+  const server = await fetchServerOddsForRace(rid);
+  if (server && server.odds) {{
+    const n = applyOddsToRace(rid, server.odds);
     status.className = 'race-odds-status ok';
-    const t = new Date().toLocaleTimeString('ja-JP', {{hour: '2-digit', minute: '2-digit', second: '2-digit'}});
-    status.textContent = `✓ ${{n}}頭更新 ${{t}}`;
+    status.textContent = `サーバー版 ${{n}}頭 (${{server.updated || '?'}})`;
   }} else {{
     status.className = 'race-odds-status err';
-    status.textContent = '✗ プロキシ経由取得失敗（odds.jsonにフォールバック中...）';
-    // フォールバック: サーバー側 odds.json
-    await refreshOdds();
-    status.textContent = `△ サーバー版で更新`;
+    status.textContent = 'サーバー版取得失敗';
+  }}
+
+  // 並行してプロキシ経由のライブ取得を試みる
+  const live = await fetchProxyOdds(rid);
+  if (live) {{
+    const n = applyOddsToRace(rid, live);
+    status.className = 'race-odds-status ok';
+    const t = new Date().toLocaleTimeString('ja-JP', {{hour: '2-digit', minute: '2-digit', second: '2-digit'}});
+    status.textContent = `🟢 ライブ ${{n}}頭 ${{t}}`;
   }}
 
   btn.disabled = false;
-  btn.textContent = '🔄 オッズ更新';
+  btn.textContent = '🔄 更新';
 }}
 </script>
 </body>
