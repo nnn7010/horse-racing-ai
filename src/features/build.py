@@ -7,8 +7,6 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-from src.features.pedigree import encode_sire_lines
-from src.features.pedigree_dict import classify_sire_line
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -217,14 +215,27 @@ def _add_pedigree_features(df: pd.DataFrame, horses_df: pd.DataFrame) -> pd.Data
     if not has_sire:
         return df
 
-    # 系統分類
-    for col in ["sire", "dam_sire", "dam_dam_sire"]:
-        if col in df.columns:
-            line_col = f"{col}_line"
-            df[line_col] = df[col].fillna("").apply(classify_sire_line)
+    # 父の全体複勝率・勝率（ベイズ平滑化）
+    if all(c in df.columns for c in ["sire", "finish_position"]):
+        df["_s1"] = (df["finish_position"] == 1).astype(float)
+        df["_s3"] = (df["finish_position"] <= 3).astype(float)
+        sire_runs = df.groupby("sire").cumcount()
+        raw_sire_win = df.groupby("sire")["_s1"].transform(lambda x: x.expanding().mean().shift(1))
+        raw_sire_t3 = df.groupby("sire")["_s3"].transform(lambda x: x.expanding().mean().shift(1))
+        df["sire_win_rate"] = (raw_sire_win * sire_runs + 0.08 * 10) / (sire_runs + 10)
+        df["sire_top3_rate"] = (raw_sire_t3 * sire_runs + 0.21 * 10) / (sire_runs + 10)
+        df.drop(["_s1", "_s3"], axis=1, inplace=True)
 
-    # 系統をone-hotエンコード
-    df = encode_sire_lines(df)
+    # 母父の全体複勝率・勝率（ベイズ平滑化）
+    if all(c in df.columns for c in ["dam_sire", "finish_position"]):
+        df["_d1"] = (df["finish_position"] == 1).astype(float)
+        df["_d3"] = (df["finish_position"] <= 3).astype(float)
+        ds_runs = df.groupby("dam_sire").cumcount()
+        raw_ds_win = df.groupby("dam_sire")["_d1"].transform(lambda x: x.expanding().mean().shift(1))
+        raw_ds_t3 = df.groupby("dam_sire")["_d3"].transform(lambda x: x.expanding().mean().shift(1))
+        df["dam_sire_win_rate"] = (raw_ds_win * ds_runs + 0.08 * 10) / (ds_runs + 10)
+        df["dam_sire_top3_rate"] = (raw_ds_t3 * ds_runs + 0.21 * 10) / (ds_runs + 10)
+        df.drop(["_d1", "_d3"], axis=1, inplace=True)
 
     # 父のコース別複勝率（累積・ベイズ平滑化）
     if all(c in df.columns for c in ["sire", "surface", "distance", "finish_position"]):
@@ -295,7 +306,7 @@ def get_feature_columns(df: pd.DataFrame) -> list[str]:
         "horse_name", "jockey_name", "trainer_name", "jockey_id", "trainer_id",
         "sire", "dam_sire", "dam_dam_sire", "surface", "track_condition",
         "class", "race_name", "time_str", "margin", "passing", "sex_age",
-        "place_code", "sire_line", "dam_sire_line", "dam_dam_sire_line",
+        "place_code",
         "win_odds", "place_odds",
         "target", "popularity", "time", "last_3f",  # prevent leakage
         "jockey_rides", "last_3f_rank", "prev_class_num", "sire_course_runs",  # intermediate cols

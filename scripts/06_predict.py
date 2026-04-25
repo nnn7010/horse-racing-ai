@@ -23,7 +23,7 @@ logger = get_logger("06_predict")
 
 def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
     """過去データから各エンティティの最新統計を辞書化する。"""
-    lookup = {"horse": {}, "jockey": {}, "trainer": {}, "combo": {}}
+    lookup = {"horse": {}, "jockey": {}, "trainer": {}, "combo": {}, "sire": {}, "dam_sire": {}}
 
     if hist_df.empty:
         return lookup
@@ -81,6 +81,19 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
                 "combo_rides": last.get("combo_rides", 0) if pd.notna(last.get("combo_rides")) else 0,
             }
 
+    # 父・母父の統計（features.parquetに計算済みの場合）
+    for sire_col, key in [("sire", "sire"), ("dam_sire", "dam_sire")]:
+        win_col = f"{sire_col}_win_rate" if sire_col == "sire" else "dam_sire_win_rate"
+        t3_col = f"{sire_col}_top3_rate" if sire_col == "sire" else "dam_sire_top3_rate"
+        course_col = "sire_course_top3_rate" if sire_col == "sire" else "damsire_course_top3_rate"
+        if sire_col in hist_df.columns and win_col in hist_df.columns:
+            for sname, g in hist_df[hist_df[sire_col].notna()].groupby(sire_col):
+                last = g.iloc[-1]
+                lookup[key][sname] = {
+                    win_col: float(last.get(win_col, 0.08)) if pd.notna(last.get(win_col)) else 0.08,
+                    t3_col: float(last.get(t3_col, 0.21)) if pd.notna(last.get(t3_col)) else 0.21,
+                }
+
     return lookup
 
 
@@ -122,10 +135,6 @@ def main():
                     "dam_dam_sire": h.get("dam_dam_sire", ""),
                 }
         logger.info(f"Pedigree lookup: {len(pedigree_lookup)} horses")
-
-    # 血統系統分類
-    from src.features.pedigree_dict import classify_sire_line
-    from src.features.pedigree import encode_sire_lines
 
     # 能力パラメータ読み込み
     ability_file = processed_dir / "ability_features.csv"
@@ -257,13 +266,16 @@ def main():
             # 血統情報をマージ
             if hid in pedigree_lookup:
                 ped = pedigree_lookup[hid]
-                for ped_col in ["sire", "dam_sire", "dam_dam_sire"]:
-                    sire_name = ped.get(ped_col, "")
-                    line = classify_sire_line(sire_name)
-                    # 系統one-hot
-                    for line_name in ["サンデーサイレンス系", "ノーザンダンサー系", "ミスプロ系", "ネイティヴダンサー系", "ナスルーラ系", "その他"]:
-                        prefix = {"sire": "sire_line", "dam_sire": "damsire_line", "dam_dam_sire": "damdamsire_line"}[ped_col]
-                        row[f"{prefix}_{line_name}"] = 1 if line == line_name else 0
+                sire_name = ped.get("sire", "")
+                dam_sire_name = ped.get("dam_sire", "")
+                row["sire"] = sire_name
+                row["dam_sire"] = dam_sire_name
+                # 父の統計
+                if sire_name in lookup["sire"]:
+                    row.update(lookup["sire"][sire_name])
+                # 母父の統計
+                if dam_sire_name in lookup["dam_sire"]:
+                    row.update(lookup["dam_sire"][dam_sire_name])
 
             rows.append(row)
 
