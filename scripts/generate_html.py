@@ -6,6 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 PRED_FILE = ROOT / "data/raw/today_predictions.json"
+TRENDS_FILE = ROOT / "data/raw/today_trends.json"
+RESULTS_FILE = ROOT / "data/raw/today_results.json"
 OUT_FILE = ROOT / "docs/index.html"
 
 
@@ -55,9 +57,73 @@ def render_race(race, race_num):
     )
 
 
+def render_trends(trends: dict, results: dict) -> str:
+    """コース傾向セクションのHTMLを生成する。"""
+    if not trends:
+        return ""
+
+    cards = ""
+    for venue, t in trends.items():
+        n = t["completed"]
+        if n == 0:
+            continue
+
+        pw = t["pop_wins"]
+        pw = {k: int(v) for k, v in t["pop_wins"].items()}
+        fav_color = "#00e676" if t["fav_trust"] == "高" else "#ffeb3b" if t["fav_trust"] == "中" else "#ef5350"
+        bracket_color = "#64b5f6" if "内枠" in t["bracket_bias"] else "#ffb74d" if "外枠" in t["bracket_bias"] else "#aaa"
+
+        # 直近結果リスト
+        recent = ""
+        for r in reversed(t["races"][-5:]):
+            pop_str = f"{r['winner_pop']}番人気" if r["winner_pop"] <= 18 else "?"
+            recent += (
+                f'<tr><td>{r["race_name"]}</td>'
+                f'<td>{r["winner_num"]}番 {r["winner_name"]}</td>'
+                f'<td>{pop_str}</td>'
+                f'<td>{r["winner_odds"]:.1f}倍</td></tr>'
+            )
+
+        cards += f"""
+<div class="tc">
+  <div class="tc-h">🏟 {venue} <span class="tc-n">{n}R完了</span></div>
+  <div class="tc-row">
+    <div class="tc-item">
+      <div class="tc-label">枠順傾向</div>
+      <div class="tc-val" style="color:{bracket_color}">{t["bracket_bias"]}</div>
+      <div class="tc-sub">内{t["inner_wins"]}勝 外{t["outer_wins"]}勝</div>
+    </div>
+    <div class="tc-item">
+      <div class="tc-label">1番人気信頼度</div>
+      <div class="tc-val" style="color:{fav_color}">{t["fav_trust"]}</div>
+      <div class="tc-sub">{pw.get(1,0)}勝/{n}R ({pw.get(1,0)*100//n if n else 0}%)</div>
+    </div>
+    <div class="tc-item">
+      <div class="tc-label">平均勝ちオッズ</div>
+      <div class="tc-val">{t["avg_winner_odds"]}倍</div>
+      <div class="tc-sub">2番人気{pw.get(2,0)}勝 3番人気{pw.get(3,0)}勝</div>
+    </div>
+  </div>
+  <table class="tc-tbl"><thead><tr><th>レース</th><th>勝ち馬</th><th>人気</th><th>オッズ</th></tr></thead>
+  <tbody>{recent}</tbody></table>
+</div>"""
+
+    return f'<div class="trends"><h2>📊 本日の傾向</h2>{cards}</div>'
+
+
 def generate():
     with open(PRED_FILE, encoding="utf-8") as f:
         data = json.load(f)
+
+    trends = {}
+    if TRENDS_FILE.exists():
+        with open(TRENDS_FILE, encoding="utf-8") as f:
+            trends = json.load(f)
+
+    results = {}
+    if RESULTS_FILE.exists():
+        with open(RESULTS_FILE, encoding="utf-8") as f:
+            results = json.load(f)
 
     import datetime
     date = datetime.date.today().strftime("%Y/%m/%d")
@@ -66,6 +132,8 @@ def generate():
     venues = {}
     for race in races:
         venues.setdefault(race["place_name"], []).append(race)
+
+    trend_html = render_trends(trends, results)
 
     sections = ""
     for venue, vraces in venues.items():
@@ -106,10 +174,23 @@ td:nth-child(6){{color:#4caf50}}
 .bt{{display:grid;grid-template-columns:1fr 1fr;gap:10px}}
 @media(max-width:420px){{.bt{{grid-template-columns:1fr}}}}
 .upd{{color:#555;font-size:.72em;text-align:right;margin-top:12px}}
+.trends{{margin-bottom:14px}}
+.tc{{background:#1a1a2e;border:1px solid #334;border-radius:8px;padding:10px;margin-bottom:8px}}
+.tc-h{{color:#90caf9;font-weight:bold;font-size:.9em;margin-bottom:8px}}
+.tc-n{{color:#666;font-size:.8em;font-weight:normal;margin-left:6px}}
+.tc-row{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}}
+.tc-item{{background:#111;border-radius:6px;padding:6px 8px;text-align:center}}
+.tc-label{{color:#888;font-size:.72em;margin-bottom:2px}}
+.tc-val{{font-size:1em;font-weight:bold}}
+.tc-sub{{color:#666;font-size:.7em;margin-top:2px}}
+.tc-tbl td,.tc-tbl th{{font-size:.75em;padding:3px 4px}}
+.tc-tbl th:nth-child(2){{text-align:left}}
+.tc-tbl td:nth-child(2){{text-align:left}}
 </style>
 </head>
 <body>
 <h1>🏇 競馬予想 {date}</h1>
+{trend_html}
 {sections}
 <p class="upd">更新: {updated}</p>
 </body>

@@ -331,8 +331,13 @@ def main():
             num = int(row.get("number", 0))
             num_str = str(num).zfill(2)
             odds_val = race_win_odds.get(num_str, 0)
+            # 枠番をentriesから逆引き
+            bracket = next(
+                (e.get("bracket", 0) for e in entries if e.get("number") == num), 0
+            )
             horses_json.append({
                 "number": num,
+                "bracket": int(bracket),
                 "horse_name": row.get("horse_name", ""),
                 "jockey_name": row.get("jockey_name", ""),
                 "impost": float(row.get("impost", 0)),
