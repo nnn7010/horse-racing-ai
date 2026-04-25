@@ -89,7 +89,7 @@ def render_race(race, race_num):
             f'</div>'
         )
     if charts:
-        ability_section = f'<div class="ab-section"><div class="ab-legend">S=スピード 瞬=瞬発力 パ=パワー(重馬場) C=コース適性 F=近走 安=安定性 騎=騎手</div><div class="ab-grid">{charts}</div></div>'
+        ability_section = f'<div class="ab-section"><div class="ab-legend">S=スピード 瞬=瞬発力 パ=パワー(タフコース+追い上げ) C=コース適性 F=近走 安=安定性 騎=騎手</div><div class="ab-grid">{charts}</div></div>'
 
     trio_rows = ""
     for i, t in enumerate(race["trio_top5"], 1):

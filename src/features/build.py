@@ -92,19 +92,39 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         df["horse_course_top3_rate"] = (raw_course * course_runs + 0.21 * 3) / (course_runs + 3)
         df.drop(["_course_key", "_ht3"], axis=1, inplace=True)
 
-    # 重馬場実績（パワー指標: 稍重・重・不良での複勝率）
-    if all(c in df.columns for c in ["track_condition", "finish_position"]):
-        df["_is_heavy"] = df["track_condition"].isin(["稍重", "重", "不良"]).astype(float)
-        df["_heavy_top3"] = df["_is_heavy"] * (df["finish_position"] <= 3).astype(float)
-        heavy_runs = df.groupby("horse_id")["_is_heavy"].transform(
+    # タフコース実績（中山=6, 阪神=9, 中京=7, 小倉=10, 福島=3）
+    _TOUGH_CODES = {3, 6, 7, 9, 10}
+    if all(c in df.columns for c in ["place_code", "finish_position"]):
+        df["_is_tough"] = pd.to_numeric(df["place_code"], errors="coerce").isin(_TOUGH_CODES).astype(float)
+        df["_tough_top3"] = df["_is_tough"] * (df["finish_position"] <= 3).astype(float)
+        tough_runs = df.groupby("horse_id")["_is_tough"].transform(
             lambda x: x.expanding().sum().shift(1)
         )
-        raw_heavy = df.groupby("horse_id")["_heavy_top3"].transform(
+        raw_tough = df.groupby("horse_id")["_tough_top3"].transform(
             lambda x: x.expanding().sum().shift(1)
         )
         # ベイズ平滑化: prior=0.21, k=3
-        df["horse_heavy_top3_rate"] = (raw_heavy + 0.21 * 3) / (heavy_runs + 3)
-        df.drop(["_is_heavy", "_heavy_top3"], axis=1, inplace=True)
+        df["horse_tough_top3_rate"] = (raw_tough + 0.21 * 3) / (tough_runs + 3)
+        df.drop(["_is_tough", "_tough_top3"], axis=1, inplace=True)
+
+    # 追い上げ力（最終コーナー位置→着順の位置向上）: 高いほどタフな展開での前進
+    if all(c in df.columns for c in ["passing", "finish_position", "num_runners"]):
+        def _last_corner(s):
+            if not s or not isinstance(s, str):
+                return None
+            try:
+                return int(s.split("-")[-1])
+            except ValueError:
+                return None
+
+        df["_lc"] = df["passing"].apply(_last_corner)
+        n = df["num_runners"].clip(lower=1)
+        # 正規化した位置向上（+ = 後ろから追い上げた）
+        df["_pos_adv"] = (df["_lc"] - df["finish_position"]) / n
+        df["avg_pos_advance_5"] = df.groupby("horse_id")["_pos_adv"].transform(
+            lambda x: x.shift(1).rolling(5, min_periods=1).mean()
+        )
+        df.drop(["_lc", "_pos_adv"], axis=1, inplace=True)
 
     # 前走間隔（日数）
     if "date" in df.columns:
