@@ -352,6 +352,12 @@ def main():
         # 安定性: finish_std_5 が小さいほど安定 → invert
         stab_score = minmax(entry_preds["finish_std_5"].fillna(entry_preds["finish_std_5"].median()), invert=True) if "finish_std_5" in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
 
+        # パワー: 重馬場実績（稍重・重・不良での複勝率）
+        if "horse_heavy_top3_rate" in entry_preds.columns:
+            power_score = minmax(entry_preds["horse_heavy_top3_rate"].fillna(0.21))
+        else:
+            power_score = pd.Series([50.0]*n_h, index=entry_preds.index)
+
         # 瞬発力: 近3走の上がり3F順位平均（小さいほど良い → invert）
         if "avg_last_3f_rank_3" in entry_preds.columns:
             burst_score = minmax(entry_preds["avg_last_3f_rank_3"].fillna(entry_preds["avg_last_3f_rank_3"].median()), invert=True)
@@ -371,6 +377,7 @@ def main():
             "number": entry_preds["number"].astype(int),
             "speed": speed_score.round(0).astype(int),
             "burst": burst_score.round(0).astype(int),
+            "power": power_score.round(0).astype(int),
             "course": course_score.round(0).astype(int),
             "form": form_score.round(0).astype(int),
             "stability": stab_score.round(0).astype(int),
@@ -400,6 +407,7 @@ def main():
                 "ability": {
                     "speed": int(ab["speed"]) if ab is not None else 50,
                     "burst": int(ab["burst"]) if ab is not None else 50,
+                    "power": int(ab["power"]) if ab is not None else 50,
                     "course": int(ab["course"]) if ab is not None else 50,
                     "form": int(ab["form"]) if ab is not None else 50,
                     "stability": int(ab["stability"]) if ab is not None else 50,

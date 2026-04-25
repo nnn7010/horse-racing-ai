@@ -13,9 +13,9 @@ OUT_FILE = ROOT / "docs/index.html"
 
 import math
 
-ABILITY_LABELS = ["S", "瞬", "C", "F", "安", "騎"]  # スピード,瞬発力,コース,近走,安定,騎手
-ABILITY_KEYS = ["speed", "burst", "course", "form", "stability", "jockey"]
-ABILITY_COLORS = ["#64b5f6", "#4dd0e1", "#81c784", "#ffb74d", "#ce93d8", "#f06292"]
+ABILITY_LABELS = ["S", "瞬", "パ", "C", "F", "安", "騎"]  # スピード,瞬発力,パワー,コース,近走,安定,騎手
+ABILITY_KEYS = ["speed", "burst", "power", "course", "form", "stability", "jockey"]
+ABILITY_COLORS = ["#64b5f6", "#4dd0e1", "#ef9a9a", "#81c784", "#ffb74d", "#ce93d8", "#f06292"]
 
 
 def radar_svg(scores: list[int], size: int = 72) -> str:
@@ -89,7 +89,7 @@ def render_race(race, race_num):
             f'</div>'
         )
     if charts:
-        ability_section = f'<div class="ab-section"><div class="ab-legend">S=スピード 瞬=瞬発力 C=コース適性 F=近走 安=安定性 騎=騎手</div><div class="ab-grid">{charts}</div></div>'
+        ability_section = f'<div class="ab-section"><div class="ab-legend">S=スピード 瞬=瞬発力 パ=パワー(重馬場) C=コース適性 F=近走 安=安定性 騎=騎手</div><div class="ab-grid">{charts}</div></div>'
 
     trio_rows = ""
     for i, t in enumerate(race["trio_top5"], 1):

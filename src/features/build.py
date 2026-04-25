@@ -92,6 +92,20 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         df["horse_course_top3_rate"] = (raw_course * course_runs + 0.21 * 3) / (course_runs + 3)
         df.drop(["_course_key", "_ht3"], axis=1, inplace=True)
 
+    # 重馬場実績（パワー指標: 稍重・重・不良での複勝率）
+    if all(c in df.columns for c in ["track_condition", "finish_position"]):
+        df["_is_heavy"] = df["track_condition"].isin(["稍重", "重", "不良"]).astype(float)
+        df["_heavy_top3"] = df["_is_heavy"] * (df["finish_position"] <= 3).astype(float)
+        heavy_runs = df.groupby("horse_id")["_is_heavy"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        raw_heavy = df.groupby("horse_id")["_heavy_top3"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        # ベイズ平滑化: prior=0.21, k=3
+        df["horse_heavy_top3_rate"] = (raw_heavy + 0.21 * 3) / (heavy_runs + 3)
+        df.drop(["_is_heavy", "_heavy_top3"], axis=1, inplace=True)
+
     # 前走間隔（日数）
     if "date" in df.columns:
         df["prev_race_date"] = df.groupby("horse_id")["date"].shift(1)
