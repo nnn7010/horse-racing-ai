@@ -118,21 +118,9 @@ def render_race(race, race_num):
         comment = h.get("comment", "")
         cls = ' class="top"' if i < 3 else ""
         comment_row = f'<tr class="comment-row"><td></td><td colspan="5" class="comment">{comment}</td></tr>' if comment else ""
-        rows += f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td>{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>{comment_row}'
+        rows += f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td class="odds-cell" data-rid="{race["race_id"]}" data-num="{h["number"]}">{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>{comment_row}'
 
     ability_section = ""
-
-    trio_rows = ""
-    for i, t in enumerate(race["trio_top5"], 1):
-        combo = "-".join(map(str, t["combo"]))
-        prob = t["prob"] * 100
-        trio_rows += f'<tr><td>{i}</td><td>{combo}</td><td>{prob:.2f}%</td></tr>'
-
-    trifecta_rows = ""
-    for i, t in enumerate(race["trifecta_top5"], 1):
-        combo = "-".join(map(str, t["combo"]))
-        prob = t["prob"] * 100
-        trifecta_rows += f'<tr><td>{i}</td><td>{combo}</td><td>{prob:.3f}%</td></tr>'
 
     meta = f"{surface_icon}{race['surface']}{race['distance']}m"
     if race.get("track_condition"):
@@ -177,10 +165,7 @@ def render_race(race, race_num):
         f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>1着%</th><th>3着%</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
         f'{ability_section}'
-        f'<div class="bt">'
-        f'<table><thead><tr><th colspan="3">三連複 TOP5</th></tr></thead><tbody>{trio_rows}</tbody></table>'
-        f'<table><thead><tr><th colspan="3">三連単 TOP5</th></tr></thead><tbody>{trifecta_rows}</tbody></table>'
-        f'</div></div></details>'
+        f'</div></details>'
     )
 
 
@@ -393,13 +378,54 @@ td:nth-child(6){{color:#4caf50}}
 .date-h{{color:#fff;font-size:1.05em;margin:8px 0 10px;padding:6px 10px;background:#263238;border-radius:5px}}
 .date-today .date-h{{background:linear-gradient(90deg,#1565c0 0%,#263238 60%);color:#fff}}
 .venue-h{{color:#ce93d8;font-size:.95em;margin:14px 0 6px}}
+.odds-status{{font-size:.65em;margin-left:8px;color:#aaa;font-weight:normal;vertical-align:middle}}
+.odds-flash{{animation:flash 1.2s ease-out}}
+@keyframes flash{{
+  0%{{background:#ffeb3b;color:#000}}
+  100%{{background:transparent}}
+}}
+.odds-cell{{transition:background .3s}}
 </style>
 </head>
 <body>
-<h1>🏇 競馬予想 {date}</h1>
+<h1>🏇 競馬予想 {date} <span id="odds-status" class="odds-status">⏳</span></h1>
 {trend_html}
 {sections}
-<p class="upd">更新: {updated}</p>
+<p class="upd">更新: {updated} / オッズ: <span id="odds-updated">-</span></p>
+<script>
+async function refreshOdds() {{
+  try {{
+    const resp = await fetch('odds.json?t=' + Date.now());
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const status = document.getElementById('odds-status');
+    const upd = document.getElementById('odds-updated');
+    let n = 0;
+    document.querySelectorAll('.odds-cell').forEach(td => {{
+      const rid = td.dataset.rid;
+      const num = td.dataset.num;
+      const o = data.odds && data.odds[rid] && data.odds[rid][num];
+      if (o && o.win > 0) {{
+        const oldVal = td.textContent.trim();
+        const newVal = o.win.toFixed(1);
+        if (oldVal !== newVal && oldVal !== '-') {{
+          td.classList.add('odds-flash');
+          setTimeout(() => td.classList.remove('odds-flash'), 1200);
+        }}
+        td.textContent = newVal;
+        n++;
+      }}
+    }});
+    upd.textContent = data.updated || '-';
+    status.textContent = '🟢 ' + n + '頭';
+    status.title = 'オッズ更新中（60秒ごと）';
+  }} catch (e) {{
+    document.getElementById('odds-status').textContent = '🔴';
+  }}
+}}
+refreshOdds();
+setInterval(refreshOdds, 60000);
+</script>
 </body>
 </html>"""
 
