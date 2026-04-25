@@ -162,6 +162,10 @@ def render_race(race, race_num):
         f'<div class="d">'
         f'{rec_html}'
         f'{pace_html}'
+        f'<div class="race-toolbar">'
+        f'<button class="btn-update-odds" data-rid="{race["race_id"]}" onclick="updateRaceOdds(this)">🔄 オッズ更新</button>'
+        f'<span class="race-odds-status" data-rid="{race["race_id"]}"></span>'
+        f'</div>'
         f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>1着%</th><th>3着%</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
         f'{ability_section}'
@@ -385,6 +389,14 @@ td:nth-child(6){{color:#4caf50}}
   100%{{background:transparent}}
 }}
 .odds-cell{{transition:background .3s}}
+.race-toolbar{{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.78em}}
+.btn-update-odds{{background:#1565c0;color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:.92em;cursor:pointer;transition:background .15s}}
+.btn-update-odds:hover{{background:#1976d2}}
+.btn-update-odds:active{{background:#0d47a1}}
+.btn-update-odds:disabled{{background:#555;cursor:wait}}
+.race-odds-status{{color:#888;font-size:.92em}}
+.race-odds-status.ok{{color:#81c784}}
+.race-odds-status.err{{color:#ef5350}}
 </style>
 </head>
 <body>
@@ -425,6 +437,75 @@ async function refreshOdds() {{
 }}
 refreshOdds();
 setInterval(refreshOdds, 30000);
+
+// レース別オッズ更新（CORSプロキシ経由でnetkeiba直接フェッチ）
+const CORS_PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+];
+
+async function fetchOddsViaProxy(raceId) {{
+  const target = `https://race.netkeiba.com/api/api_get_jra_odds.html?race_id=${{raceId}}&type=1&action=update`;
+  for (const proxy of CORS_PROXIES) {{
+    try {{
+      const resp = await fetch(proxy + encodeURIComponent(target), {{
+        headers: {{'Accept': 'application/json'}},
+      }});
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data && data.data && data.data.odds && data.data.odds['1']) {{
+        const out = {{}};
+        for (const [k, v] of Object.entries(data.data.odds['1'])) {{
+          out[parseInt(k, 10).toString()] = parseFloat(Array.isArray(v) ? v[0] : v);
+        }}
+        return out;
+      }}
+    }} catch (e) {{
+      console.warn('Proxy failed:', proxy, e);
+    }}
+  }}
+  return null;
+}}
+
+async function updateRaceOdds(btn) {{
+  const rid = btn.dataset.rid;
+  const status = document.querySelector(`.race-odds-status[data-rid="${{rid}}"]`);
+  btn.disabled = true;
+  btn.textContent = '⏳ 取得中...';
+  status.className = 'race-odds-status';
+  status.textContent = '';
+
+  const odds = await fetchOddsViaProxy(rid);
+  if (odds) {{
+    let n = 0;
+    document.querySelectorAll(`.odds-cell[data-rid="${{rid}}"]`).forEach(td => {{
+      const num = td.dataset.num;
+      const v = odds[num];
+      if (v && v > 0) {{
+        const oldVal = td.textContent.trim();
+        const newVal = v.toFixed(1);
+        if (oldVal !== newVal) {{
+          td.classList.add('odds-flash');
+          setTimeout(() => td.classList.remove('odds-flash'), 1200);
+        }}
+        td.textContent = newVal;
+        n++;
+      }}
+    }});
+    status.className = 'race-odds-status ok';
+    const t = new Date().toLocaleTimeString('ja-JP', {{hour: '2-digit', minute: '2-digit', second: '2-digit'}});
+    status.textContent = `✓ ${{n}}頭更新 ${{t}}`;
+  }} else {{
+    status.className = 'race-odds-status err';
+    status.textContent = '✗ プロキシ経由取得失敗（odds.jsonにフォールバック中...）';
+    // フォールバック: サーバー側 odds.json
+    await refreshOdds();
+    status.textContent = `△ サーバー版で更新`;
+  }}
+
+  btn.disabled = false;
+  btn.textContent = '🔄 オッズ更新';
+}}
 </script>
 </body>
 </html>"""
