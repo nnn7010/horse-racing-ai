@@ -11,53 +11,6 @@ RESULTS_FILE = ROOT / "data/raw/today_results.json"
 OUT_FILE = ROOT / "docs/index.html"
 
 
-import math
-
-ABILITY_LABELS = ["S", "瞬", "パ", "C", "F", "安", "騎"]  # スピード,瞬発力,パワー,コース,近走,安定,騎手
-ABILITY_KEYS = ["speed", "burst", "power", "course", "form", "stability", "jockey"]
-ABILITY_COLORS = ["#64b5f6", "#4dd0e1", "#ef9a9a", "#81c784", "#ffb74d", "#ce93d8", "#f06292"]
-
-
-def radar_svg(scores: list[int], size: int = 72, demands: list[int] | None = None) -> str:
-    """レーダーチャートSVGを生成する。demandsはコース要求ラインの0-100スコア。"""
-    n = len(scores)
-    cx, cy, r = size / 2, size / 2, size * 0.42
-    angles = [math.pi / 2 + 2 * math.pi * i / n for i in range(n)]
-
-    def pt(val, angle):
-        rv = r * (val / 100)
-        return cx + rv * math.cos(angle), cy - rv * math.sin(angle)
-
-    # 背景グリッド（50%と100%のみ）
-    grids = ""
-    for level in [0.5, 1.0]:
-        pts = " ".join(f"{cx+r*level*math.cos(a):.0f},{cy-r*level*math.sin(a):.0f}" for a in angles)
-        grids += f'<polygon points="{pts}" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>'
-
-    # 軸線
-    axes = "".join(
-        f'<line x1="{cx:.0f}" y1="{cy:.0f}" x2="{cx+r*math.cos(a):.0f}" y2="{cy-r*math.sin(a):.0f}" stroke="#333" stroke-width="0.5"/>'
-        for a in angles
-    )
-
-    # コース要求ライン（金色・破線）
-    demand_polygon = ""
-    if demands and len(demands) == n:
-        d_pts = " ".join(f"{pt(d,a)[0]:.0f},{pt(d,a)[1]:.0f}" for d, a in zip(demands, angles))
-        demand_polygon = f'<polygon points="{d_pts}" fill="none" stroke="#ffd54f" stroke-width="1" stroke-dasharray="2,2"/>'
-
-    # 馬の能力ポリゴン（青）
-    data_pts = " ".join(f"{pt(s,a)[0]:.0f},{pt(s,a)[1]:.0f}" for s, a in zip(scores, angles))
-    polygon = f'<polygon points="{data_pts}" fill="rgba(100,181,246,0.2)" stroke="#64b5f6" stroke-width="1.5"/>'
-
-    # ラベル
-    labels = ""
-    for i, (label, angle) in enumerate(zip(ABILITY_LABELS, angles)):
-        lx = cx + (r + 9) * math.cos(angle)
-        ly = cy - (r + 9) * math.sin(angle)
-        labels += f'<text x="{lx:.0f}" y="{ly:.0f}" text-anchor="middle" dominant-baseline="middle" fill="{ABILITY_COLORS[i]}" font-size="8" font-weight="bold">{label}</text>'
-
-    return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{grids}{axes}{demand_polygon}{polygon}{labels}</svg>'
 
 
 def render_race(race, race_num):
@@ -74,34 +27,7 @@ def render_race(race, race_num):
         cls = ' class="top"' if i < 3 else ""
         rows += f'<tr{cls}><td>{h["number"]}</td><td>{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td>{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>'
 
-    # 能力チャートセクション（上位5頭）
-    top5 = horses_sorted[:3]
-    course_profile = race.get("course_profile", {})
-    demands = [course_profile.get(k, 50) for k in ABILITY_KEYS] if course_profile else None
-    charts = ""
-    for h in top5:
-        ab = h.get("ability")
-        if not ab:
-            continue
-        scores = [ab.get(k, 50) for k in ABILITY_KEYS]
-        svg = radar_svg(scores, demands=demands)
-        no_data = "" if ab.get("has_data") else '<span class="nd">*</span>'
-        fit = ab.get("fit", 50)
-        fit_color = "#00e676" if fit >= 75 else "#ffeb3b" if fit >= 55 else "#ef5350"
-        charts += (
-            f'<div class="ab-card">'
-            f'<div class="ab-name">{h["number"]}番 {h["horse_name"]}{no_data}'
-            f'<span class="ab-fit" style="color:{fit_color}">適{fit}</span></div>'
-            f'{svg}'
-            f'</div>'
-        )
-    if charts:
-        ability_section = (
-            f'<div class="ab-section">'
-            f'<div class="ab-legend">S=スピード 瞬=瞬発力 パ=パワー C=コース適性 F=近走 安=安定性 騎=騎手'
-            f' <span class="ab-demand-legend">━━ コース要求</span></div>'
-            f'<div class="ab-grid">{charts}</div></div>'
-        )
+    ability_section = ""
 
     trio_rows = ""
     for i, t in enumerate(race["trio_top5"], 1):
@@ -267,20 +193,6 @@ td:nth-child(6){{color:#4caf50}}
 .tc-tbl td,.tc-tbl th{{font-size:.75em;padding:3px 4px}}
 .tc-tbl th:nth-child(2){{text-align:left}}
 .tc-tbl td:nth-child(2){{text-align:left}}
-.ab-section{{margin:8px 0}}
-.ab-legend{{color:#666;font-size:.7em;margin-bottom:6px}}
-.ab-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}}
-.ab-card{{background:#111;border-radius:6px;padding:6px;text-align:center}}
-.ab-name{{font-size:.75em;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.ab-bars{{margin-top:4px}}
-.ab-row{{display:flex;align-items:center;gap:3px;margin-bottom:2px;font-size:.7em}}
-.ab-row span:first-child{{width:10px;text-align:center}}
-.ab-bg{{flex:1;background:#222;border-radius:2px;height:6px}}
-.ab-fill{{height:6px;border-radius:2px}}
-.ab-num{{width:20px;text-align:right;color:#888}}
-.nd{{color:#ef5350;font-size:.7em}}
-.ab-fit{{font-size:.68em;font-weight:bold;margin-left:4px}}
-.ab-demand-legend{{color:#ffd54f;margin-left:8px}}
 </style>
 </head>
 <body>
