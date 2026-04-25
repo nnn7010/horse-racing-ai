@@ -98,6 +98,12 @@ def main():
     with open(raw_dir / "target_races.json", encoding="utf-8") as f:
         target_races = json.load(f)
 
+    # 今日のレースのみに絞る
+    import datetime
+    today_str = datetime.date.today().strftime("%Y%m%d")
+    target_races = [r for r in target_races if r.get("date", "") == today_str]
+    logger.info(f"Today ({today_str}): {len(target_races)} races")
+
     # 過去特徴量から統計を構築
     hist_df = pd.read_parquet(processed_dir / "features.parquet")
     logger.info(f"Loaded historical features: {hist_df.shape}")
