@@ -1,5 +1,6 @@
 """05: モデル学習（LightGBM + Optuna）。"""
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -15,9 +16,15 @@ logger = get_logger("05_train")
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-dir", default=None,
+                        help="モデル保存先ディレクトリ（省略時はconfig値）")
+    args = parser.parse_args()
+
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
 
+    model_dir = args.model_dir or config["paths"]["models"]
     processed_dir = Path(config["paths"]["processed"])
     features_file = processed_dir / "features.parquet"
 
@@ -27,6 +34,8 @@ def main():
 
     df = pd.read_parquet(features_file)
     logger.info(f"Loaded features: {df.shape}")
+    if args.model_dir:
+        logger.info(f"[TEST] モデル出力先: {model_dir}")
 
     model, feature_cols = train_model(
         df,
@@ -35,7 +44,7 @@ def main():
         valid_end=config["split"]["valid_end"],
         n_trials=config["model"]["n_trials"],
         seed=config["model"]["seed"],
-        model_dir=config["paths"]["models"],
+        model_dir=model_dir,
     )
 
     logger.info(f"Top3 model training complete. {len(feature_cols)} features used.")
@@ -49,7 +58,7 @@ def main():
         valid_end=config["split"]["valid_end"],
         n_trials=20,
         seed=config["model"]["seed"],
-        model_dir=config["paths"]["models"],
+        model_dir=model_dir,
     )
     logger.info("Win model training complete.")
 

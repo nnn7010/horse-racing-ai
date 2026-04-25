@@ -148,6 +148,14 @@ def main():
             }
         logger.info(f"Ability lookup: {len(ability_lookup)} horses")
 
+    # コースプロファイル読み込み
+    course_profiles = {}
+    course_profiles_file = processed_dir / "course_profiles.json"
+    if course_profiles_file.exists():
+        with open(course_profiles_file, encoding="utf-8") as f:
+            course_profiles = json.load(f)
+        logger.info(f"Course profiles: {len(course_profiles)} courses loaded")
+
     # 単勝オッズ取得用
     import hashlib as _hl
     import time as _time
@@ -335,9 +343,13 @@ def main():
             return 100 - s if invert else s
 
         n_h = len(entry_preds)
-        # スピード: avg_speed_3 or speed_index
+        # スピード: avg_speed_3（低いほど速い → invert）
         spd_col = "avg_speed_3" if "avg_speed_3" in entry_preds.columns else "speed_index"
-        speed_score = minmax(entry_preds[spd_col].fillna(0)) if spd_col in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
+        if spd_col in entry_preds.columns:
+            spd_med = entry_preds[spd_col].replace(0, float("nan")).median()
+            speed_score = minmax(entry_preds[spd_col].fillna(spd_med if pd.notna(spd_med) else 61.0), invert=True)
+        else:
+            speed_score = pd.Series([50.0]*n_h, index=entry_preds.index)
 
         # コース適性: horse_course_top3_rate / max(horse_top3_rate, 0.01)
         if "horse_course_top3_rate" in entry_preds.columns and "horse_top3_rate" in entry_preds.columns:
@@ -352,7 +364,7 @@ def main():
         # 安定性: finish_std_5 が小さいほど安定 → invert
         stab_score = minmax(entry_preds["finish_std_5"].fillna(entry_preds["finish_std_5"].median()), invert=True) if "finish_std_5" in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
 
-        # パワー: タフコース実績(50%) + 消耗戦（時間のかかるレース）での好走歴(50%)
+        # パワー: タフコース実績(50%) + 消耗戦での好走歴(50%)
         has_tough = "horse_tough_top3_rate" in entry_preds.columns
         has_slow = "horse_slow_race_top3_rate" in entry_preds.columns
         if has_tough and has_slow:
@@ -393,6 +405,13 @@ def main():
             "has_history": entry_preds.get("has_history", pd.Series(1, index=entry_preds.index)).astype(int),
         }).set_index("number")
 
+        # コースプロファイル取得
+        place_code_num = int(race.get("place_code", "0"))
+        is_turf = 1 if race.get("surface") == "芝" else 0
+        distance = int(race.get("distance", 0))
+        course_key = f"{place_code_num}_{is_turf}_{distance}"
+        course_profile = course_profiles.get(course_key, {}).get("scores", {})
+
         horses_json = []
         for _, row in entry_preds.sort_values("number").iterrows():
             num = int(row.get("number", 0))
@@ -403,6 +422,25 @@ def main():
                 (e.get("bracket", 0) for e in entries if e.get("number") == num), 0
             )
             ab = ability_scores_df.loc[num] if num in ability_scores_df.index else None
+            ab_dict = {
+                "speed": int(ab["speed"]) if ab is not None else 50,
+                "burst": int(ab["burst"]) if ab is not None else 50,
+                "power": int(ab["power"]) if ab is not None else 50,
+                "course": int(ab["course"]) if ab is not None else 50,
+                "form": int(ab["form"]) if ab is not None else 50,
+                "stability": int(ab["stability"]) if ab is not None else 50,
+                "jockey": int(ab["jockey"]) if ab is not None else 50,
+                "has_data": bool(ab["has_history"]) if ab is not None else False,
+            }
+            # コース適性スコア: 各軸でコース要求を下回った分をペナルティ
+            if course_profile:
+                keys = ["speed", "burst", "power", "course", "form", "stability", "jockey"]
+                shortfalls = [max(0, course_profile.get(k, 50) - ab_dict[k]) for k in keys]
+                fit_score = int(round(100 - sum(shortfalls) / len(keys)))
+                fit_score = max(0, min(100, fit_score))
+            else:
+                fit_score = 50
+            ab_dict["fit"] = fit_score
             horses_json.append({
                 "number": num,
                 "bracket": int(bracket),
@@ -412,16 +450,7 @@ def main():
                 "win_odds": float(odds_val),
                 "win_prob": round(float(probs["win"].get(num, 0)), 6),
                 "place_prob": round(float(probs["place"].get(num, 0)), 6),
-                "ability": {
-                    "speed": int(ab["speed"]) if ab is not None else 50,
-                    "burst": int(ab["burst"]) if ab is not None else 50,
-                    "power": int(ab["power"]) if ab is not None else 50,
-                    "course": int(ab["course"]) if ab is not None else 50,
-                    "form": int(ab["form"]) if ab is not None else 50,
-                    "stability": int(ab["stability"]) if ab is not None else 50,
-                    "jockey": int(ab["jockey"]) if ab is not None else 50,
-                    "has_data": bool(ab["has_history"]) if ab is not None else False,
-                },
+                "ability": ab_dict,
             })
 
         today_races.append({
@@ -433,6 +462,7 @@ def main():
             "track_condition": race.get("track_condition", ""),
             "start_time": race.get("start_time", ""),
             "n_horses": len(entries),
+            "course_profile": course_profile or {},
             "horses": horses_json,
             "trio_top5": [
                 {"combo": [int(x) for x in sorted(k)], "prob": round(float(v), 6)}

@@ -218,3 +218,4 @@ models/*.txt
 outputs/
 *.parquet
 .DS_Store
+!data/processed/course_profiles.json

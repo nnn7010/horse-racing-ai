@@ -18,14 +18,14 @@ ABILITY_KEYS = ["speed", "burst", "power", "course", "form", "stability", "jocke
 ABILITY_COLORS = ["#64b5f6", "#4dd0e1", "#ef9a9a", "#81c784", "#ffb74d", "#ce93d8", "#f06292"]
 
 
-def radar_svg(scores: list[int], size: int = 72) -> str:
-    """5軸のレーダーチャートSVGを生成する。"""
+def radar_svg(scores: list[int], size: int = 72, demands: list[int] | None = None) -> str:
+    """レーダーチャートSVGを生成する。demandsはコース要求ラインの0-100スコア。"""
     n = len(scores)
     cx, cy, r = size / 2, size / 2, size * 0.42
     angles = [math.pi / 2 + 2 * math.pi * i / n for i in range(n)]
 
-    def pt(val, angle, scale=1.0):
-        rv = r * (val / 100) * scale
+    def pt(val, angle):
+        rv = r * (val / 100)
         return cx + rv * math.cos(angle), cy - rv * math.sin(angle)
 
     # 背景グリッド
@@ -37,7 +37,13 @@ def radar_svg(scores: list[int], size: int = 72) -> str:
     # 軸線
     axes = "".join(f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{cx + r*math.cos(a):.1f}" y2="{cy - r*math.sin(a):.1f}" stroke="#444" stroke-width="0.5"/>' for a in angles)
 
-    # データポリゴン
+    # コース要求ライン（金色・破線）
+    demand_polygon = ""
+    if demands and len(demands) == n:
+        d_pts = " ".join(f"{pt(d, a)[0]:.1f},{pt(d, a)[1]:.1f}" for d, a in zip(demands, angles))
+        demand_polygon = f'<polygon points="{d_pts}" fill="none" stroke="#ffd54f" stroke-width="1" stroke-dasharray="2,1.5" opacity="0.85"/>'
+
+    # 馬の能力ポリゴン（青）
     data_pts = " ".join(f"{pt(s, a)[0]:.1f},{pt(s, a)[1]:.1f}" for s, a in zip(scores, angles))
     polygon = f'<polygon points="{data_pts}" fill="rgba(100,181,246,0.25)" stroke="#64b5f6" stroke-width="1.5"/>'
 
@@ -48,7 +54,7 @@ def radar_svg(scores: list[int], size: int = 72) -> str:
         ly = cy - (r + 9) * math.sin(angle)
         labels += f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" fill="{ABILITY_COLORS[i]}" font-size="8" font-weight="bold">{label}</text>'
 
-    return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{grids}{axes}{polygon}{labels}</svg>'
+    return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{grids}{axes}{demand_polygon}{polygon}{labels}</svg>'
 
 
 def render_race(race, race_num):
@@ -67,14 +73,18 @@ def render_race(race, race_num):
 
     # 能力チャートセクション（上位5頭）
     top5 = horses_sorted[:5]
+    course_profile = race.get("course_profile", {})
+    demands = [course_profile.get(k, 50) for k in ABILITY_KEYS] if course_profile else None
     charts = ""
     for h in top5:
         ab = h.get("ability")
         if not ab:
             continue
         scores = [ab.get(k, 50) for k in ABILITY_KEYS]
-        svg = radar_svg(scores)
+        svg = radar_svg(scores, demands=demands)
         no_data = "" if ab.get("has_data") else '<span class="nd">*</span>'
+        fit = ab.get("fit", 50)
+        fit_color = "#00e676" if fit >= 75 else "#ffeb3b" if fit >= 55 else "#ef5350"
         bars = "".join(
             f'<div class="ab-row"><span style="color:{ABILITY_COLORS[j]}">{ABILITY_LABELS[j]}</span>'
             f'<div class="ab-bg"><div class="ab-fill" style="width:{scores[j]}%;background:{ABILITY_COLORS[j]}"></div></div>'
@@ -83,13 +93,19 @@ def render_race(race, race_num):
         )
         charts += (
             f'<div class="ab-card">'
-            f'<div class="ab-name">{h["number"]}番 {h["horse_name"]}{no_data}</div>'
+            f'<div class="ab-name">{h["number"]}番 {h["horse_name"]}{no_data}'
+            f'<span class="ab-fit" style="color:{fit_color}">適{fit}</span></div>'
             f'{svg}'
             f'<div class="ab-bars">{bars}</div>'
             f'</div>'
         )
     if charts:
-        ability_section = f'<div class="ab-section"><div class="ab-legend">S=スピード 瞬=瞬発力 パ=パワー(タフコース+消耗戦) C=コース適性 F=近走 安=安定性 騎=騎手</div><div class="ab-grid">{charts}</div></div>'
+        ability_section = (
+            f'<div class="ab-section">'
+            f'<div class="ab-legend">S=スピード 瞬=瞬発力 パ=パワー C=コース適性 F=近走 安=安定性 騎=騎手'
+            f' <span class="ab-demand-legend">━━ コース要求</span></div>'
+            f'<div class="ab-grid">{charts}</div></div>'
+        )
 
     trio_rows = ""
     for i, t in enumerate(race["trio_top5"], 1):
@@ -267,6 +283,8 @@ td:nth-child(6){{color:#4caf50}}
 .ab-fill{{height:6px;border-radius:2px}}
 .ab-num{{width:20px;text-align:right;color:#888}}
 .nd{{color:#ef5350;font-size:.7em}}
+.ab-fit{{font-size:.68em;font-weight:bold;margin-left:4px}}
+.ab-demand-legend{{color:#ffd54f;margin-left:8px}}
 </style>
 </head>
 <body>

@@ -7,6 +7,7 @@
 4. 実際の着順と照合して回収を計算
 """
 
+import argparse
 import json
 import re
 import sys
@@ -162,15 +163,24 @@ def simulate_race(race_df, race_result, payouts):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-dir", default=None,
+                        help="モデルディレクトリ（省略時はconfig値）")
+    args = parser.parse_args()
+
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
 
+    model_dir = args.model_dir or config["paths"]["models"]
     raw_dir = Path(config["paths"]["raw"])
     processed_dir = Path(config["paths"]["processed"])
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    model, feature_cols, calibrator, win_model, win_calibrator = load_model(config["paths"]["models"])
+    if args.model_dir:
+        logger.info(f"[TEST] モデル読み込み元: {model_dir}")
+
+    model, feature_cols, calibrator, win_model, win_calibrator = load_model(model_dir)
 
     df = pd.read_parquet(processed_dir / "features.parquet")
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
