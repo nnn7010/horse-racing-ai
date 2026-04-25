@@ -34,7 +34,7 @@ def simulate_race(race_df, race_result, payouts):
     from src.betting.optimizer import build_recommendations
 
     # 実際のオッズを race_df の win_odds 列から構築
-    all_odds = {"win": {}, "quinella": {}, "wide": {}, "exacta": {},
+    all_odds = {"win": {}, "place": {}, "quinella": {}, "wide": {}, "exacta": {},
                 "trio": {}, "trifecta": {}}
 
     for _, row in race_df.iterrows():
@@ -42,6 +42,8 @@ def simulate_race(race_df, race_result, payouts):
         odds = row.get("win_odds", 0)
         if odds > 0:
             all_odds["win"][str(num).zfill(2)] = odds
+            # 複勝オッズ推定: 単勝オッズから概算（単勝の約1/3、最低1.1倍）
+            all_odds["place"][str(num).zfill(2)] = max(odds ** 0.5 * 0.6, 1.1)
 
     # 馬連・ワイド等のオッズは不明なので、単勝から推定（バックテスト用）
     nums = sorted(race_df["number"].astype(int).values)
@@ -95,6 +97,13 @@ def simulate_race(race_df, race_result, payouts):
                 if num == actual_1st:
                     hit = 1
                     payout = bet["odds"] * bet["amount"]
+
+            elif bt == "複勝":
+                num = int(nums_str)
+                if num in {actual_1st, actual_2nd, actual_3rd}:
+                    hit = 1
+                    est = all_odds["place"].get(str(num).zfill(2), 0)
+                    payout = est * bet["amount"] if est > 0 else 0
 
             elif bt == "馬連":
                 parts = sorted([int(x) for x in nums_str.split("-")])
