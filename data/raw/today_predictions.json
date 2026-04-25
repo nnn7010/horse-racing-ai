@@ -17,8 +17,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 15.4,
-          "win_prob": 0.0423,
-          "place_prob": 0.2438
+          "win_prob": 0.044505,
+          "place_prob": 0.243802
         },
         {
           "number": 2,
@@ -26,8 +26,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 52.0,
-          "win_prob": 0.063,
-          "place_prob": 0.1103
+          "win_prob": 0.061242,
+          "place_prob": 0.110283
         },
         {
           "number": 3,
@@ -35,7 +35,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 407.6,
-          "win_prob": 0.0132,
+          "win_prob": 0.013538,
           "place_prob": 0.0295
         },
         {
@@ -44,8 +44,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 218.6,
-          "win_prob": 0.0132,
-          "place_prob": 0.0332
+          "win_prob": 0.014023,
+          "place_prob": 0.033187
         },
         {
           "number": 5,
@@ -53,8 +53,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 5.1,
-          "win_prob": 0.1507,
-          "place_prob": 0.5485
+          "win_prob": 0.153112,
+          "place_prob": 0.548527
         },
         {
           "number": 6,
@@ -62,8 +62,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 7.0,
-          "win_prob": 0.0628,
-          "place_prob": 0.0758
+          "win_prob": 0.060485,
+          "place_prob": 0.07582
         },
         {
           "number": 7,
@@ -71,8 +71,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 29.9,
-          "win_prob": 0.1845,
-          "place_prob": 0.2918
+          "win_prob": 0.17662,
+          "place_prob": 0.291782
         },
         {
           "number": 8,
@@ -80,8 +80,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 40.7,
-          "win_prob": 0.0423,
-          "place_prob": 0.1623
+          "win_prob": 0.043876,
+          "place_prob": 0.162291
         },
         {
           "number": 9,
@@ -89,8 +89,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 191.2,
-          "win_prob": 0.0276,
-          "place_prob": 0.0758
+          "win_prob": 0.027534,
+          "place_prob": 0.07582
         },
         {
           "number": 10,
@@ -98,7 +98,7 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 87.5,
-          "win_prob": 0.0132,
+          "win_prob": 0.013247,
           "place_prob": 0.0295
         },
         {
@@ -107,7 +107,7 @@
           "jockey_name": "",
           "impost": 51.0,
           "win_odds": 246.2,
-          "win_prob": 0.0132,
+          "win_prob": 0.01288,
           "place_prob": 0.01
         },
         {
@@ -116,8 +116,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 1.8,
-          "win_prob": 0.2631,
-          "place_prob": 0.768
+          "win_prob": 0.26068,
+          "place_prob": 0.768045
         },
         {
           "number": 13,
@@ -125,8 +125,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 5.3,
-          "win_prob": 0.0977,
-          "place_prob": 0.5485
+          "win_prob": 0.104143,
+          "place_prob": 0.548527
         },
         {
           "number": 14,
@@ -134,8 +134,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 97.3,
-          "win_prob": 0.0132,
-          "place_prob": 0.0729
+          "win_prob": 0.014116,
+          "place_prob": 0.072948
         }
       ],
       "trio_top5": [
@@ -239,8 +239,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 90.3,
-          "win_prob": 0.0432,
-          "place_prob": 0.1227
+          "win_prob": 0.043441,
+          "place_prob": 0.122743
         },
         {
           "number": 2,
@@ -248,8 +248,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 9.1,
-          "win_prob": 0.0461,
-          "place_prob": 0.081
+          "win_prob": 0.044781,
+          "place_prob": 0.08101
         },
         {
           "number": 3,
@@ -257,7 +257,7 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 314.2,
-          "win_prob": 0.0113,
+          "win_prob": 0.010735,
           "place_prob": 0.01
         },
         {
@@ -266,8 +266,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.2,
-          "win_prob": 0.064,
-          "place_prob": 0.081
+          "win_prob": 0.061834,
+          "place_prob": 0.08101
         },
         {
           "number": 5,
@@ -275,8 +275,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.5,
-          "win_prob": 0.1538,
-          "place_prob": 0.5861
+          "win_prob": 0.155503,
+          "place_prob": 0.586079
         },
         {
           "number": 6,
@@ -284,8 +284,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 79.8,
-          "win_prob": 0.0432,
-          "place_prob": 0.1227
+          "win_prob": 0.043405,
+          "place_prob": 0.122743
         },
         {
           "number": 7,
@@ -293,8 +293,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 143.7,
-          "win_prob": 0.0432,
-          "place_prob": 0.152
+          "win_prob": 0.043553,
+          "place_prob": 0.151968
         },
         {
           "number": 8,
@@ -302,8 +302,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 355.7,
-          "win_prob": 0.0113,
-          "place_prob": 0.0315
+          "win_prob": 0.011579,
+          "place_prob": 0.031519
         },
         {
           "number": 9,
@@ -311,8 +311,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 10.9,
-          "win_prob": 0.0998,
-          "place_prob": 0.2605
+          "win_prob": 0.098444,
+          "place_prob": 0.260493
         },
         {
           "number": 10,
@@ -320,7 +320,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 400.4,
-          "win_prob": 0.0113,
+          "win_prob": 0.010833,
           "place_prob": 0.01
         },
         {
@@ -329,8 +329,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 47.1,
-          "win_prob": 0.0282,
-          "place_prob": 0.3118
+          "win_prob": 0.033531,
+          "place_prob": 0.311757
         },
         {
           "number": 12,
@@ -338,8 +338,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 52.4,
-          "win_prob": 0.0282,
-          "place_prob": 0.2605
+          "win_prob": 0.031603,
+          "place_prob": 0.260493
         },
         {
           "number": 13,
@@ -347,8 +347,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.4,
-          "win_prob": 0.0998,
-          "place_prob": 0.1734
+          "win_prob": 0.096847,
+          "place_prob": 0.173401
         },
         {
           "number": 14,
@@ -356,8 +356,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 18.0,
-          "win_prob": 0.1882,
-          "place_prob": 0.1734
+          "win_prob": 0.177684,
+          "place_prob": 0.173401
         },
         {
           "number": 15,
@@ -365,8 +365,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 19.7,
-          "win_prob": 0.0287,
-          "place_prob": 0.3118
+          "win_prob": 0.034154,
+          "place_prob": 0.311757
         },
         {
           "number": 16,
@@ -374,8 +374,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.0,
-          "win_prob": 0.0998,
-          "place_prob": 0.3118
+          "win_prob": 0.102071,
+          "place_prob": 0.311757
         }
       ],
       "trio_top5": [
@@ -479,8 +479,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 18.9,
-          "win_prob": 0.0974,
-          "place_prob": 0.249
+          "win_prob": 0.096219,
+          "place_prob": 0.249041
         },
         {
           "number": 2,
@@ -488,8 +488,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 181.0,
-          "win_prob": 0.0303,
-          "place_prob": 0.0453
+          "win_prob": 0.029428,
+          "place_prob": 0.045268
         },
         {
           "number": 3,
@@ -497,8 +497,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 87.2,
-          "win_prob": 0.0647,
-          "place_prob": 0.0453
+          "win_prob": 0.05917,
+          "place_prob": 0.045268
         },
         {
           "number": 4,
@@ -506,8 +506,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 7.7,
-          "win_prob": 0.1038,
-          "place_prob": 0.4477
+          "win_prob": 0.108573,
+          "place_prob": 0.44775
         },
         {
           "number": 5,
@@ -515,8 +515,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 63.5,
-          "win_prob": 0.0304,
-          "place_prob": 0.0509
+          "win_prob": 0.030822,
+          "place_prob": 0.050927
         },
         {
           "number": 6,
@@ -524,8 +524,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 2.0,
-          "win_prob": 0.0975,
-          "place_prob": 0.249
+          "win_prob": 0.094747,
+          "place_prob": 0.249041
         },
         {
           "number": 7,
@@ -533,8 +533,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 9.9,
-          "win_prob": 0.225,
-          "place_prob": 0.4477
+          "win_prob": 0.214903,
+          "place_prob": 0.44775
         },
         {
           "number": 8,
@@ -542,7 +542,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 410.7,
-          "win_prob": 0.0255,
+          "win_prob": 0.024016,
           "place_prob": 0.01
         },
         {
@@ -551,8 +551,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 54.4,
-          "win_prob": 0.0974,
-          "place_prob": 0.1163
+          "win_prob": 0.091767,
+          "place_prob": 0.116348
         },
         {
           "number": 10,
@@ -560,8 +560,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 143.6,
-          "win_prob": 0.0303,
-          "place_prob": 0.0453
+          "win_prob": 0.029847,
+          "place_prob": 0.045268
         },
         {
           "number": 11,
@@ -569,8 +569,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.0,
-          "win_prob": 0.0636,
-          "place_prob": 0.3741
+          "win_prob": 0.069356,
+          "place_prob": 0.374123
         },
         {
           "number": 12,
@@ -578,8 +578,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 13.1,
-          "win_prob": 0.1039,
-          "place_prob": 0.75
+          "win_prob": 0.117108,
+          "place_prob": 0.750014
         },
         {
           "number": 13,
@@ -587,8 +587,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 51.5,
-          "win_prob": 0.0303,
-          "place_prob": 0.1692
+          "win_prob": 0.034044,
+          "place_prob": 0.169234
         }
       ],
       "trio_top5": [
@@ -692,8 +692,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 7.4,
-          "win_prob": 0.0274,
-          "place_prob": 0.3189
+          "win_prob": 0.031409,
+          "place_prob": 0.318937
         },
         {
           "number": 2,
@@ -701,8 +701,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 25.8,
-          "win_prob": 0.0959,
-          "place_prob": 0.1503
+          "win_prob": 0.092941,
+          "place_prob": 0.150282
         },
         {
           "number": 3,
@@ -710,8 +710,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 311.2,
-          "win_prob": 0.0109,
-          "place_prob": 0.0109
+          "win_prob": 0.010566,
+          "place_prob": 0.010865
         },
         {
           "number": 4,
@@ -719,8 +719,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 327.7,
-          "win_prob": 0.0129,
-          "place_prob": 0.0109
+          "win_prob": 0.012627,
+          "place_prob": 0.010865
         },
         {
           "number": 5,
@@ -728,8 +728,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 31.7,
-          "win_prob": 0.0415,
-          "place_prob": 0.1999
+          "win_prob": 0.042804,
+          "place_prob": 0.199909
         },
         {
           "number": 6,
@@ -737,8 +737,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 41.2,
-          "win_prob": 0.0415,
-          "place_prob": 0.0386
+          "win_prob": 0.04021,
+          "place_prob": 0.038591
         },
         {
           "number": 7,
@@ -746,8 +746,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 76.4,
-          "win_prob": 0.0415,
-          "place_prob": 0.0992
+          "win_prob": 0.04142,
+          "place_prob": 0.099186
         },
         {
           "number": 8,
@@ -755,8 +755,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 268.8,
-          "win_prob": 0.0129,
-          "place_prob": 0.0386
+          "win_prob": 0.013621,
+          "place_prob": 0.038591
         },
         {
           "number": 9,
@@ -764,8 +764,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 99.0,
-          "win_prob": 0.0109,
-          "place_prob": 0.0234
+          "win_prob": 0.01116,
+          "place_prob": 0.023444
         },
         {
           "number": 10,
@@ -773,8 +773,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 24.9,
-          "win_prob": 0.1808,
-          "place_prob": 0.3817
+          "win_prob": 0.175842,
+          "place_prob": 0.381702
         },
         {
           "number": 11,
@@ -782,8 +782,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 281.7,
-          "win_prob": 0.0129,
-          "place_prob": 0.0109
+          "win_prob": 0.012783,
+          "place_prob": 0.010865
         },
         {
           "number": 12,
@@ -791,7 +791,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 1.5,
-          "win_prob": 0.2579,
+          "win_prob": 0.2621,
           "place_prob": 0.8
         },
         {
@@ -800,8 +800,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 5.1,
-          "win_prob": 0.1808,
-          "place_prob": 0.6244
+          "win_prob": 0.180093,
+          "place_prob": 0.624386
         },
         {
           "number": 14,
@@ -809,8 +809,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 470.0,
-          "win_prob": 0.0109,
-          "place_prob": 0.0109
+          "win_prob": 0.010765,
+          "place_prob": 0.010865
         },
         {
           "number": 15,
@@ -818,8 +818,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 9.3,
-          "win_prob": 0.0615,
-          "place_prob": 0.2123
+          "win_prob": 0.06166,
+          "place_prob": 0.212305
         }
       ],
       "trio_top5": [
@@ -923,8 +923,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 448.4,
-          "win_prob": 0.01,
-          "place_prob": 0.0168
+          "win_prob": 0.010062,
+          "place_prob": 0.016751
         },
         {
           "number": 2,
@@ -932,8 +932,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 13.5,
-          "win_prob": 0.0477,
-          "place_prob": 0.1074
+          "win_prob": 0.047343,
+          "place_prob": 0.107375
         },
         {
           "number": 3,
@@ -941,8 +941,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 5.2,
-          "win_prob": 0.1352,
-          "place_prob": 0.6769
+          "win_prob": 0.139115,
+          "place_prob": 0.676904
         },
         {
           "number": 4,
@@ -950,8 +950,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 19.7,
-          "win_prob": 0.0322,
-          "place_prob": 0.0276
+          "win_prob": 0.031307,
+          "place_prob": 0.027573
         },
         {
           "number": 5,
@@ -959,8 +959,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 7.0,
-          "win_prob": 0.1401,
-          "place_prob": 0.2279
+          "win_prob": 0.135528,
+          "place_prob": 0.227878
         },
         {
           "number": 6,
@@ -968,8 +968,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.2,
-          "win_prob": 0.1998,
-          "place_prob": 0.6769
+          "win_prob": 0.199583,
+          "place_prob": 0.676904
         },
         {
           "number": 7,
@@ -977,8 +977,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 303.1,
-          "win_prob": 0.01,
-          "place_prob": 0.0709
+          "win_prob": 0.011005,
+          "place_prob": 0.070868
         },
         {
           "number": 8,
@@ -986,8 +986,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 257.1,
-          "win_prob": 0.01,
-          "place_prob": 0.1031
+          "win_prob": 0.011926,
+          "place_prob": 0.10308
         },
         {
           "number": 9,
@@ -995,8 +995,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 20.9,
-          "win_prob": 0.1145,
-          "place_prob": 0.2279
+          "win_prob": 0.111289,
+          "place_prob": 0.227878
         },
         {
           "number": 10,
@@ -1004,8 +1004,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 315.5,
-          "win_prob": 0.01,
-          "place_prob": 0.0276
+          "win_prob": 0.010483,
+          "place_prob": 0.027573
         },
         {
           "number": 11,
@@ -1013,8 +1013,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 6.9,
-          "win_prob": 0.1401,
-          "place_prob": 0.4044
+          "win_prob": 0.139207,
+          "place_prob": 0.404364
         },
         {
           "number": 12,
@@ -1022,8 +1022,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 18.0,
-          "win_prob": 0.0322,
-          "place_prob": 0.1517
+          "win_prob": 0.033863,
+          "place_prob": 0.151691
         },
         {
           "number": 13,
@@ -1031,8 +1031,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 48.3,
-          "win_prob": 0.0321,
-          "place_prob": 0.031
+          "win_prob": 0.031309,
+          "place_prob": 0.031019
         },
         {
           "number": 14,
@@ -1040,8 +1040,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 26.9,
-          "win_prob": 0.0477,
-          "place_prob": 0.0709
+          "win_prob": 0.046714,
+          "place_prob": 0.070868
         },
         {
           "number": 15,
@@ -1049,8 +1049,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 66.1,
-          "win_prob": 0.01,
-          "place_prob": 0.0709
+          "win_prob": 0.01135,
+          "place_prob": 0.070868
         },
         {
           "number": 16,
@@ -1058,8 +1058,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 145.8,
-          "win_prob": 0.01,
-          "place_prob": 0.0276
+          "win_prob": 0.010429,
+          "place_prob": 0.027573
         },
         {
           "number": 17,
@@ -1067,8 +1067,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 60.7,
-          "win_prob": 0.01,
-          "place_prob": 0.0709
+          "win_prob": 0.011008,
+          "place_prob": 0.070868
         },
         {
           "number": 18,
@@ -1076,7 +1076,7 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 580.9,
-          "win_prob": 0.0084,
+          "win_prob": 0.008479,
           "place_prob": 0.01
         }
       ],
@@ -1181,8 +1181,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 160.8,
-          "win_prob": 0.0168,
-          "place_prob": 0.0582
+          "win_prob": 0.017219,
+          "place_prob": 0.058181
         },
         {
           "number": 2,
@@ -1190,8 +1190,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 16.9,
-          "win_prob": 0.1064,
-          "place_prob": 0.0882
+          "win_prob": 0.101841,
+          "place_prob": 0.088153
         },
         {
           "number": 3,
@@ -1199,8 +1199,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 10.2,
-          "win_prob": 0.1063,
-          "place_prob": 0.3008
+          "win_prob": 0.105976,
+          "place_prob": 0.300823
         },
         {
           "number": 4,
@@ -1208,8 +1208,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 541.5,
-          "win_prob": 0.0079,
-          "place_prob": 0.0138
+          "win_prob": 0.007963,
+          "place_prob": 0.013752
         },
         {
           "number": 5,
@@ -1217,8 +1217,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 21.3,
-          "win_prob": 0.0168,
-          "place_prob": 0.1091
+          "win_prob": 0.018083,
+          "place_prob": 0.109142
         },
         {
           "number": 6,
@@ -1226,8 +1226,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 59.7,
-          "win_prob": 0.0253,
-          "place_prob": 0.1245
+          "win_prob": 0.026806,
+          "place_prob": 0.124535
         },
         {
           "number": 7,
@@ -1235,8 +1235,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 41.9,
-          "win_prob": 0.1064,
-          "place_prob": 0.1871
+          "win_prob": 0.10369,
+          "place_prob": 0.187084
         },
         {
           "number": 8,
@@ -1244,8 +1244,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.9,
-          "win_prob": 0.1572,
-          "place_prob": 0.3663
+          "win_prob": 0.15452,
+          "place_prob": 0.366257
         },
         {
           "number": 9,
@@ -1253,8 +1253,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 123.6,
-          "win_prob": 0.0375,
-          "place_prob": 0.0582
+          "win_prob": 0.036572,
+          "place_prob": 0.058181
         },
         {
           "number": 10,
@@ -1262,8 +1262,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 1.8,
-          "win_prob": 0.1102,
-          "place_prob": 0.6674
+          "win_prob": 0.115791,
+          "place_prob": 0.667372
         },
         {
           "number": 11,
@@ -1271,8 +1271,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 64.0,
-          "win_prob": 0.0901,
-          "place_prob": 0.2239
+          "win_prob": 0.089183,
+          "place_prob": 0.223902
         },
         {
           "number": 12,
@@ -1280,8 +1280,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 155.7,
-          "win_prob": 0.0079,
-          "place_prob": 0.0226
+          "win_prob": 0.008105,
+          "place_prob": 0.022637
         },
         {
           "number": 13,
@@ -1289,8 +1289,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 18.3,
-          "win_prob": 0.0375,
-          "place_prob": 0.1173
+          "win_prob": 0.037654,
+          "place_prob": 0.117264
         },
         {
           "number": 14,
@@ -1298,8 +1298,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 46.0,
-          "win_prob": 0.0584,
-          "place_prob": 0.4209
+          "win_prob": 0.063092,
+          "place_prob": 0.420918
         },
         {
           "number": 15,
@@ -1307,8 +1307,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 162.4,
-          "win_prob": 0.0253,
-          "place_prob": 0.1173
+          "win_prob": 0.0261,
+          "place_prob": 0.117264
         },
         {
           "number": 16,
@@ -1316,8 +1316,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 65.2,
-          "win_prob": 0.0901,
-          "place_prob": 0.1245
+          "win_prob": 0.087406,
+          "place_prob": 0.124535
         }
       ],
       "trio_top5": [
@@ -1420,54 +1420,54 @@
           "horse_name": "ザローズハーツ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 68.1,
-          "win_prob": 0.0201,
-          "place_prob": 0.0324
+          "win_odds": 86.1,
+          "win_prob": 0.019828,
+          "place_prob": 0.03236
         },
         {
           "number": 2,
           "horse_name": "レインボーラッキー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 97.5,
-          "win_prob": 0.0303,
-          "place_prob": 0.121
+          "win_odds": 136.0,
+          "win_prob": 0.031117,
+          "place_prob": 0.120976
         },
         {
           "number": 3,
           "horse_name": "ピラニアキッス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 14.3,
-          "win_prob": 0.0701,
-          "place_prob": 0.3201
+          "win_odds": 15.4,
+          "win_prob": 0.072321,
+          "place_prob": 0.320072
         },
         {
           "number": 4,
           "horse_name": "コルヴィル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 36.1,
-          "win_prob": 0.0323,
-          "place_prob": 0.126
+          "win_odds": 31.6,
+          "win_prob": 0.033111,
+          "place_prob": 0.126017
         },
         {
           "number": 5,
           "horse_name": "メルシージュテーム",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.6,
-          "win_prob": 0.061,
-          "place_prob": 0.0832
+          "win_odds": 13.5,
+          "win_prob": 0.059142,
+          "place_prob": 0.083171
         },
         {
           "number": 6,
           "horse_name": "ブルージュ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 9.9,
-          "win_prob": 0.045,
-          "place_prob": 0.0832
+          "win_odds": 10.3,
+          "win_prob": 0.043956,
+          "place_prob": 0.083171
         },
         {
           "number": 7,
@@ -1475,79 +1475,79 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 2.8,
-          "win_prob": 0.1885,
-          "place_prob": 0.3201
+          "win_prob": 0.185058,
+          "place_prob": 0.320072
         },
         {
           "number": 8,
           "horse_name": "マオノクラッシュ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 30.8,
-          "win_prob": 0.0323,
-          "place_prob": 0.178
+          "win_odds": 35.8,
+          "win_prob": 0.034163,
+          "place_prob": 0.178026
         },
         {
           "number": 9,
           "horse_name": "エイミームーン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 56.7,
-          "win_prob": 0.045,
-          "place_prob": 0.1676
+          "win_odds": 58.5,
+          "win_prob": 0.045263,
+          "place_prob": 0.167632
         },
         {
           "number": 10,
           "horse_name": "ケープウィッカム",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 6.9,
-          "win_prob": 0.108,
-          "place_prob": 0.2674
+          "win_odds": 7.4,
+          "win_prob": 0.106545,
+          "place_prob": 0.267441
         },
         {
           "number": 11,
           "horse_name": "ラルガメンテ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 17.1,
-          "win_prob": 0.061,
-          "place_prob": 0.3003
+          "win_odds": 17.2,
+          "win_prob": 0.062699,
+          "place_prob": 0.30034
         },
         {
           "number": 12,
           "horse_name": "ミサビスケッツ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 20.3,
-          "win_prob": 0.045,
-          "place_prob": 0.2674
+          "win_odds": 14.6,
+          "win_prob": 0.046857,
+          "place_prob": 0.267441
         },
         {
           "number": 13,
           "horse_name": "ハヌル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 112.7,
-          "win_prob": 0.0201,
-          "place_prob": 0.0832
+          "win_odds": 123.0,
+          "win_prob": 0.021029,
+          "place_prob": 0.083171
         },
         {
           "number": 14,
           "horse_name": "パッションディーバ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 75.2,
-          "win_prob": 0.045,
-          "place_prob": 0.3201
+          "win_odds": 105.4,
+          "win_prob": 0.047928,
+          "place_prob": 0.320072
         },
         {
           "number": 15,
           "horse_name": "ベリーベリーベリー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 151.2,
-          "win_prob": 0.0079,
+          "win_odds": 217.6,
+          "win_prob": 0.007947,
           "place_prob": 0.01
         },
         {
@@ -1555,9 +1555,9 @@
           "horse_name": "クラリネットソナタ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 3.8,
-          "win_prob": 0.1885,
-          "place_prob": 0.3201
+          "win_odds": 3.4,
+          "win_prob": 0.183036,
+          "place_prob": 0.320072
         }
       ],
       "trio_top5": [
@@ -1661,7 +1661,7 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 2.2,
-          "win_prob": 0.2126,
+          "win_prob": 0.216605,
           "place_prob": 0.8
         },
         {
@@ -1669,63 +1669,63 @@
           "horse_name": "チャイボーグ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 57.6,
-          "win_prob": 0.0128,
-          "place_prob": 0.0101
+          "win_odds": 61.5,
+          "win_prob": 0.012632,
+          "place_prob": 0.010136
         },
         {
           "number": 3,
           "horse_name": "スタニングヴュー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 26.4,
-          "win_prob": 0.0983,
-          "place_prob": 0.2736
+          "win_odds": 28.4,
+          "win_prob": 0.097509,
+          "place_prob": 0.273624
         },
         {
           "number": 4,
           "horse_name": "トロピカルティー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 7.1,
-          "win_prob": 0.2051,
-          "place_prob": 0.6156
+          "win_odds": 7.4,
+          "win_prob": 0.202282,
+          "place_prob": 0.615622
         },
         {
           "number": 5,
           "horse_name": "アトリウムチャペル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 8.9,
-          "win_prob": 0.1127,
-          "place_prob": 0.3275
+          "win_odds": 9.2,
+          "win_prob": 0.114346,
+          "place_prob": 0.327472
         },
         {
           "number": 6,
           "horse_name": "ツインピークス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 15.6,
-          "win_prob": 0.1127,
-          "place_prob": 0.3275
+          "win_odds": 16.1,
+          "win_prob": 0.11154,
+          "place_prob": 0.327472
         },
         {
           "number": 7,
           "horse_name": "ソニックライン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 5.6,
-          "win_prob": 0.0723,
-          "place_prob": 0.3275
+          "win_odds": 5.7,
+          "win_prob": 0.078019,
+          "place_prob": 0.327472
         },
         {
           "number": 8,
           "horse_name": "ナクライト",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.9,
-          "win_prob": 0.1737,
-          "place_prob": 0.3073
+          "win_odds": 3.5,
+          "win_prob": 0.167066,
+          "place_prob": 0.307284
         }
       ],
       "trio_top5": [
@@ -1828,45 +1828,45 @@
           "horse_name": "ヤコブセン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 52.6,
-          "win_prob": 0.0345,
-          "place_prob": 0.0892
+          "win_odds": 49.5,
+          "win_prob": 0.034467,
+          "place_prob": 0.089223
         },
         {
           "number": 2,
           "horse_name": "アルゲンテウス",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 15.7,
-          "win_prob": 0.0512,
-          "place_prob": 0.2361
+          "win_odds": 15.8,
+          "win_prob": 0.053634,
+          "place_prob": 0.236061
         },
         {
           "number": 3,
           "horse_name": "マイネルフォルツァ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 35.3,
-          "win_prob": 0.0107,
-          "place_prob": 0.0239
+          "win_odds": 36.4,
+          "win_prob": 0.010994,
+          "place_prob": 0.023866
         },
         {
           "number": 4,
           "horse_name": "レベルスルール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 9.8,
-          "win_prob": 0.1505,
-          "place_prob": 0.2361
+          "win_odds": 9.9,
+          "win_prob": 0.146697,
+          "place_prob": 0.236061
         },
         {
           "number": 5,
           "horse_name": "オメガインペリアル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 23.2,
-          "win_prob": 0.1505,
-          "place_prob": 0.4438
+          "win_odds": 23.5,
+          "win_prob": 0.149028,
+          "place_prob": 0.443777
         },
         {
           "number": 6,
@@ -1874,8 +1874,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 1.9,
-          "win_prob": 0.2146,
-          "place_prob": 0.7958
+          "win_prob": 0.217668,
+          "place_prob": 0.795796
         },
         {
           "number": 7,
@@ -1883,26 +1883,26 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 6.6,
-          "win_prob": 0.1505,
-          "place_prob": 0.5202
+          "win_prob": 0.151366,
+          "place_prob": 0.520225
         },
         {
           "number": 8,
           "horse_name": "コスモスプモーニ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 71.6,
-          "win_prob": 0.0229,
-          "place_prob": 0.0613
+          "win_odds": 73.6,
+          "win_prob": 0.023574,
+          "place_prob": 0.061341
         },
         {
           "number": 9,
           "horse_name": "ノビリシマビジョン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 3.1,
-          "win_prob": 0.2146,
-          "place_prob": 0.5936
+          "win_odds": 3.0,
+          "win_prob": 0.212573,
+          "place_prob": 0.593649
         }
       ],
       "trio_top5": [
@@ -2005,27 +2005,27 @@
           "horse_name": "ピックアップライン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 29.1,
-          "win_prob": 0.0358,
-          "place_prob": 0.2106
+          "win_odds": 29.9,
+          "win_prob": 0.037864,
+          "place_prob": 0.210584
         },
         {
           "number": 2,
           "horse_name": "クインズデネブ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 18.6,
-          "win_prob": 0.0358,
-          "place_prob": 0.1171
+          "win_odds": 19.0,
+          "win_prob": 0.036159,
+          "place_prob": 0.117128
         },
         {
           "number": 3,
           "horse_name": "ラストシャリナ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 21.8,
-          "win_prob": 0.0555,
-          "place_prob": 0.176
+          "win_odds": 22.2,
+          "win_prob": 0.055784,
+          "place_prob": 0.175956
         },
         {
           "number": 4,
@@ -2033,17 +2033,17 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 3.0,
-          "win_prob": 0.1494,
-          "place_prob": 0.4349
+          "win_prob": 0.148752,
+          "place_prob": 0.434946
         },
         {
           "number": 5,
           "horse_name": "ベンヌ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.4,
-          "win_prob": 0.0358,
-          "place_prob": 0.2106
+          "win_odds": 11.3,
+          "win_prob": 0.038348,
+          "place_prob": 0.210584
         },
         {
           "number": 6,
@@ -2051,80 +2051,80 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 8.1,
-          "win_prob": 0.0356,
-          "place_prob": 0.176
+          "win_prob": 0.036809,
+          "place_prob": 0.175956
         },
         {
           "number": 7,
           "horse_name": "スプランドゥール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 49.1,
-          "win_prob": 0.0158,
-          "place_prob": 0.0547
+          "win_odds": 48.7,
+          "win_prob": 0.016427,
+          "place_prob": 0.05472
         },
         {
           "number": 8,
           "horse_name": "カネショウレジェン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.3,
-          "win_prob": 0.1494,
-          "place_prob": 0.5227
+          "win_odds": 11.1,
+          "win_prob": 0.149942,
+          "place_prob": 0.522672
         },
         {
           "number": 9,
           "horse_name": "エンセリオ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 95.1,
-          "win_prob": 0.0356,
-          "place_prob": 0.0547
+          "win_odds": 95.4,
+          "win_prob": 0.035157,
+          "place_prob": 0.05472
         },
         {
           "number": 10,
           "horse_name": "シャパリュ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 18.5,
-          "win_prob": 0.101,
-          "place_prob": 0.1171
+          "win_odds": 18.8,
+          "win_prob": 0.097598,
+          "place_prob": 0.117128
         },
         {
           "number": 11,
           "horse_name": "レーウィン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 46.0,
-          "win_prob": 0.0157,
-          "place_prob": 0.0547
+          "win_odds": 46.9,
+          "win_prob": 0.015938,
+          "place_prob": 0.05472
         },
         {
           "number": 12,
           "horse_name": "フウセツ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 20.7,
-          "win_prob": 0.0484,
-          "place_prob": 0.0547
+          "win_odds": 21.2,
+          "win_prob": 0.046693,
+          "place_prob": 0.05472
         },
         {
           "number": 13,
           "horse_name": "イノセントキャット",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 44.7,
-          "win_prob": 0.0356,
-          "place_prob": 0.0829
+          "win_odds": 45.3,
+          "win_prob": 0.035502,
+          "place_prob": 0.08291
         },
         {
           "number": 14,
           "horse_name": "ワンダラー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.6,
-          "win_prob": 0.1494,
-          "place_prob": 0.5227
+          "win_odds": 11.4,
+          "win_prob": 0.14977,
+          "place_prob": 0.522672
         },
         {
           "number": 15,
@@ -2132,8 +2132,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 4.4,
-          "win_prob": 0.101,
-          "place_prob": 0.2106
+          "win_prob": 0.099258,
+          "place_prob": 0.210584
         }
       ],
       "trio_top5": [
@@ -2236,27 +2236,27 @@
           "horse_name": "トゥーナスタディ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 350.6,
-          "win_prob": 0.0055,
-          "place_prob": 0.0143
+          "win_odds": 359.5,
+          "win_prob": 0.005723,
+          "place_prob": 0.014273
         },
         {
           "number": 2,
           "horse_name": "カットソロ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 64.1,
-          "win_prob": 0.0748,
-          "place_prob": 0.2324
+          "win_odds": 64.9,
+          "win_prob": 0.075657,
+          "place_prob": 0.232385
         },
         {
           "number": 3,
           "horse_name": "パラディオン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 107.6,
-          "win_prob": 0.0118,
-          "place_prob": 0.0264
+          "win_odds": 109.4,
+          "win_prob": 0.012031,
+          "place_prob": 0.026431
         },
         {
           "number": 4,
@@ -2264,71 +2264,71 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.4,
-          "win_prob": 0.1105,
-          "place_prob": 0.6927
+          "win_prob": 0.114749,
+          "place_prob": 0.692658
         },
         {
           "number": 5,
           "horse_name": "ミッキーファルコン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 26.6,
-          "win_prob": 0.0633,
-          "place_prob": 0.2324
+          "win_odds": 26.8,
+          "win_prob": 0.064334,
+          "place_prob": 0.232385
         },
         {
           "number": 6,
           "horse_name": "テルヒコウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 17.0,
-          "win_prob": 0.0775,
-          "place_prob": 0.1217
+          "win_odds": 16.5,
+          "win_prob": 0.075652,
+          "place_prob": 0.121707
         },
         {
           "number": 7,
           "horse_name": "タイダルロック",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 6.1,
-          "win_prob": 0.0264,
-          "place_prob": 0.1942
+          "win_odds": 6.0,
+          "win_prob": 0.027699,
+          "place_prob": 0.194173
         },
         {
           "number": 8,
           "horse_name": "ラストスマイル",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 15.2,
-          "win_prob": 0.0117,
-          "place_prob": 0.1293
+          "win_odds": 14.9,
+          "win_prob": 0.013013,
+          "place_prob": 0.129254
         },
         {
           "number": 9,
           "horse_name": "ヒシアムルーズ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 142.3,
-          "win_prob": 0.0411,
-          "place_prob": 0.1293
+          "win_odds": 145.2,
+          "win_prob": 0.041012,
+          "place_prob": 0.129254
         },
         {
           "number": 10,
           "horse_name": "アッカン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 54.4,
-          "win_prob": 0.0748,
-          "place_prob": 0.0604
+          "win_odds": 55.3,
+          "win_prob": 0.072644,
+          "place_prob": 0.060386
         },
         {
           "number": 11,
           "horse_name": "ノチェセラーダ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 23.8,
-          "win_prob": 0.0633,
-          "place_prob": 0.0915
+          "win_odds": 24.3,
+          "win_prob": 0.061954,
+          "place_prob": 0.091493
         },
         {
           "number": 12,
@@ -2336,26 +2336,26 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 19.9,
-          "win_prob": 0.0775,
-          "place_prob": 0.2324
+          "win_prob": 0.078069,
+          "place_prob": 0.232385
         },
         {
           "number": 13,
           "horse_name": "コスモギガンティア",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 84.1,
-          "win_prob": 0.0117,
-          "place_prob": 0.0604
+          "win_odds": 84.5,
+          "win_prob": 0.012306,
+          "place_prob": 0.060386
         },
         {
           "number": 14,
           "horse_name": "ヨカオウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 135.2,
-          "win_prob": 0.0748,
-          "place_prob": 0.0604
+          "win_odds": 136.6,
+          "win_prob": 0.07263,
+          "place_prob": 0.060386
         },
         {
           "number": 15,
@@ -2363,35 +2363,35 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 4.7,
-          "win_prob": 0.1105,
-          "place_prob": 0.3801
+          "win_prob": 0.110511,
+          "place_prob": 0.380134
         },
         {
           "number": 16,
           "horse_name": "ゴーイントゥスカイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 9.1,
-          "win_prob": 0.0748,
-          "place_prob": 0.1942
+          "win_odds": 9.2,
+          "win_prob": 0.073886,
+          "place_prob": 0.194173
         },
         {
           "number": 17,
           "horse_name": "シャドウマスター",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 36.4,
-          "win_prob": 0.0633,
-          "place_prob": 0.1217
+          "win_odds": 37.1,
+          "win_prob": 0.062104,
+          "place_prob": 0.121707
         },
         {
           "number": 18,
           "horse_name": "ケントン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 128.5,
-          "win_prob": 0.0265,
-          "place_prob": 0.0264
+          "win_odds": 130.2,
+          "win_prob": 0.026024,
+          "place_prob": 0.026431
         }
       ],
       "trio_top5": [
@@ -2494,9 +2494,9 @@
           "horse_name": "エーデル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 35.9,
-          "win_prob": 0.0331,
-          "place_prob": 0.0757
+          "win_odds": 36.4,
+          "win_prob": 0.033074,
+          "place_prob": 0.075746
         },
         {
           "number": 2,
@@ -2504,8 +2504,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 5.1,
-          "win_prob": 0.206,
-          "place_prob": 0.6486
+          "win_prob": 0.207337,
+          "place_prob": 0.648566
         },
         {
           "number": 3,
@@ -2513,34 +2513,34 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 3.8,
-          "win_prob": 0.206,
-          "place_prob": 0.5908
+          "win_prob": 0.204298,
+          "place_prob": 0.590817
         },
         {
           "number": 4,
           "horse_name": "キョウエイフロイデ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 8.6,
-          "win_prob": 0.206,
-          "place_prob": 0.5734
+          "win_odds": 8.5,
+          "win_prob": 0.203228,
+          "place_prob": 0.57344
         },
         {
           "number": 5,
           "horse_name": "タマモカンパネラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 13.4,
-          "win_prob": 0.1445,
-          "place_prob": 0.3617
+          "win_odds": 13.5,
+          "win_prob": 0.141356,
+          "place_prob": 0.361674
         },
         {
           "number": 6,
           "horse_name": "アースイオス",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 92.3,
-          "win_prob": 0.0103,
+          "win_odds": 90.4,
+          "win_prob": 0.009881,
           "place_prob": 0.01
         },
         {
@@ -2548,18 +2548,18 @@
           "horse_name": "バロンドール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 13.1,
-          "win_prob": 0.022,
-          "place_prob": 0.0219
+          "win_odds": 13.2,
+          "win_prob": 0.021522,
+          "place_prob": 0.021882
         },
         {
           "number": 8,
           "horse_name": "バルダンツァ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 9.9,
-          "win_prob": 0.0354,
-          "place_prob": 0.107
+          "win_odds": 10.1,
+          "win_prob": 0.03578,
+          "place_prob": 0.107007
         },
         {
           "number": 9,
@@ -2567,44 +2567,44 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 18.9,
-          "win_prob": 0.0331,
-          "place_prob": 0.107
+          "win_prob": 0.033724,
+          "place_prob": 0.107007
         },
         {
           "number": 10,
           "horse_name": "テンクウジョー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 75.7,
-          "win_prob": 0.022,
-          "place_prob": 0.1008
+          "win_odds": 76.9,
+          "win_prob": 0.023096,
+          "place_prob": 0.10076
         },
         {
           "number": 11,
           "horse_name": "ピコニ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 33.3,
-          "win_prob": 0.022,
-          "place_prob": 0.1608
+          "win_odds": 33.8,
+          "win_prob": 0.024452,
+          "place_prob": 0.160752
         },
         {
           "number": 12,
           "horse_name": "クレイヴィンオナー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 49.5,
-          "win_prob": 0.0103,
-          "place_prob": 0.05
+          "win_odds": 49.6,
+          "win_prob": 0.011071,
+          "place_prob": 0.049992
         },
         {
           "number": 13,
           "horse_name": "コーカサスゴールド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.5,
-          "win_prob": 0.0492,
-          "place_prob": 0.1924
+          "win_odds": 3.6,
+          "win_prob": 0.05118,
+          "place_prob": 0.192388
         }
       ],
       "trio_top5": [
@@ -2708,8 +2708,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 281.7,
-          "win_prob": 0.0222,
-          "place_prob": 0.0519
+          "win_prob": 0.022099,
+          "place_prob": 0.051948
         },
         {
           "number": 2,
@@ -2717,8 +2717,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 81.3,
-          "win_prob": 0.0713,
-          "place_prob": 0.2858
+          "win_prob": 0.072625,
+          "place_prob": 0.28579
         },
         {
           "number": 3,
@@ -2726,8 +2726,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 22.1,
-          "win_prob": 0.1059,
-          "place_prob": 0.1335
+          "win_prob": 0.100008,
+          "place_prob": 0.133517
         },
         {
           "number": 4,
@@ -2735,8 +2735,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 596.2,
-          "win_prob": 0.0187,
-          "place_prob": 0.0112
+          "win_prob": 0.017686,
+          "place_prob": 0.011221
         },
         {
           "number": 5,
@@ -2744,8 +2744,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 4.4,
-          "win_prob": 0.0716,
-          "place_prob": 0.0584
+          "win_prob": 0.068022,
+          "place_prob": 0.058442
         },
         {
           "number": 6,
@@ -2753,7 +2753,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 1.5,
-          "win_prob": 0.1059,
+          "win_prob": 0.124718,
           "place_prob": 0.8
         },
         {
@@ -2762,8 +2762,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 181.9,
-          "win_prob": 0.0187,
-          "place_prob": 0.0316
+          "win_prob": 0.018573,
+          "place_prob": 0.031558
         },
         {
           "number": 8,
@@ -2771,8 +2771,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 388.5,
-          "win_prob": 0.0187,
-          "place_prob": 0.0316
+          "win_prob": 0.018454,
+          "place_prob": 0.031558
         },
         {
           "number": 9,
@@ -2780,8 +2780,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 10.0,
-          "win_prob": 0.1059,
-          "place_prob": 0.2858
+          "win_prob": 0.104093,
+          "place_prob": 0.28579
         },
         {
           "number": 10,
@@ -2789,8 +2789,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 380.8,
-          "win_prob": 0.0222,
-          "place_prob": 0.0519
+          "win_prob": 0.022051,
+          "place_prob": 0.051948
         },
         {
           "number": 11,
@@ -2798,8 +2798,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 6.7,
-          "win_prob": 0.1059,
-          "place_prob": 0.5138
+          "win_prob": 0.110796,
+          "place_prob": 0.51382
         },
         {
           "number": 12,
@@ -2807,8 +2807,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 40.3,
-          "win_prob": 0.0713,
-          "place_prob": 0.1335
+          "win_prob": 0.069104,
+          "place_prob": 0.133517
         },
         {
           "number": 13,
@@ -2816,8 +2816,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 146.6,
-          "win_prob": 0.0716,
-          "place_prob": 0.1335
+          "win_prob": 0.068127,
+          "place_prob": 0.133517
         },
         {
           "number": 14,
@@ -2825,8 +2825,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 57.1,
-          "win_prob": 0.0713,
-          "place_prob": 0.1942
+          "win_prob": 0.07016,
+          "place_prob": 0.194206
         },
         {
           "number": 15,
@@ -2834,8 +2834,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 57.9,
-          "win_prob": 0.0713,
-          "place_prob": 0.1335
+          "win_prob": 0.067973,
+          "place_prob": 0.133517
         },
         {
           "number": 16,
@@ -2843,8 +2843,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 287.5,
-          "win_prob": 0.0474,
-          "place_prob": 0.0519
+          "win_prob": 0.045509,
+          "place_prob": 0.051948
         }
       ],
       "trio_top5": [
@@ -2948,7 +2948,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 473.8,
-          "win_prob": 0.0158,
+          "win_prob": 0.01494,
           "place_prob": 0.01
         },
         {
@@ -2957,8 +2957,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 71.4,
-          "win_prob": 0.0507,
-          "place_prob": 0.1721
+          "win_prob": 0.052071,
+          "place_prob": 0.172103
         },
         {
           "number": 3,
@@ -2966,8 +2966,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.4,
-          "win_prob": 0.0753,
-          "place_prob": 0.7539
+          "win_prob": 0.087216,
+          "place_prob": 0.753902
         },
         {
           "number": 4,
@@ -2975,7 +2975,7 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 380.2,
-          "win_prob": 0.0133,
+          "win_prob": 0.012932,
           "place_prob": 0.01
         },
         {
@@ -2984,8 +2984,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 116.1,
-          "win_prob": 0.0508,
-          "place_prob": 0.0352
+          "win_prob": 0.048181,
+          "place_prob": 0.035194
         },
         {
           "number": 6,
@@ -2993,7 +2993,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 309.3,
-          "win_prob": 0.0158,
+          "win_prob": 0.015387,
           "place_prob": 0.01
         },
         {
@@ -3002,8 +3002,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 232.4,
-          "win_prob": 0.0507,
-          "place_prob": 0.019
+          "win_prob": 0.04713,
+          "place_prob": 0.019005
         },
         {
           "number": 8,
@@ -3011,8 +3011,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 12.2,
-          "win_prob": 0.1022,
-          "place_prob": 0.1218
+          "win_prob": 0.096935,
+          "place_prob": 0.121824
         },
         {
           "number": 9,
@@ -3020,8 +3020,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 220.8,
-          "win_prob": 0.0158,
-          "place_prob": 0.019
+          "win_prob": 0.015466,
+          "place_prob": 0.019005
         },
         {
           "number": 10,
@@ -3029,8 +3029,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 9.7,
-          "win_prob": 0.2135,
-          "place_prob": 0.5817
+          "win_prob": 0.210912,
+          "place_prob": 0.581692
         },
         {
           "number": 11,
@@ -3038,8 +3038,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.8,
-          "win_prob": 0.1173,
-          "place_prob": 0.3094
+          "win_prob": 0.116338,
+          "place_prob": 0.309424
         },
         {
           "number": 12,
@@ -3047,8 +3047,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 11.4,
-          "win_prob": 0.0507,
-          "place_prob": 0.117
+          "win_prob": 0.050032,
+          "place_prob": 0.116951
         },
         {
           "number": 13,
@@ -3056,8 +3056,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 187.0,
-          "win_prob": 0.0158,
-          "place_prob": 0.019
+          "win_prob": 0.015479,
+          "place_prob": 0.019005
         },
         {
           "number": 14,
@@ -3065,8 +3065,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 127.0,
-          "win_prob": 0.0158,
-          "place_prob": 0.0352
+          "win_prob": 0.016371,
+          "place_prob": 0.035194
         },
         {
           "number": 15,
@@ -3074,8 +3074,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.8,
-          "win_prob": 0.1808,
-          "place_prob": 0.768
+          "win_prob": 0.184965,
+          "place_prob": 0.767994
         },
         {
           "number": 16,
@@ -3083,8 +3083,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 728.6,
-          "win_prob": 0.0158,
-          "place_prob": 0.019
+          "win_prob": 0.015645,
+          "place_prob": 0.019005
         }
       ],
       "trio_top5": [
@@ -3188,8 +3188,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 6.7,
-          "win_prob": 0.1051,
-          "place_prob": 0.2863
+          "win_prob": 0.106364,
+          "place_prob": 0.286349
         },
         {
           "number": 2,
@@ -3197,8 +3197,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 23.6,
-          "win_prob": 0.0455,
-          "place_prob": 0.0744
+          "win_prob": 0.04369,
+          "place_prob": 0.074408
         },
         {
           "number": 3,
@@ -3206,8 +3206,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 26.4,
-          "win_prob": 0.0485,
-          "place_prob": 0.0744
+          "win_prob": 0.047461,
+          "place_prob": 0.074408
         },
         {
           "number": 4,
@@ -3215,8 +3215,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 17.9,
-          "win_prob": 0.0455,
-          "place_prob": 0.2863
+          "win_prob": 0.049649,
+          "place_prob": 0.286349
         },
         {
           "number": 5,
@@ -3224,8 +3224,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 100.1,
-          "win_prob": 0.0142,
-          "place_prob": 0.0176
+          "win_prob": 0.014018,
+          "place_prob": 0.017587
         },
         {
           "number": 6,
@@ -3233,8 +3233,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 65.9,
-          "win_prob": 0.0297,
-          "place_prob": 0.0176
+          "win_prob": 0.028223,
+          "place_prob": 0.017587
         },
         {
           "number": 7,
@@ -3242,8 +3242,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 411.5,
-          "win_prob": 0.0142,
-          "place_prob": 0.029
+          "win_prob": 0.014597,
+          "place_prob": 0.02895
         },
         {
           "number": 8,
@@ -3251,8 +3251,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 5.0,
-          "win_prob": 0.1621,
-          "place_prob": 0.2863
+          "win_prob": 0.156121,
+          "place_prob": 0.286349
         },
         {
           "number": 9,
@@ -3260,8 +3260,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 12.0,
-          "win_prob": 0.0302,
-          "place_prob": 0.0744
+          "win_prob": 0.030357,
+          "place_prob": 0.074408
         },
         {
           "number": 10,
@@ -3269,8 +3269,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 174.8,
-          "win_prob": 0.0142,
-          "place_prob": 0.0744
+          "win_prob": 0.015796,
+          "place_prob": 0.074408
         },
         {
           "number": 11,
@@ -3278,8 +3278,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 13.7,
-          "win_prob": 0.0485,
-          "place_prob": 0.2863
+          "win_prob": 0.053084,
+          "place_prob": 0.286349
         },
         {
           "number": 12,
@@ -3287,8 +3287,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 2.0,
-          "win_prob": 0.1914,
-          "place_prob": 0.6977
+          "win_prob": 0.191321,
+          "place_prob": 0.697681
         },
         {
           "number": 13,
@@ -3296,8 +3296,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 23.6,
-          "win_prob": 0.0455,
-          "place_prob": 0.2393
+          "win_prob": 0.048044,
+          "place_prob": 0.239263
         },
         {
           "number": 14,
@@ -3305,8 +3305,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 96.5,
-          "win_prob": 0.0142,
-          "place_prob": 0.0176
+          "win_prob": 0.013973,
+          "place_prob": 0.017587
         },
         {
           "number": 15,
@@ -3314,8 +3314,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 20.5,
-          "win_prob": 0.1914,
-          "place_prob": 0.5383
+          "win_prob": 0.187301,
+          "place_prob": 0.538314
         }
       ],
       "trio_top5": [
@@ -3419,8 +3419,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 9.2,
-          "win_prob": 0.1319,
-          "place_prob": 0.3236
+          "win_prob": 0.127805,
+          "place_prob": 0.323575
         },
         {
           "number": 2,
@@ -3428,8 +3428,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 42.7,
-          "win_prob": 0.1318,
-          "place_prob": 0.1006
+          "win_prob": 0.123962,
+          "place_prob": 0.100628
         },
         {
           "number": 3,
@@ -3437,8 +3437,8 @@
           "jockey_name": "",
           "impost": 59.0,
           "win_odds": 98.6,
-          "win_prob": 0.0571,
-          "place_prob": 0.1006
+          "win_prob": 0.055532,
+          "place_prob": 0.100628
         },
         {
           "number": 4,
@@ -3446,8 +3446,8 @@
           "jockey_name": "",
           "impost": 60.0,
           "win_odds": 30.5,
-          "win_prob": 0.0851,
-          "place_prob": 0.3873
+          "win_prob": 0.087868,
+          "place_prob": 0.387253
         },
         {
           "number": 5,
@@ -3455,8 +3455,8 @@
           "jockey_name": "",
           "impost": 60.0,
           "win_odds": 17.4,
-          "win_prob": 0.1319,
-          "place_prob": 0.3873
+          "win_prob": 0.131163,
+          "place_prob": 0.387253
         },
         {
           "number": 6,
@@ -3464,8 +3464,8 @@
           "jockey_name": "",
           "impost": 59.0,
           "win_odds": 18.9,
-          "win_prob": 0.1319,
-          "place_prob": 0.3236
+          "win_prob": 0.128869,
+          "place_prob": 0.323575
         },
         {
           "number": 7,
@@ -3473,7 +3473,7 @@
           "jockey_name": "",
           "impost": 61.0,
           "win_odds": 1.6,
-          "win_prob": 0.1319,
+          "win_prob": 0.147746,
           "place_prob": 0.8
         },
         {
@@ -3482,8 +3482,8 @@
           "jockey_name": "",
           "impost": 60.0,
           "win_odds": 15.4,
-          "win_prob": 0.0379,
-          "place_prob": 0.0392
+          "win_prob": 0.036541,
+          "place_prob": 0.039152
         },
         {
           "number": 9,
@@ -3491,8 +3491,8 @@
           "jockey_name": "",
           "impost": 61.0,
           "win_odds": 133.7,
-          "win_prob": 0.0373,
-          "place_prob": 0.0392
+          "win_prob": 0.036088,
+          "place_prob": 0.039152
         },
         {
           "number": 10,
@@ -3500,8 +3500,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 74.9,
-          "win_prob": 0.038,
-          "place_prob": 0.1006
+          "win_prob": 0.038012,
+          "place_prob": 0.100628
         },
         {
           "number": 11,
@@ -3509,8 +3509,8 @@
           "jockey_name": "",
           "impost": 61.0,
           "win_odds": 3.8,
-          "win_prob": 0.0851,
-          "place_prob": 0.3236
+          "win_prob": 0.086413,
+          "place_prob": 0.323575
         }
       ],
       "trio_top5": [
@@ -3614,8 +3614,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.3,
-          "win_prob": 0.0616,
-          "place_prob": 0.3719
+          "win_prob": 0.066608,
+          "place_prob": 0.371863
         },
         {
           "number": 2,
@@ -3623,8 +3623,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 5.5,
-          "win_prob": 0.1162,
-          "place_prob": 0.3107
+          "win_prob": 0.113344,
+          "place_prob": 0.310715
         },
         {
           "number": 3,
@@ -3632,8 +3632,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 14.5,
-          "win_prob": 0.1331,
-          "place_prob": 0.3719
+          "win_prob": 0.130807,
+          "place_prob": 0.371863
         },
         {
           "number": 4,
@@ -3641,8 +3641,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 83.7,
-          "win_prob": 0.0151,
-          "place_prob": 0.0376
+          "win_prob": 0.015515,
+          "place_prob": 0.037596
         },
         {
           "number": 5,
@@ -3650,7 +3650,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.9,
-          "win_prob": 0.2425,
+          "win_prob": 0.244381,
           "place_prob": 0.8
         },
         {
@@ -3659,8 +3659,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 224.8,
-          "win_prob": 0.0179,
-          "place_prob": 0.0423
+          "win_prob": 0.01877,
+          "place_prob": 0.042296
         },
         {
           "number": 7,
@@ -3668,8 +3668,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 20.1,
-          "win_prob": 0.0614,
-          "place_prob": 0.1464
+          "win_prob": 0.060512,
+          "place_prob": 0.146408
         },
         {
           "number": 8,
@@ -3677,8 +3677,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 151.2,
-          "win_prob": 0.0179,
-          "place_prob": 0.0103
+          "win_prob": 0.017389,
+          "place_prob": 0.010329
         },
         {
           "number": 9,
@@ -3686,8 +3686,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 4.4,
-          "win_prob": 0.0855,
-          "place_prob": 0.3719
+          "win_prob": 0.089024,
+          "place_prob": 0.371863
         },
         {
           "number": 10,
@@ -3695,8 +3695,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 112.1,
-          "win_prob": 0.0578,
-          "place_prob": 0.0423
+          "win_prob": 0.054936,
+          "place_prob": 0.042296
         },
         {
           "number": 11,
@@ -3704,8 +3704,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 18.4,
-          "win_prob": 0.1332,
-          "place_prob": 0.3719
+          "win_prob": 0.13246,
+          "place_prob": 0.371863
         },
         {
           "number": 12,
@@ -3713,8 +3713,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 125.7,
-          "win_prob": 0.0576,
-          "place_prob": 0.0966
+          "win_prob": 0.056254,
+          "place_prob": 0.096629
         }
       ],
       "trio_top5": [
@@ -3818,8 +3818,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.3,
-          "win_prob": 0.1984,
-          "place_prob": 0.351
+          "win_prob": 0.193143,
+          "place_prob": 0.350973
         },
         {
           "number": 2,
@@ -3827,8 +3827,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 6.5,
-          "win_prob": 0.0557,
-          "place_prob": 0.2484
+          "win_prob": 0.057051,
+          "place_prob": 0.248438
         },
         {
           "number": 3,
@@ -3836,7 +3836,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 209.0,
-          "win_prob": 0.0146,
+          "win_prob": 0.014795,
           "place_prob": 0.01
         },
         {
@@ -3845,7 +3845,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 6.7,
-          "win_prob": 0.0174,
+          "win_prob": 0.017009,
           "place_prob": 0.01
         },
         {
@@ -3854,7 +3854,7 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 305.8,
-          "win_prob": 0.0146,
+          "win_prob": 0.014231,
           "place_prob": 0.01
         },
         {
@@ -3863,7 +3863,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 203.4,
-          "win_prob": 0.0146,
+          "win_prob": 0.014535,
           "place_prob": 0.01
         },
         {
@@ -3872,8 +3872,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 396.2,
-          "win_prob": 0.0173,
-          "place_prob": 0.0638
+          "win_prob": 0.018292,
+          "place_prob": 0.063796
         },
         {
           "number": 8,
@@ -3881,8 +3881,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 11.1,
-          "win_prob": 0.0831,
-          "place_prob": 0.631
+          "win_prob": 0.088901,
+          "place_prob": 0.631012
         },
         {
           "number": 9,
@@ -3890,8 +3890,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 23.2,
-          "win_prob": 0.0557,
-          "place_prob": 0.164
+          "win_prob": 0.055095,
+          "place_prob": 0.163969
         },
         {
           "number": 10,
@@ -3899,8 +3899,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 43.1,
-          "win_prob": 0.1287,
-          "place_prob": 0.164
+          "win_prob": 0.124832,
+          "place_prob": 0.163969
         },
         {
           "number": 11,
@@ -3908,7 +3908,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 291.0,
-          "win_prob": 0.0146,
+          "win_prob": 0.0148,
           "place_prob": 0.01
         },
         {
@@ -3917,8 +3917,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 6.2,
-          "win_prob": 0.0594,
-          "place_prob": 0.2484
+          "win_prob": 0.060528,
+          "place_prob": 0.248438
         },
         {
           "number": 13,
@@ -3926,7 +3926,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 367.9,
-          "win_prob": 0.0146,
+          "win_prob": 0.014066,
           "place_prob": 0.01
         },
         {
@@ -3935,8 +3935,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.2,
-          "win_prob": 0.0826,
-          "place_prob": 0.164
+          "win_prob": 0.081703,
+          "place_prob": 0.163969
         },
         {
           "number": 15,
@@ -3944,8 +3944,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 8.6,
-          "win_prob": 0.1288,
-          "place_prob": 0.5273
+          "win_prob": 0.129713,
+          "place_prob": 0.527251
         },
         {
           "number": 16,
@@ -3953,8 +3953,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 105.5,
-          "win_prob": 0.0173,
-          "place_prob": 0.0718
+          "win_prob": 0.018561,
+          "place_prob": 0.071771
         },
         {
           "number": 17,
@@ -3962,8 +3962,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": -3.0,
-          "win_prob": 0.0826,
-          "place_prob": 0.3076
+          "win_prob": 0.082745,
+          "place_prob": 0.30759
         }
       ],
       "trio_top5": [
@@ -4067,8 +4067,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 33.0,
-          "win_prob": 0.0504,
-          "place_prob": 0.1578
+          "win_prob": 0.050683,
+          "place_prob": 0.157766
         },
         {
           "number": 2,
@@ -4076,8 +4076,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 10.0,
-          "win_prob": 0.142,
-          "place_prob": 0.3089
+          "win_prob": 0.137229,
+          "place_prob": 0.308861
         },
         {
           "number": 3,
@@ -4085,8 +4085,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.7,
-          "win_prob": 0.0503,
-          "place_prob": 0.2658
+          "win_prob": 0.053952,
+          "place_prob": 0.265761
         },
         {
           "number": 4,
@@ -4094,8 +4094,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 254.6,
-          "win_prob": 0.0224,
-          "place_prob": 0.0215
+          "win_prob": 0.02188,
+          "place_prob": 0.021476
         },
         {
           "number": 5,
@@ -4103,8 +4103,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 71.2,
-          "win_prob": 0.0337,
-          "place_prob": 0.105
+          "win_prob": 0.034007,
+          "place_prob": 0.10502
         },
         {
           "number": 6,
@@ -4112,8 +4112,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.4,
-          "win_prob": 0.0501,
-          "place_prob": 0.355
+          "win_prob": 0.056872,
+          "place_prob": 0.354956
         },
         {
           "number": 7,
@@ -4121,8 +4121,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 7.9,
-          "win_prob": 0.142,
-          "place_prob": 0.355
+          "win_prob": 0.139531,
+          "place_prob": 0.354956
         },
         {
           "number": 8,
@@ -4130,8 +4130,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 192.9,
-          "win_prob": 0.0105,
-          "place_prob": 0.0191
+          "win_prob": 0.010533,
+          "place_prob": 0.019089
         },
         {
           "number": 9,
@@ -4139,8 +4139,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 22.4,
-          "win_prob": 0.036,
-          "place_prob": 0.105
+          "win_prob": 0.036419,
+          "place_prob": 0.10502
         },
         {
           "number": 10,
@@ -4148,8 +4148,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.5,
-          "win_prob": 0.078,
-          "place_prob": 0.1578
+          "win_prob": 0.075996,
+          "place_prob": 0.157766
         },
         {
           "number": 11,
@@ -4157,8 +4157,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 9.2,
-          "win_prob": 0.142,
-          "place_prob": 0.2658
+          "win_prob": 0.136651,
+          "place_prob": 0.265761
         },
         {
           "number": 12,
@@ -4166,8 +4166,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 98.6,
-          "win_prob": 0.0503,
-          "place_prob": 0.2658
+          "win_prob": 0.054075,
+          "place_prob": 0.265761
         },
         {
           "number": 13,
@@ -4175,8 +4175,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 42.0,
-          "win_prob": 0.142,
-          "place_prob": 0.46
+          "win_prob": 0.141616,
+          "place_prob": 0.46004
         },
         {
           "number": 14,
@@ -4184,8 +4184,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 28.1,
-          "win_prob": 0.0504,
-          "place_prob": 0.1578
+          "win_prob": 0.050556,
+          "place_prob": 0.157766
         }
       ],
       "trio_top5": [
@@ -4288,9 +4288,9 @@
           "horse_name": "アイガーリー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 13.3,
-          "win_prob": 0.1094,
-          "place_prob": 0.2087
+          "win_odds": 13.7,
+          "win_prob": 0.104811,
+          "place_prob": 0.208721
         },
         {
           "number": 2,
@@ -4298,7 +4298,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 1.3,
-          "win_prob": 0.2282,
+          "win_prob": 0.236371,
           "place_prob": 0.8
         },
         {
@@ -4306,9 +4306,9 @@
           "horse_name": "キシダンチョウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 8.6,
-          "win_prob": 0.2282,
-          "place_prob": 0.6221
+          "win_odds": 8.4,
+          "win_prob": 0.223775,
+          "place_prob": 0.622124
         },
         {
           "number": 4,
@@ -4316,26 +4316,26 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.4,
-          "win_prob": 0.0808,
-          "place_prob": 0.4311
+          "win_prob": 0.089125,
+          "place_prob": 0.431099
         },
         {
           "number": 5,
           "horse_name": "ララファキュルテ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 8.1,
-          "win_prob": 0.2282,
-          "place_prob": 0.7036
+          "win_odds": 7.7,
+          "win_prob": 0.226709,
+          "place_prob": 0.703628
         },
         {
           "number": 6,
           "horse_name": "ジャストビート",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 40.7,
-          "win_prob": 0.1253,
-          "place_prob": 0.2087
+          "win_odds": 41.6,
+          "win_prob": 0.119209,
+          "place_prob": 0.208721
         }
       ],
       "trio_top5": [
@@ -4439,44 +4439,44 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 5.4,
-          "win_prob": 0.1179,
-          "place_prob": 0.2801
+          "win_prob": 0.116261,
+          "place_prob": 0.280119
         },
         {
           "number": 2,
           "horse_name": "モンタルチーノ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 4.3,
-          "win_prob": 0.051,
-          "place_prob": 0.1849
+          "win_odds": 4.2,
+          "win_prob": 0.051379,
+          "place_prob": 0.184879
         },
         {
           "number": 3,
           "horse_name": "ルクスアドラー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 94.2,
-          "win_prob": 0.0339,
-          "place_prob": 0.0719
+          "win_odds": 94.1,
+          "win_prob": 0.03405,
+          "place_prob": 0.071932
         },
         {
           "number": 4,
           "horse_name": "サリュエ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 13.1,
-          "win_prob": 0.0757,
-          "place_prob": 0.2689
+          "win_odds": 13.0,
+          "win_prob": 0.076112,
+          "place_prob": 0.268914
         },
         {
           "number": 5,
           "horse_name": "ラガークイン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 19.6,
-          "win_prob": 0.0333,
-          "place_prob": 0.0719
+          "win_odds": 19.7,
+          "win_prob": 0.033585,
+          "place_prob": 0.071932
         },
         {
           "number": 6,
@@ -4484,52 +4484,52 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 4.3,
-          "win_prob": 0.1817,
-          "place_prob": 0.5945
+          "win_prob": 0.179492,
+          "place_prob": 0.594486
         },
         {
           "number": 7,
           "horse_name": "ペールノエル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 6.2,
-          "win_prob": 0.0757,
-          "place_prob": 0.5945
+          "win_odds": 6.3,
+          "win_prob": 0.07942,
+          "place_prob": 0.594486
         },
         {
           "number": 8,
           "horse_name": "スウィートリワード",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 57.8,
-          "win_prob": 0.051,
-          "place_prob": 0.1849
+          "win_odds": 57.6,
+          "win_prob": 0.051889,
+          "place_prob": 0.184879
         },
         {
           "number": 9,
           "horse_name": "セクシーマージュ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 19.4,
-          "win_prob": 0.0757,
-          "place_prob": 0.1849
+          "win_odds": 19.3,
+          "win_prob": 0.07557,
+          "place_prob": 0.184879
         },
         {
           "number": 10,
           "horse_name": "ダガーリング",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 14.0,
-          "win_prob": 0.051,
-          "place_prob": 0.0719
+          "win_odds": 14.3,
+          "win_prob": 0.049897,
+          "place_prob": 0.071932
         },
         {
           "number": 11,
           "horse_name": "シャインズオンユー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 63.2,
-          "win_prob": 0.051,
+          "win_odds": 63.5,
+          "win_prob": 0.049299,
           "place_prob": 0.01
         },
         {
@@ -4537,45 +4537,45 @@
           "horse_name": "ヒットザグラウンド",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 68.6,
-          "win_prob": 0.0333,
-          "place_prob": 0.0719
+          "win_odds": 69.8,
+          "win_prob": 0.032981,
+          "place_prob": 0.071932
         },
         {
           "number": 13,
           "horse_name": "イリスアスール",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 34.8,
-          "win_prob": 0.051,
-          "place_prob": 0.0719
+          "win_odds": 35.2,
+          "win_prob": 0.050202,
+          "place_prob": 0.071932
         },
         {
           "number": 14,
           "horse_name": "レインオンミー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 23.0,
-          "win_prob": 0.0159,
-          "place_prob": 0.0719
+          "win_odds": 23.1,
+          "win_prob": 0.016501,
+          "place_prob": 0.071932
         },
         {
           "number": 15,
           "horse_name": "ウォーターエアリー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 23.0,
-          "win_prob": 0.0512,
-          "place_prob": 0.0809
+          "win_odds": 22.8,
+          "win_prob": 0.050974,
+          "place_prob": 0.080923
         },
         {
           "number": 16,
           "horse_name": "ニシノイツキムスメ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 45.9,
-          "win_prob": 0.051,
-          "place_prob": 0.1849
+          "win_odds": 46.3,
+          "win_prob": 0.052388,
+          "place_prob": 0.184879
         }
       ],
       "trio_top5": [
@@ -4679,16 +4679,16 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 6.3,
-          "win_prob": 0.1633,
-          "place_prob": 0.4153
+          "win_prob": 0.159993,
+          "place_prob": 0.415276
         },
         {
           "number": 2,
           "horse_name": "マイノワール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.9,
-          "win_prob": 0.0576,
+          "win_odds": 12.0,
+          "win_prob": 0.059357,
           "place_prob": 0.2209
         },
         {
@@ -4696,17 +4696,17 @@
           "horse_name": "ペンナヴェローチェ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 8.8,
-          "win_prob": 0.1383,
-          "place_prob": 0.4153
+          "win_odds": 8.7,
+          "win_prob": 0.136349,
+          "place_prob": 0.415276
         },
         {
           "number": 4,
           "horse_name": "ピエマンソン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 12.7,
-          "win_prob": 0.0579,
+          "win_odds": 12.8,
+          "win_prob": 0.060644,
           "place_prob": 0.2209
         },
         {
@@ -4714,8 +4714,8 @@
           "horse_name": "ショウサンジョージ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 28.1,
-          "win_prob": 0.0578,
+          "win_odds": 28.3,
+          "win_prob": 0.060647,
           "place_prob": 0.2209
         },
         {
@@ -4723,17 +4723,17 @@
           "horse_name": "ケイアイメキラ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 51.0,
-          "win_prob": 0.0578,
-          "place_prob": 0.087
+          "win_odds": 51.8,
+          "win_prob": 0.055494,
+          "place_prob": 0.086972
         },
         {
           "number": 7,
           "horse_name": "プルナチャンドラ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 22.3,
-          "win_prob": 0.0578,
+          "win_odds": 22.2,
+          "win_prob": 0.060497,
           "place_prob": 0.2209
         },
         {
@@ -4741,9 +4741,9 @@
           "horse_name": "プロミシングスター",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 26.5,
-          "win_prob": 0.0254,
-          "place_prob": 0.0574
+          "win_odds": 26.4,
+          "win_prob": 0.02553,
+          "place_prob": 0.057401
         },
         {
           "number": 9,
@@ -4751,8 +4751,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 4.0,
-          "win_prob": 0.0576,
-          "place_prob": 0.4153
+          "win_prob": 0.063455,
+          "place_prob": 0.415276
         },
         {
           "number": 10,
@@ -4760,8 +4760,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 2.7,
-          "win_prob": 0.1633,
-          "place_prob": 0.4153
+          "win_prob": 0.160574,
+          "place_prob": 0.415276
         },
         {
           "number": 11,
@@ -4769,8 +4769,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 15.6,
-          "win_prob": 0.1633,
-          "place_prob": 0.3109
+          "win_prob": 0.15746,
+          "place_prob": 0.310923
         }
       ],
       "trio_top5": [
@@ -4873,36 +4873,36 @@
           "horse_name": "ケイアイアニラ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.9,
-          "win_prob": 0.0642,
-          "place_prob": 0.2821
+          "win_odds": 19.0,
+          "win_prob": 0.06647,
+          "place_prob": 0.282072
         },
         {
           "number": 2,
           "horse_name": "ジュンウィンダム",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 71.1,
-          "win_prob": 0.0113,
-          "place_prob": 0.0733
+          "win_odds": 71.8,
+          "win_prob": 0.012559,
+          "place_prob": 0.073297
         },
         {
           "number": 3,
           "horse_name": "ペプチドヤマト",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.4,
-          "win_prob": 0.0287,
-          "place_prob": 0.0733
+          "win_odds": 10.9,
+          "win_prob": 0.029438,
+          "place_prob": 0.073297
         },
         {
           "number": 4,
           "horse_name": "オーブルクール",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 9.6,
-          "win_prob": 0.0645,
-          "place_prob": 0.0733
+          "win_odds": 9.7,
+          "win_prob": 0.062389,
+          "place_prob": 0.073297
         },
         {
           "number": 5,
@@ -4910,8 +4910,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 5.7,
-          "win_prob": 0.1819,
-          "place_prob": 0.2821
+          "win_prob": 0.17503,
+          "place_prob": 0.282072
         },
         {
           "number": 6,
@@ -4919,8 +4919,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 6.8,
-          "win_prob": 0.0645,
-          "place_prob": 0.2357
+          "win_prob": 0.064863,
+          "place_prob": 0.235689
         },
         {
           "number": 7,
@@ -4928,26 +4928,26 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 11.6,
-          "win_prob": 0.0645,
-          "place_prob": 0.4614
+          "win_prob": 0.070714,
+          "place_prob": 0.461411
         },
         {
           "number": 8,
           "horse_name": "ケイアイシェルビー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 52.0,
-          "win_prob": 0.0135,
-          "place_prob": 0.0285
+          "win_odds": 52.5,
+          "win_prob": 0.014031,
+          "place_prob": 0.028518
         },
         {
           "number": 9,
           "horse_name": "カズゴルティス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 43.5,
-          "win_prob": 0.0432,
-          "place_prob": 0.1477
+          "win_odds": 43.9,
+          "win_prob": 0.044012,
+          "place_prob": 0.14773
         },
         {
           "number": 10,
@@ -4955,8 +4955,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 5.0,
-          "win_prob": 0.1819,
-          "place_prob": 0.5303
+          "win_prob": 0.180952,
+          "place_prob": 0.530273
         },
         {
           "number": 11,
@@ -4964,8 +4964,8 @@
           "jockey_name": "",
           "impost": 60.0,
           "win_odds": 6.9,
-          "win_prob": 0.1819,
-          "place_prob": 0.2821
+          "win_prob": 0.174739,
+          "place_prob": 0.282072
         },
         {
           "number": 12,
@@ -4973,8 +4973,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 4.9,
-          "win_prob": 0.0999,
-          "place_prob": 0.5303
+          "win_prob": 0.104803,
+          "place_prob": 0.530273
         }
       ],
       "trio_top5": [
@@ -5077,9 +5077,9 @@
           "horse_name": "ホウオウトランプ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 4.3,
-          "win_prob": 0.0946,
-          "place_prob": 0.506
+          "win_odds": 4.4,
+          "win_prob": 0.09888,
+          "place_prob": 0.505991
         },
         {
           "number": 2,
@@ -5087,80 +5087,80 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 2.3,
-          "win_prob": 0.1723,
-          "place_prob": 0.6758
+          "win_prob": 0.173049,
+          "place_prob": 0.675812
         },
         {
           "number": 3,
           "horse_name": "オデット",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 67.5,
-          "win_prob": 0.0409,
-          "place_prob": 0.0363
+          "win_odds": 67.8,
+          "win_prob": 0.039487,
+          "place_prob": 0.036345
         },
         {
           "number": 4,
           "horse_name": "ユメハハテシナク",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 12.9,
-          "win_prob": 0.0409,
-          "place_prob": 0.0363
+          "win_odds": 13.1,
+          "win_prob": 0.039433,
+          "place_prob": 0.036345
         },
         {
           "number": 5,
           "horse_name": "オリバナム",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.2,
-          "win_prob": 0.1723,
-          "place_prob": 0.3595
+          "win_odds": 9.8,
+          "win_prob": 0.169753,
+          "place_prob": 0.35949
         },
         {
           "number": 6,
           "horse_name": "クスクス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 13.9,
-          "win_prob": 0.1723,
-          "place_prob": 0.3373
+          "win_odds": 14.0,
+          "win_prob": 0.167159,
+          "place_prob": 0.337328
         },
         {
           "number": 7,
           "horse_name": "サクラオーラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 17.2,
-          "win_prob": 0.0608,
-          "place_prob": 0.0934
+          "win_odds": 17.1,
+          "win_prob": 0.059731,
+          "place_prob": 0.093414
         },
         {
           "number": 8,
           "horse_name": "アスクエピソード",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 52.4,
-          "win_prob": 0.0127,
-          "place_prob": 0.0363
+          "win_odds": 53.4,
+          "win_prob": 0.013488,
+          "place_prob": 0.036345
         },
         {
           "number": 9,
           "horse_name": "ショウナンバルドル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 17.2,
-          "win_prob": 0.0437,
-          "place_prob": 0.2
+          "win_odds": 17.5,
+          "win_prob": 0.044985,
+          "place_prob": 0.19995
         },
         {
           "number": 10,
           "horse_name": "リアライズ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.1,
-          "win_prob": 0.0947,
-          "place_prob": 0.3595
+          "win_odds": 11.2,
+          "win_prob": 0.096958,
+          "place_prob": 0.35949
         },
         {
           "number": 11,
@@ -5168,8 +5168,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 9.4,
-          "win_prob": 0.0947,
-          "place_prob": 0.3595
+          "win_prob": 0.097077,
+          "place_prob": 0.35949
         }
       ],
       "trio_top5": [
@@ -5273,7 +5273,7 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 220.4,
-          "win_prob": 0.0208,
+          "win_prob": 0.020468,
           "place_prob": 0.01
         },
         {
@@ -5282,8 +5282,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 9.4,
-          "win_prob": 0.0518,
-          "place_prob": 0.0819
+          "win_prob": 0.05119,
+          "place_prob": 0.081918
         },
         {
           "number": 3,
@@ -5291,8 +5291,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 50.3,
-          "win_prob": 0.0527,
-          "place_prob": 0.0728
+          "win_prob": 0.051377,
+          "place_prob": 0.072816
         },
         {
           "number": 4,
@@ -5300,7 +5300,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 115.9,
-          "win_prob": 0.0208,
+          "win_prob": 0.020073,
           "place_prob": 0.01
         },
         {
@@ -5309,8 +5309,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 3.9,
-          "win_prob": 0.0846,
-          "place_prob": 0.4006
+          "win_prob": 0.087073,
+          "place_prob": 0.400591
         },
         {
           "number": 6,
@@ -5318,8 +5318,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 4.7,
-          "win_prob": 0.1833,
-          "place_prob": 0.4006
+          "win_prob": 0.177399,
+          "place_prob": 0.400591
         },
         {
           "number": 7,
@@ -5327,8 +5327,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 60.4,
-          "win_prob": 0.0524,
-          "place_prob": 0.0442
+          "win_prob": 0.050018,
+          "place_prob": 0.044236
         },
         {
           "number": 8,
@@ -5336,8 +5336,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 131.8,
-          "win_prob": 0.0247,
-          "place_prob": 0.0728
+          "win_prob": 0.025534,
+          "place_prob": 0.072816
         },
         {
           "number": 9,
@@ -5345,8 +5345,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 4.1,
-          "win_prob": 0.1833,
-          "place_prob": 0.7202
+          "win_prob": 0.184728,
+          "place_prob": 0.720221
         },
         {
           "number": 10,
@@ -5354,8 +5354,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 5.6,
-          "win_prob": 0.1832,
-          "place_prob": 0.7202
+          "win_prob": 0.185339,
+          "place_prob": 0.720221
         },
         {
           "number": 11,
@@ -5363,7 +5363,7 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 153.0,
-          "win_prob": 0.0208,
+          "win_prob": 0.020429,
           "place_prob": 0.01
         },
         {
@@ -5372,8 +5372,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 9.6,
-          "win_prob": 0.0518,
-          "place_prob": 0.1872
+          "win_prob": 0.051481,
+          "place_prob": 0.18715
         },
         {
           "number": 13,
@@ -5381,7 +5381,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 158.7,
-          "win_prob": 0.0208,
+          "win_prob": 0.020564,
           "place_prob": 0.01
         },
         {
@@ -5390,8 +5390,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 74.6,
-          "win_prob": 0.0247,
-          "place_prob": 0.0728
+          "win_prob": 0.025508,
+          "place_prob": 0.072816
         },
         {
           "number": 15,
@@ -5399,8 +5399,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 13.5,
-          "win_prob": 0.0247,
-          "place_prob": 0.1872
+          "win_prob": 0.028819,
+          "place_prob": 0.18715
         }
       ],
       "trio_top5": [
@@ -5504,8 +5504,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 14.6,
-          "win_prob": 0.043,
-          "place_prob": 0.0521
+          "win_prob": 0.0419,
+          "place_prob": 0.052076
         },
         {
           "number": 2,
@@ -5513,8 +5513,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 26.5,
-          "win_prob": 0.0702,
-          "place_prob": 0.2865
+          "win_prob": 0.071328,
+          "place_prob": 0.286496
         },
         {
           "number": 3,
@@ -5522,8 +5522,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 135.9,
-          "win_prob": 0.043,
-          "place_prob": 0.0521
+          "win_prob": 0.041184,
+          "place_prob": 0.052076
         },
         {
           "number": 4,
@@ -5531,8 +5531,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 1.9,
-          "win_prob": 0.2769,
-          "place_prob": 0.5151
+          "win_prob": 0.268637,
+          "place_prob": 0.515089
         },
         {
           "number": 5,
@@ -5540,8 +5540,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 63.2,
-          "win_prob": 0.0438,
-          "place_prob": 0.1338
+          "win_prob": 0.044371,
+          "place_prob": 0.133847
         },
         {
           "number": 6,
@@ -5549,8 +5549,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 173.6,
-          "win_prob": 0.0205,
-          "place_prob": 0.2511
+          "win_prob": 0.024766,
+          "place_prob": 0.251083
         },
         {
           "number": 7,
@@ -5558,8 +5558,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 314.7,
-          "win_prob": 0.0173,
-          "place_prob": 0.0101
+          "win_prob": 0.016967,
+          "place_prob": 0.010059
         },
         {
           "number": 8,
@@ -5567,7 +5567,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.6,
-          "win_prob": 0.1522,
+          "win_prob": 0.156999,
           "place_prob": 0.8
         },
         {
@@ -5576,8 +5576,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 89.2,
-          "win_prob": 0.0438,
-          "place_prob": 0.0521
+          "win_prob": 0.042148,
+          "place_prob": 0.052076
         },
         {
           "number": 10,
@@ -5585,8 +5585,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 198.1,
-          "win_prob": 0.0205,
-          "place_prob": 0.0101
+          "win_prob": 0.019729,
+          "place_prob": 0.010059
         },
         {
           "number": 11,
@@ -5594,8 +5594,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 14.3,
-          "win_prob": 0.0702,
-          "place_prob": 0.2865
+          "win_prob": 0.0721,
+          "place_prob": 0.286496
         },
         {
           "number": 12,
@@ -5603,8 +5603,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 29.1,
-          "win_prob": 0.0205,
-          "place_prob": 0.0586
+          "win_prob": 0.021848,
+          "place_prob": 0.058586
         },
         {
           "number": 13,
@@ -5612,8 +5612,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 19.5,
-          "win_prob": 0.0702,
-          "place_prob": 0.1338
+          "win_prob": 0.069096,
+          "place_prob": 0.133847
         },
         {
           "number": 14,
@@ -5621,8 +5621,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 79.1,
-          "win_prob": 0.0173,
-          "place_prob": 0.0316
+          "win_prob": 0.017244,
+          "place_prob": 0.031636
         },
         {
           "number": 15,
@@ -5630,8 +5630,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 156.9,
-          "win_prob": 0.0205,
-          "place_prob": 0.0521
+          "win_prob": 0.021056,
+          "place_prob": 0.052076
         },
         {
           "number": 16,
@@ -5639,8 +5639,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 7.9,
-          "win_prob": 0.0702,
-          "place_prob": 0.2698
+          "win_prob": 0.070626,
+          "place_prob": 0.269768
         }
       ],
       "trio_top5": [
@@ -5744,8 +5744,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 131.0,
-          "win_prob": 0.0306,
-          "place_prob": 0.1636
+          "win_prob": 0.034618,
+          "place_prob": 0.163579
         },
         {
           "number": 2,
@@ -5753,8 +5753,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 147.6,
-          "win_prob": 0.0306,
-          "place_prob": 0.0387
+          "win_prob": 0.029602,
+          "place_prob": 0.038664
         },
         {
           "number": 3,
@@ -5762,7 +5762,7 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 28.2,
-          "win_prob": 0.0258,
+          "win_prob": 0.024465,
           "place_prob": 0.01
         },
         {
@@ -5771,8 +5771,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 8.2,
-          "win_prob": 0.105,
-          "place_prob": 0.1636
+          "win_prob": 0.098869,
+          "place_prob": 0.163579
         },
         {
           "number": 5,
@@ -5780,7 +5780,7 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 312.6,
-          "win_prob": 0.0258,
+          "win_prob": 0.024392,
           "place_prob": 0.01
         },
         {
@@ -5789,8 +5789,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 29.7,
-          "win_prob": 0.0258,
-          "place_prob": 0.0636
+          "win_prob": 0.026024,
+          "place_prob": 0.063645
         },
         {
           "number": 7,
@@ -5798,8 +5798,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 8.4,
-          "win_prob": 0.0307,
-          "place_prob": 0.1636
+          "win_prob": 0.032276,
+          "place_prob": 0.163579
         },
         {
           "number": 8,
@@ -5807,8 +5807,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 8.8,
-          "win_prob": 0.0306,
-          "place_prob": 0.0636
+          "win_prob": 0.030872,
+          "place_prob": 0.063645
         },
         {
           "number": 9,
@@ -5816,8 +5816,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 6.1,
-          "win_prob": 0.105,
-          "place_prob": 0.526
+          "win_prob": 0.108569,
+          "place_prob": 0.525997
         },
         {
           "number": 10,
@@ -5825,8 +5825,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 6.6,
-          "win_prob": 0.146,
-          "place_prob": 0.6295
+          "win_prob": 0.150797,
+          "place_prob": 0.629512
         },
         {
           "number": 11,
@@ -5834,8 +5834,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 6.3,
-          "win_prob": 0.146,
-          "place_prob": 0.3297
+          "win_prob": 0.139542,
+          "place_prob": 0.329695
         },
         {
           "number": 12,
@@ -5843,7 +5843,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 362.5,
-          "win_prob": 0.0306,
+          "win_prob": 0.0319,
           "place_prob": 0.0716
         },
         {
@@ -5852,7 +5852,7 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 53.7,
-          "win_prob": 0.0258,
+          "win_prob": 0.024795,
           "place_prob": 0.01
         },
         {
@@ -5861,8 +5861,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 46.8,
-          "win_prob": 0.0306,
-          "place_prob": 0.0636
+          "win_prob": 0.030751,
+          "place_prob": 0.063645
         },
         {
           "number": 15,
@@ -5870,8 +5870,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 3.4,
-          "win_prob": 0.1469,
-          "place_prob": 0.6295
+          "win_prob": 0.151686,
+          "place_prob": 0.629512
         },
         {
           "number": 16,
@@ -5879,8 +5879,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 143.7,
-          "win_prob": 0.0643,
-          "place_prob": 0.0636
+          "win_prob": 0.060842,
+          "place_prob": 0.063645
         }
       ],
       "trio_top5": [
@@ -5984,7 +5984,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 164.8,
-          "win_prob": 0.0155,
+          "win_prob": 0.014418,
           "place_prob": 0.01
         },
         {
@@ -5993,8 +5993,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 13.9,
-          "win_prob": 0.0631,
-          "place_prob": 0.1445
+          "win_prob": 0.062406,
+          "place_prob": 0.144513
         },
         {
           "number": 3,
@@ -6002,8 +6002,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.6,
-          "win_prob": 0.1367,
-          "place_prob": 0.6534
+          "win_prob": 0.145062,
+          "place_prob": 0.653397
         },
         {
           "number": 4,
@@ -6011,8 +6011,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 84.6,
-          "win_prob": 0.0184,
-          "place_prob": 0.016
+          "win_prob": 0.017445,
+          "place_prob": 0.015958
         },
         {
           "number": 5,
@@ -6020,8 +6020,8 @@
           "jockey_name": "",
           "impost": 51.0,
           "win_odds": 296.8,
-          "win_prob": 0.0393,
-          "place_prob": 0.0675
+          "win_prob": 0.037343,
+          "place_prob": 0.067514
         },
         {
           "number": 6,
@@ -6029,8 +6029,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 447.6,
-          "win_prob": 0.0155,
-          "place_prob": 0.016
+          "win_prob": 0.014805,
+          "place_prob": 0.015958
         },
         {
           "number": 7,
@@ -6038,8 +6038,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 8.5,
-          "win_prob": 0.0393,
-          "place_prob": 0.1361
+          "win_prob": 0.039968,
+          "place_prob": 0.136076
         },
         {
           "number": 8,
@@ -6047,8 +6047,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.1,
-          "win_prob": 0.2488,
-          "place_prob": 0.7744
+          "win_prob": 0.243795,
+          "place_prob": 0.774431
         },
         {
           "number": 9,
@@ -6056,8 +6056,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 14.7,
-          "win_prob": 0.0391,
-          "place_prob": 0.0263
+          "win_prob": 0.036129,
+          "place_prob": 0.026268
         },
         {
           "number": 10,
@@ -6065,8 +6065,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 192.2,
-          "win_prob": 0.0386,
-          "place_prob": 0.0675
+          "win_prob": 0.037723,
+          "place_prob": 0.067514
         },
         {
           "number": 11,
@@ -6074,8 +6074,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 15.5,
-          "win_prob": 0.1367,
-          "place_prob": 0.2598
+          "win_prob": 0.133061,
+          "place_prob": 0.25982
         },
         {
           "number": 12,
@@ -6083,8 +6083,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 314.5,
-          "win_prob": 0.0155,
-          "place_prob": 0.1267
+          "win_prob": 0.018673,
+          "place_prob": 0.126651
         },
         {
           "number": 13,
@@ -6092,7 +6092,7 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 236.9,
-          "win_prob": 0.0155,
+          "win_prob": 0.014546,
           "place_prob": 0.01
         },
         {
@@ -6101,8 +6101,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 34.7,
-          "win_prob": 0.0386,
-          "place_prob": 0.1361
+          "win_prob": 0.039195,
+          "place_prob": 0.136076
         },
         {
           "number": 15,
@@ -6110,8 +6110,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 36.5,
-          "win_prob": 0.0393,
-          "place_prob": 0.0675
+          "win_prob": 0.038104,
+          "place_prob": 0.067514
         },
         {
           "number": 16,
@@ -6119,8 +6119,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 7.2,
-          "win_prob": 0.0999,
-          "place_prob": 0.4884
+          "win_prob": 0.107326,
+          "place_prob": 0.488441
         }
       ],
       "trio_top5": [
@@ -6224,8 +6224,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 25.4,
-          "win_prob": 0.0601,
-          "place_prob": 0.074
+          "win_prob": 0.057109,
+          "place_prob": 0.074039
         },
         {
           "number": 2,
@@ -6233,8 +6233,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 15.4,
-          "win_prob": 0.0981,
-          "place_prob": 0.1903
+          "win_prob": 0.093306,
+          "place_prob": 0.190295
         },
         {
           "number": 3,
@@ -6242,8 +6242,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 160.3,
-          "win_prob": 0.0608,
-          "place_prob": 0.074
+          "win_prob": 0.05762,
+          "place_prob": 0.074039
         },
         {
           "number": 4,
@@ -6251,8 +6251,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 121.9,
-          "win_prob": 0.0286,
-          "place_prob": 0.045
+          "win_prob": 0.02791,
+          "place_prob": 0.044979
         },
         {
           "number": 5,
@@ -6260,8 +6260,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 122.1,
-          "win_prob": 0.0241,
-          "place_prob": 0.0125
+          "win_prob": 0.022756,
+          "place_prob": 0.012492
         },
         {
           "number": 6,
@@ -6269,8 +6269,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 50.9,
-          "win_prob": 0.0241,
-          "place_prob": 0.045
+          "win_prob": 0.023707,
+          "place_prob": 0.044979
         },
         {
           "number": 7,
@@ -6278,8 +6278,8 @@
           "jockey_name": "",
           "impost": 50.0,
           "win_odds": 79.3,
-          "win_prob": 0.0241,
-          "place_prob": 0.0125
+          "win_prob": 0.023125,
+          "place_prob": 0.012492
         },
         {
           "number": 8,
@@ -6287,7 +6287,7 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 2.6,
-          "win_prob": 0.2128,
+          "win_prob": 0.226492,
           "place_prob": 0.8
         },
         {
@@ -6296,8 +6296,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 234.4,
-          "win_prob": 0.0286,
-          "place_prob": 0.0125
+          "win_prob": 0.027126,
+          "place_prob": 0.012492
         },
         {
           "number": 10,
@@ -6305,8 +6305,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 16.1,
-          "win_prob": 0.0612,
-          "place_prob": 0.0833
+          "win_prob": 0.05894,
+          "place_prob": 0.083294
         },
         {
           "number": 11,
@@ -6314,8 +6314,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 6.9,
-          "win_prob": 0.0982,
-          "place_prob": 0.2883
+          "win_prob": 0.096222,
+          "place_prob": 0.288326
         },
         {
           "number": 12,
@@ -6323,8 +6323,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 19.5,
-          "win_prob": 0.0612,
-          "place_prob": 0.1903
+          "win_prob": 0.061643,
+          "place_prob": 0.190295
         },
         {
           "number": 13,
@@ -6332,8 +6332,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.2,
-          "win_prob": 0.1365,
-          "place_prob": 0.7323
+          "win_prob": 0.139243,
+          "place_prob": 0.732323
         },
         {
           "number": 14,
@@ -6341,8 +6341,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 23.9,
-          "win_prob": 0.0241,
-          "place_prob": 0.074
+          "win_prob": 0.025044,
+          "place_prob": 0.074039
         },
         {
           "number": 15,
@@ -6350,8 +6350,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 10.3,
-          "win_prob": 0.0286,
-          "place_prob": 0.0833
+          "win_prob": 0.029979,
+          "place_prob": 0.083294
         },
         {
           "number": 16,
@@ -6359,8 +6359,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 209.7,
-          "win_prob": 0.0286,
-          "place_prob": 0.0833
+          "win_prob": 0.029779,
+          "place_prob": 0.083294
         }
       ],
       "trio_top5": [
@@ -6464,8 +6464,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 30.2,
-          "win_prob": 0.0352,
-          "place_prob": 0.0674
+          "win_prob": 0.035119,
+          "place_prob": 0.067398
         },
         {
           "number": 2,
@@ -6473,8 +6473,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 7.6,
-          "win_prob": 0.0529,
-          "place_prob": 0.2167
+          "win_prob": 0.053615,
+          "place_prob": 0.216721
         },
         {
           "number": 3,
@@ -6482,8 +6482,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 9.7,
-          "win_prob": 0.1222,
-          "place_prob": 0.2594
+          "win_prob": 0.119325,
+          "place_prob": 0.259371
         },
         {
           "number": 4,
@@ -6491,8 +6491,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 56.7,
-          "win_prob": 0.0345,
-          "place_prob": 0.0262
+          "win_prob": 0.032556,
+          "place_prob": 0.026223
         },
         {
           "number": 5,
@@ -6500,7 +6500,7 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 258.1,
-          "win_prob": 0.0139,
+          "win_prob": 0.012981,
           "place_prob": 0.01
         },
         {
@@ -6509,8 +6509,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 13.0,
-          "win_prob": 0.0564,
-          "place_prob": 0.1443
+          "win_prob": 0.056305,
+          "place_prob": 0.144264
         },
         {
           "number": 7,
@@ -6518,8 +6518,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 109.1,
-          "win_prob": 0.0165,
-          "place_prob": 0.0159
+          "win_prob": 0.015868,
+          "place_prob": 0.01593
         },
         {
           "number": 8,
@@ -6527,8 +6527,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 6.3,
-          "win_prob": 0.0789,
-          "place_prob": 0.2594
+          "win_prob": 0.080099,
+          "place_prob": 0.259371
         },
         {
           "number": 9,
@@ -6536,8 +6536,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 12.0,
-          "win_prob": 0.1222,
-          "place_prob": 0.4243
+          "win_prob": 0.1223,
+          "place_prob": 0.424277
         },
         {
           "number": 10,
@@ -6545,8 +6545,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 4.5,
-          "win_prob": 0.2224,
-          "place_prob": 0.2594
+          "win_prob": 0.208359,
+          "place_prob": 0.259371
         },
         {
           "number": 11,
@@ -6554,8 +6554,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 44.1,
-          "win_prob": 0.0165,
-          "place_prob": 0.0262
+          "win_prob": 0.016534,
+          "place_prob": 0.026223
         },
         {
           "number": 12,
@@ -6563,8 +6563,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 103.6,
-          "win_prob": 0.0139,
-          "place_prob": 0.0674
+          "win_prob": 0.015601,
+          "place_prob": 0.067398
         },
         {
           "number": 13,
@@ -6572,8 +6572,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 6.5,
-          "win_prob": 0.0784,
-          "place_prob": 0.7731
+          "win_prob": 0.094355,
+          "place_prob": 0.773092
         },
         {
           "number": 14,
@@ -6581,8 +6581,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 4.4,
-          "win_prob": 0.1222,
-          "place_prob": 0.4345
+          "win_prob": 0.123397,
+          "place_prob": 0.434465
         },
         {
           "number": 15,
@@ -6590,8 +6590,8 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 157.0,
-          "win_prob": 0.0139,
-          "place_prob": 0.0159
+          "win_prob": 0.013586,
+          "place_prob": 0.01593
         }
       ],
       "trio_top5": [
@@ -6695,8 +6695,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 5.0,
-          "win_prob": 0.0775,
-          "place_prob": 0.3237
+          "win_prob": 0.080157,
+          "place_prob": 0.32374
         },
         {
           "number": 2,
@@ -6704,8 +6704,8 @@
           "jockey_name": "",
           "impost": 54.0,
           "win_odds": 202.6,
-          "win_prob": 0.0226,
-          "place_prob": 0.0392
+          "win_prob": 0.022195,
+          "place_prob": 0.039172
         },
         {
           "number": 3,
@@ -6713,8 +6713,8 @@
           "jockey_name": "",
           "impost": 52.0,
           "win_odds": 4.6,
-          "win_prob": 0.1083,
-          "place_prob": 0.6338
+          "win_prob": 0.116606,
+          "place_prob": 0.63379
         },
         {
           "number": 4,
@@ -6722,8 +6722,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 21.3,
-          "win_prob": 0.019,
-          "place_prob": 0.0392
+          "win_prob": 0.018961,
+          "place_prob": 0.039172
         },
         {
           "number": 5,
@@ -6731,8 +6731,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 141.2,
-          "win_prob": 0.0474,
-          "place_prob": 0.0238
+          "win_prob": 0.044267,
+          "place_prob": 0.023797
         },
         {
           "number": 6,
@@ -6740,8 +6740,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 5.3,
-          "win_prob": 0.1679,
-          "place_prob": 0.3875
+          "win_prob": 0.166012,
+          "place_prob": 0.387451
         },
         {
           "number": 7,
@@ -6749,8 +6749,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 19.9,
-          "win_prob": 0.0483,
-          "place_prob": 0.1007
+          "win_prob": 0.047059,
+          "place_prob": 0.10068
         },
         {
           "number": 8,
@@ -6758,8 +6758,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 9.6,
-          "win_prob": 0.1227,
-          "place_prob": 0.1889
+          "win_prob": 0.116747,
+          "place_prob": 0.188865
         },
         {
           "number": 9,
@@ -6767,8 +6767,8 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 33.9,
-          "win_prob": 0.1227,
-          "place_prob": 0.0392
+          "win_prob": 0.112934,
+          "place_prob": 0.039172
         },
         {
           "number": 10,
@@ -6776,8 +6776,8 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 11.7,
-          "win_prob": 0.0483,
-          "place_prob": 0.3875
+          "win_prob": 0.056488,
+          "place_prob": 0.387451
         },
         {
           "number": 11,
@@ -6785,8 +6785,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 8.7,
-          "win_prob": 0.0474,
-          "place_prob": 0.2029
+          "win_prob": 0.04924,
+          "place_prob": 0.20292
         },
         {
           "number": 12,
@@ -6794,8 +6794,8 @@
           "jockey_name": "",
           "impost": 53.0,
           "win_odds": 4.8,
-          "win_prob": 0.1679,
-          "place_prob": 0.6338
+          "win_prob": 0.169334,
+          "place_prob": 0.63379
         }
       ],
       "trio_top5": [
@@ -6898,81 +6898,81 @@
           "horse_name": "タキノボリ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 23.2,
-          "win_prob": 0.0267,
-          "place_prob": 0.1363
+          "win_odds": 23.3,
+          "win_prob": 0.028504,
+          "place_prob": 0.136258
         },
         {
           "number": 2,
           "horse_name": "ルシャルムール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 2.3,
-          "win_prob": 0.17,
-          "place_prob": 0.4007
+          "win_odds": 2.4,
+          "win_prob": 0.165041,
+          "place_prob": 0.400733
         },
         {
           "number": 3,
           "horse_name": "ウィズマスタング",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 30.3,
-          "win_prob": 0.0683,
-          "place_prob": 0.2047
+          "win_odds": 32.4,
+          "win_prob": 0.068083,
+          "place_prob": 0.204694
         },
         {
           "number": 4,
           "horse_name": "マテンロウカナロア",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 9.3,
-          "win_prob": 0.17,
-          "place_prob": 0.4605
+          "win_odds": 8.4,
+          "win_prob": 0.167097,
+          "place_prob": 0.460539
         },
         {
           "number": 5,
           "horse_name": "トクシージェネラル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 53.5,
-          "win_prob": 0.0106,
-          "place_prob": 0.0637
+          "win_odds": 54.8,
+          "win_prob": 0.011701,
+          "place_prob": 0.063658
         },
         {
           "number": 6,
           "horse_name": "タニセンドリーム",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 21.9,
-          "win_prob": 0.0269,
-          "place_prob": 0.0965
+          "win_odds": 22.1,
+          "win_prob": 0.027786,
+          "place_prob": 0.096451
         },
         {
           "number": 7,
           "horse_name": "ハヤブサオヒメサマ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 50.0,
-          "win_prob": 0.0126,
-          "place_prob": 0.0637
+          "win_odds": 55.0,
+          "win_prob": 0.014332,
+          "place_prob": 0.063658
         },
         {
           "number": 8,
           "horse_name": "ロジルーラー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 27.0,
-          "win_prob": 0.0126,
-          "place_prob": 0.0637
+          "win_odds": 30.0,
+          "win_prob": 0.013427,
+          "place_prob": 0.063658
         },
         {
           "number": 9,
           "horse_name": "ヴェラグエリエロ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 58.9,
-          "win_prob": 0.0269,
-          "place_prob": 0.1363
+          "win_odds": 57.5,
+          "win_prob": 0.028546,
+          "place_prob": 0.136258
         },
         {
           "number": 10,
@@ -6980,52 +6980,52 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 4.9,
-          "win_prob": 0.0934,
-          "place_prob": 0.245
+          "win_prob": 0.09376,
+          "place_prob": 0.244978
         },
         {
           "number": 11,
           "horse_name": "シヴァールバーニ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 73.0,
-          "win_prob": 0.0126,
-          "place_prob": 0.0637
+          "win_odds": 71.6,
+          "win_prob": 0.014389,
+          "place_prob": 0.063658
         },
         {
           "number": 12,
           "horse_name": "オウケンシルヴァー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 7.7,
-          "win_prob": 0.17,
-          "place_prob": 0.506
+          "win_odds": 7.0,
+          "win_prob": 0.16925,
+          "place_prob": 0.505984
         },
         {
           "number": 13,
           "horse_name": "ラッキーヤース",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 12.6,
-          "win_prob": 0.0934,
-          "place_prob": 0.2047
+          "win_odds": 12.5,
+          "win_prob": 0.091282,
+          "place_prob": 0.204694
         },
         {
           "number": 14,
           "horse_name": "チギリ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 17.0,
-          "win_prob": 0.0934,
-          "place_prob": 0.3448
+          "win_odds": 16.2,
+          "win_prob": 0.094941,
+          "place_prob": 0.344813
         },
         {
           "number": 15,
           "horse_name": "ヒラボクヒーロー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 68.4,
-          "win_prob": 0.0126,
+          "win_odds": 67.3,
+          "win_prob": 0.011862,
           "place_prob": 0.01
         }
       ],
@@ -7129,9 +7129,9 @@
           "horse_name": "マナボニート",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 8.7,
-          "win_prob": 0.0645,
-          "place_prob": 0.2172
+          "win_odds": 8.8,
+          "win_prob": 0.064569,
+          "place_prob": 0.21719
         },
         {
           "number": 2,
@@ -7139,44 +7139,44 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 3.3,
-          "win_prob": 0.1819,
-          "place_prob": 0.4887
+          "win_prob": 0.179266,
+          "place_prob": 0.488652
         },
         {
           "number": 3,
           "horse_name": "カシノリアーナ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 70.5,
-          "win_prob": 0.0461,
-          "place_prob": 0.0296
+          "win_odds": 72.0,
+          "win_prob": 0.044002,
+          "place_prob": 0.029565
         },
         {
           "number": 4,
           "horse_name": "ニシノセイドウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 12.5,
-          "win_prob": 0.0461,
-          "place_prob": 0.0675
+          "win_odds": 12.4,
+          "win_prob": 0.044766,
+          "place_prob": 0.067544
         },
         {
           "number": 5,
           "horse_name": "ナクソス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 59.6,
-          "win_prob": 0.0644,
-          "place_prob": 0.2172
+          "win_odds": 60.1,
+          "win_prob": 0.065347,
+          "place_prob": 0.21719
         },
         {
           "number": 6,
           "horse_name": "ジャスパールビー",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 51.5,
-          "win_prob": 0.0872,
-          "place_prob": 0.0675
+          "win_odds": 51.9,
+          "win_prob": 0.081805,
+          "place_prob": 0.067544
         },
         {
           "number": 7,
@@ -7184,44 +7184,44 @@
           "jockey_name": "",
           "impost": 55.0,
           "win_odds": 6.1,
-          "win_prob": 0.0644,
-          "place_prob": 0.2599
+          "win_prob": 0.06622,
+          "place_prob": 0.259932
         },
         {
           "number": 8,
           "horse_name": "クワイエットアイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 20.9,
-          "win_prob": 0.0461,
-          "place_prob": 0.0675
+          "win_odds": 20.5,
+          "win_prob": 0.04445,
+          "place_prob": 0.067544
         },
         {
           "number": 9,
           "horse_name": "ディヴァインスカイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 22.3,
-          "win_prob": 0.0135,
-          "place_prob": 0.0675
+          "win_odds": 22.6,
+          "win_prob": 0.014563,
+          "place_prob": 0.067544
         },
         {
           "number": 10,
           "horse_name": "メイショウテリオス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 41.3,
-          "win_prob": 0.0645,
-          "place_prob": 0.1446
+          "win_odds": 40.7,
+          "win_prob": 0.063271,
+          "place_prob": 0.144576
         },
         {
           "number": 11,
           "horse_name": "ロンドンオービタル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 22.9,
-          "win_prob": 0.0461,
-          "place_prob": 0.1446
+          "win_odds": 22.7,
+          "win_prob": 0.046756,
+          "place_prob": 0.144576
         },
         {
           "number": 12,
@@ -7229,17 +7229,17 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 18.8,
-          "win_prob": 0.0872,
-          "place_prob": 0.2172
+          "win_prob": 0.085387,
+          "place_prob": 0.21719
         },
         {
           "number": 13,
           "horse_name": "フェーダーローター",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 32.0,
-          "win_prob": 0.0461,
-          "place_prob": 0.0675
+          "win_odds": 31.8,
+          "win_prob": 0.044231,
+          "place_prob": 0.067544
         },
         {
           "number": 14,
@@ -7247,26 +7247,26 @@
           "jockey_name": "",
           "impost": 57.0,
           "win_odds": 4.3,
-          "win_prob": 0.0641,
-          "place_prob": 0.4887
+          "win_prob": 0.071257,
+          "place_prob": 0.488652
         },
         {
           "number": 15,
           "horse_name": "スルーザミル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 103.4,
-          "win_prob": 0.0135,
-          "place_prob": 0.0296
+          "win_odds": 103.6,
+          "win_prob": 0.014034,
+          "place_prob": 0.029565
         },
         {
           "number": 16,
           "horse_name": "メローネ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 15.8,
-          "win_prob": 0.0646,
-          "place_prob": 0.4252
+          "win_odds": 15.7,
+          "win_prob": 0.070076,
+          "place_prob": 0.425195
         }
       ],
       "trio_top5": [
@@ -7369,45 +7369,45 @@
           "horse_name": "フミサウンド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 26.9,
-          "win_prob": 0.0119,
-          "place_prob": 0.039
+          "win_odds": 27.3,
+          "win_prob": 0.012639,
+          "place_prob": 0.038968
         },
         {
           "number": 2,
           "horse_name": "セイウンデセオ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.8,
-          "win_prob": 0.0301,
-          "place_prob": 0.1457
+          "win_odds": 11.9,
+          "win_prob": 0.03164,
+          "place_prob": 0.145679
         },
         {
           "number": 3,
           "horse_name": "インブロリオ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 6.2,
-          "win_prob": 0.0142,
-          "place_prob": 0.2019
+          "win_odds": 6.0,
+          "win_prob": 0.01753,
+          "place_prob": 0.201862
         },
         {
           "number": 4,
           "horse_name": "ウィンストン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 10.2,
-          "win_prob": 0.068,
-          "place_prob": 0.3221
+          "win_odds": 9.9,
+          "win_prob": 0.070162,
+          "place_prob": 0.322051
         },
         {
           "number": 5,
           "horse_name": "モズトキキ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.1,
-          "win_prob": 0.0303,
-          "place_prob": 0.039
+          "win_odds": 11.2,
+          "win_prob": 0.029845,
+          "place_prob": 0.038968
         },
         {
           "number": 6,
@@ -7415,8 +7415,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 9.5,
-          "win_prob": 0.1054,
-          "place_prob": 0.2144
+          "win_prob": 0.103572,
+          "place_prob": 0.214379
         },
         {
           "number": 7,
@@ -7424,80 +7424,80 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 3.9,
-          "win_prob": 0.1918,
-          "place_prob": 0.7246
+          "win_prob": 0.191236,
+          "place_prob": 0.724579
         },
         {
           "number": 8,
           "horse_name": "タガノスペルノヴァ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 49.6,
-          "win_prob": 0.0142,
-          "place_prob": 0.0438
+          "win_odds": 50.2,
+          "win_prob": 0.015361,
+          "place_prob": 0.043839
         },
         {
           "number": 9,
           "horse_name": "バシレウスシチー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 32.3,
-          "win_prob": 0.0303,
-          "place_prob": 0.1002
+          "win_odds": 32.2,
+          "win_prob": 0.030509,
+          "place_prob": 0.100154
         },
         {
           "number": 10,
           "horse_name": "ソレントフレイバー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 37.9,
-          "win_prob": 0.0919,
-          "place_prob": 0.2019
+          "win_odds": 38.5,
+          "win_prob": 0.089627,
+          "place_prob": 0.201862
         },
         {
           "number": 11,
           "horse_name": "セントールビースト",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 21.7,
-          "win_prob": 0.0486,
-          "place_prob": 0.1517
+          "win_odds": 21.8,
+          "win_prob": 0.049099,
+          "place_prob": 0.151749
         },
         {
           "number": 12,
           "horse_name": "マテンロウボンド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 17.0,
-          "win_prob": 0.0919,
-          "place_prob": 0.3854
+          "win_odds": 17.3,
+          "win_prob": 0.095074,
+          "place_prob": 0.38543
         },
         {
           "number": 13,
           "horse_name": "スネーフリンガ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 40.7,
-          "win_prob": 0.0679,
-          "place_prob": 0.1457
+          "win_odds": 41.4,
+          "win_prob": 0.066642,
+          "place_prob": 0.145679
         },
         {
           "number": 14,
           "horse_name": "シュブロンレーヴル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 16.4,
-          "win_prob": 0.1054,
-          "place_prob": 0.1002
+          "win_odds": 16.3,
+          "win_prob": 0.100736,
+          "place_prob": 0.100154
         },
         {
           "number": 15,
           "horse_name": "マイネルラッシュ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 34.6,
-          "win_prob": 0.0301,
-          "place_prob": 0.039
+          "win_odds": 34.4,
+          "win_prob": 0.029717,
+          "place_prob": 0.038968
         },
         {
           "number": 16,
@@ -7505,8 +7505,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 8.0,
-          "win_prob": 0.0679,
-          "place_prob": 0.1457
+          "win_prob": 0.066613,
+          "place_prob": 0.145679
         }
       ],
       "trio_top5": [
@@ -7609,18 +7609,18 @@
           "horse_name": "ジェネラーレ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 6.0,
-          "win_prob": 0.0381,
-          "place_prob": 0.2166
+          "win_odds": 5.9,
+          "win_prob": 0.042346,
+          "place_prob": 0.216569
         },
         {
           "number": 2,
           "horse_name": "イマージョン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 6.3,
-          "win_prob": 0.0854,
-          "place_prob": 0.38
+          "win_odds": 6.4,
+          "win_prob": 0.089316,
+          "place_prob": 0.380044
         },
         {
           "number": 3,
@@ -7628,8 +7628,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 8.6,
-          "win_prob": 0.0851,
-          "place_prob": 0.1134
+          "win_prob": 0.078633,
+          "place_prob": 0.113424
         },
         {
           "number": 4,
@@ -7637,17 +7637,17 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 999.9,
-          "win_prob": 0.0854,
-          "place_prob": 0.3543
+          "win_prob": 0.088803,
+          "place_prob": 0.354262
         },
         {
           "number": 5,
           "horse_name": "ビルカール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 13.7,
-          "win_prob": 0.0612,
-          "place_prob": 0.2166
+          "win_odds": 13.8,
+          "win_prob": 0.063217,
+          "place_prob": 0.216569
         },
         {
           "number": 6,
@@ -7655,17 +7655,17 @@
           "jockey_name": "",
           "impost": 58.0,
           "win_odds": 5.7,
-          "win_prob": 0.0611,
-          "place_prob": 0.0853
+          "win_prob": 0.057358,
+          "place_prob": 0.085266
         },
         {
           "number": 7,
           "horse_name": "ゴールドハンマー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 7.7,
-          "win_prob": 0.0854,
-          "place_prob": 0.5446
+          "win_odds": 7.8,
+          "win_prob": 0.098131,
+          "place_prob": 0.54463
         },
         {
           "number": 8,
@@ -7673,26 +7673,26 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 13.2,
-          "win_prob": 0.0854,
-          "place_prob": 0.2166
+          "win_prob": 0.083891,
+          "place_prob": 0.216569
         },
         {
           "number": 9,
           "horse_name": "サザンエルフ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 15.2,
-          "win_prob": 0.0381,
-          "place_prob": 0.3543
+          "win_odds": 15.0,
+          "win_prob": 0.04727,
+          "place_prob": 0.354262
         },
         {
           "number": 10,
           "horse_name": "シャカシャカシー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 33.1,
-          "win_prob": 0.0178,
-          "place_prob": 0.0853
+          "win_odds": 33.2,
+          "win_prob": 0.020234,
+          "place_prob": 0.085266
         },
         {
           "number": 11,
@@ -7700,17 +7700,17 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 5.4,
-          "win_prob": 0.2412,
-          "place_prob": 0.2166
+          "win_prob": 0.220091,
+          "place_prob": 0.216569
         },
         {
           "number": 12,
           "horse_name": "カウスリップ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 12.2,
-          "win_prob": 0.1156,
-          "place_prob": 0.2166
+          "win_odds": 12.4,
+          "win_prob": 0.11071,
+          "place_prob": 0.216569
         }
       ],
       "trio_top5": [
@@ -7813,26 +7813,26 @@
           "horse_name": "グランセゾン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 6.7,
-          "win_prob": 0.088,
-          "place_prob": 0.5012
+          "win_odds": 6.8,
+          "win_prob": 0.091429,
+          "place_prob": 0.501208
         },
         {
           "number": 2,
           "horse_name": "ニシノコマチムスメ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 14.9,
-          "win_prob": 0.0385,
-          "place_prob": 0.0682
+          "win_odds": 15.0,
+          "win_prob": 0.038361,
+          "place_prob": 0.068226
         },
         {
           "number": 3,
           "horse_name": "アルシャンティ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 43.7,
-          "win_prob": 0.0155,
+          "win_odds": 43.1,
+          "win_prob": 0.015165,
           "place_prob": 0.01
         },
         {
@@ -7840,17 +7840,17 @@
           "horse_name": "モアニ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 13.8,
-          "win_prob": 0.0997,
-          "place_prob": 0.1559
+          "win_odds": 13.5,
+          "win_prob": 0.096353,
+          "place_prob": 0.15587
         },
         {
           "number": 5,
           "horse_name": "ウインアリス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 44.2,
-          "win_prob": 0.0183,
+          "win_odds": 44.8,
+          "win_prob": 0.017858,
           "place_prob": 0.01
         },
         {
@@ -7858,27 +7858,27 @@
           "horse_name": "カポレイラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 34.0,
-          "win_prob": 0.0155,
-          "place_prob": 0.0606
+          "win_odds": 34.7,
+          "win_prob": 0.016589,
+          "place_prob": 0.060645
         },
         {
           "number": 7,
           "horse_name": "ラッキーダンス",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 23.6,
-          "win_prob": 0.0183,
-          "place_prob": 0.0368
+          "win_odds": 23.3,
+          "win_prob": 0.01861,
+          "place_prob": 0.036842
         },
         {
           "number": 8,
           "horse_name": "ビスケットマリー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 57.7,
-          "win_prob": 0.0392,
-          "place_prob": 0.0682
+          "win_odds": 59.1,
+          "win_prob": 0.039146,
+          "place_prob": 0.068226
         },
         {
           "number": 9,
@@ -7886,62 +7886,62 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 5.0,
-          "win_prob": 0.1364,
-          "place_prob": 0.5012
+          "win_prob": 0.135687,
+          "place_prob": 0.501208
         },
         {
           "number": 10,
           "horse_name": "ペプロス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.9,
-          "win_prob": 0.1189,
-          "place_prob": 0.3336
+          "win_odds": 11.0,
+          "win_prob": 0.117156,
+          "place_prob": 0.333637
         },
         {
           "number": 11,
           "horse_name": "エナジーショット",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.9,
-          "win_prob": 0.039,
-          "place_prob": 0.0368
+          "win_odds": 11.0,
+          "win_prob": 0.037971,
+          "place_prob": 0.036842
         },
         {
           "number": 12,
           "horse_name": "レモンバーム",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 11.7,
-          "win_prob": 0.0631,
-          "place_prob": 0.3336
+          "win_odds": 11.8,
+          "win_prob": 0.066356,
+          "place_prob": 0.333637
         },
         {
           "number": 13,
           "horse_name": "クイーンズワーフ",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 8.2,
-          "win_prob": 0.1364,
-          "place_prob": 0.3336
+          "win_odds": 8.3,
+          "win_prob": 0.13481,
+          "place_prob": 0.333637
         },
         {
           "number": 14,
           "horse_name": "ハレアカラフラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 28.9,
-          "win_prob": 0.0155,
-          "place_prob": 0.0606
+          "win_odds": 29.7,
+          "win_prob": 0.016041,
+          "place_prob": 0.060645
         },
         {
           "number": 15,
           "horse_name": "リアルセンター",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 19.7,
-          "win_prob": 0.039,
-          "place_prob": 0.1559
+          "win_odds": 19.6,
+          "win_prob": 0.04013,
+          "place_prob": 0.15587
         },
         {
           "number": 16,
@@ -7949,8 +7949,8 @@
           "jockey_name": "",
           "impost": 56.0,
           "win_odds": 6.0,
-          "win_prob": 0.1189,
-          "place_prob": 0.3336
+          "win_prob": 0.118338,
+          "place_prob": 0.333637
         }
       ],
       "trio_top5": [

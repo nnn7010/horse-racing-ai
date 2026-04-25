@@ -337,8 +337,8 @@ def main():
                 "jockey_name": row.get("jockey_name", ""),
                 "impost": float(row.get("impost", 0)),
                 "win_odds": float(odds_val),
-                "win_prob": round(float(probs["win"].get(num, 0)), 4),
-                "place_prob": round(float(probs["place"].get(num, 0)), 4),
+                "win_prob": round(float(probs["win"].get(num, 0)), 6),
+                "place_prob": round(float(probs["place"].get(num, 0)), 6),
             })
 
         today_races.append({

@@ -105,10 +105,10 @@ def predict_probabilities(
         else:
             win_probs_cal = win_probs_raw
 
-        # Isotonic calibrationのステップ関数による同値化を防ぐため、
-        # キャリブレーション後の値を基準に生スコアで微小差をつける
-        # blend = 95% calibrated + 5% raw (順位差を保持しつつキャリブレーション効果も維持)
-        win_probs_blended = 0.95 * win_probs_cal + 0.05 * win_probs_raw
+        # Isotonic calibrationのステップ関数による同値化を防ぐため3段階ブレンド:
+        # 90% calibrated + 5% win_raw + 5% top3_raw（別モデルでタイブレーク）
+        top3_raw = probs_raw  # top3モデルの生スコア（既に計算済み）
+        win_probs_blended = 0.90 * win_probs_cal + 0.05 * win_probs_raw + 0.05 * top3_raw
         df["pred_win_prob_raw"] = win_probs_blended
 
         # レース内で正規化（合計=1: 1頭のみ1着になる）
@@ -121,6 +121,18 @@ def predict_probabilities(
             df["pred_win_prob"] = win_probs_blended / total if total > 0 else win_probs_blended
 
         df["pred_win_prob"] = df["pred_win_prob"].clip(0.001, 0.99)
+
+        # 同値が残る場合、馬番の逆順で微小差をつけてタイブレーク
+        # (馬番小さい馬をわずかに優遇: 枠順の有利さを反映)
+        if "number" in df.columns and "race_id" in df.columns:
+            n_horses = df.groupby("race_id")["number"].transform("count")
+            rank_in_race = df.groupby("race_id")["pred_win_prob"].rank(method="first", ascending=False)
+            tiebreak = (1.0 - (rank_in_race - 1) / n_horses) * 1e-5
+            df["pred_win_prob"] = df["pred_win_prob"] + tiebreak
+            df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob"].transform(
+                lambda x: x / x.sum()
+            )
+            df["pred_win_prob"] = df["pred_win_prob"].clip(0.001, 0.99)
 
         # pred_strengthもwinモデルのodds比で更新（PL組み合わせ計算用）
         win_strength = win_probs_raw / np.maximum(1.0 - win_probs_raw, 1e-6)
