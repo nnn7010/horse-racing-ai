@@ -74,8 +74,7 @@ def render_trends(trends: dict, results: dict) -> str:
         if n == 0:
             continue
 
-        pw = t["pop_wins"]
-        pw = {k: int(v) for k, v in t["pop_wins"].items()}
+        pw = {(int(k) if str(k).isdigit() else k): int(v) for k, v in t["pop_wins"].items()}
         fav_color = "#00e676" if t["fav_trust"] == "高" else "#ffeb3b" if t["fav_trust"] == "中" else "#ef5350"
         bracket_color = "#64b5f6" if "内枠" in t["bracket_bias"] else "#ffb74d" if "外枠" in t["bracket_bias"] else "#aaa"
 
