@@ -3404,6 +3404,201 @@
       ]
     },
     {
+      "race_id": "202608030104",
+      "place_name": "京都",
+      "race_name": "4歳以上障害OP",
+      "surface": "芝",
+      "distance": 3170,
+      "track_condition": "",
+      "start_time": "",
+      "n_horses": 11,
+      "horses": [
+        {
+          "number": 1,
+          "horse_name": "アトラクティーボ",
+          "jockey_name": "",
+          "impost": 57.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0761,
+          "place_prob": 0.3764
+        },
+        {
+          "number": 2,
+          "horse_name": "テイエムエメラルド",
+          "jockey_name": "",
+          "impost": 58.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0197,
+          "place_prob": 0.0397
+        },
+        {
+          "number": 3,
+          "horse_name": "ナックエルドラド",
+          "jockey_name": "",
+          "impost": 59.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0077,
+          "place_prob": 0.2134
+        },
+        {
+          "number": 4,
+          "horse_name": "フームスムート",
+          "jockey_name": "",
+          "impost": 60.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0858,
+          "place_prob": 0.3124
+        },
+        {
+          "number": 5,
+          "horse_name": "アルマーザアミール",
+          "jockey_name": "",
+          "impost": 60.0,
+          "win_odds": 0.0,
+          "win_prob": 0.1706,
+          "place_prob": 0.3376
+        },
+        {
+          "number": 6,
+          "horse_name": "ケイテンアイジン",
+          "jockey_name": "",
+          "impost": 59.0,
+          "win_odds": 0.0,
+          "win_prob": 0.1824,
+          "place_prob": 0.5245
+        },
+        {
+          "number": 7,
+          "horse_name": "ホークフィールド",
+          "jockey_name": "",
+          "impost": 61.0,
+          "win_odds": 0.0,
+          "win_prob": 0.2793,
+          "place_prob": 0.8
+        },
+        {
+          "number": 8,
+          "horse_name": "ゴールドブリーズ",
+          "jockey_name": "",
+          "impost": 60.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0534,
+          "place_prob": 0.0104
+        },
+        {
+          "number": 9,
+          "horse_name": "ワールドスケール",
+          "jockey_name": "",
+          "impost": 61.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0197,
+          "place_prob": 0.0868
+        },
+        {
+          "number": 10,
+          "horse_name": "ヴァレッタカズマ",
+          "jockey_name": "",
+          "impost": 58.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0197,
+          "place_prob": 0.0397
+        },
+        {
+          "number": 11,
+          "horse_name": "マテンロウジョイ",
+          "jockey_name": "",
+          "impost": 61.0,
+          "win_odds": 0.0,
+          "win_prob": 0.0856,
+          "place_prob": 0.2308
+        }
+      ],
+      "trio_top5": [
+        {
+          "combo": [
+            5,
+            6,
+            7
+          ],
+          "prob": 0.014824
+        },
+        {
+          "combo": [
+            4,
+            6,
+            7
+          ],
+          "prob": 0.013525
+        },
+        {
+          "combo": [
+            6,
+            7,
+            11
+          ],
+          "prob": 0.012914
+        },
+        {
+          "combo": [
+            4,
+            5,
+            7
+          ],
+          "prob": 0.012799
+        },
+        {
+          "combo": [
+            1,
+            6,
+            7
+          ],
+          "prob": 0.012226
+        }
+      ],
+      "trifecta_top5": [
+        {
+          "combo": [
+            7,
+            6,
+            5
+          ],
+          "prob": 0.002523
+        },
+        {
+          "combo": [
+            7,
+            5,
+            6
+          ],
+          "prob": 0.002505
+        },
+        {
+          "combo": [
+            6,
+            7,
+            5
+          ],
+          "prob": 0.002489
+        },
+        {
+          "combo": [
+            5,
+            7,
+            6
+          ],
+          "prob": 0.002456
+        },
+        {
+          "combo": [
+            6,
+            5,
+            7
+          ],
+          "prob": 0.002433
+        }
+      ]
+    },
+    {
       "race_id": "202608030105",
       "place_name": "京都",
       "race_name": "3歳未勝利",

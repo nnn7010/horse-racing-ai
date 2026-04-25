@@ -34,9 +34,9 @@ def main():
         for race in races:
             detail = fetch_race_detail(race["race_id"])
 
-            # 新馬・障害除外
-            if detail.get("is_debut") or detail.get("is_hurdle"):
-                logger.info(f"Skipping {race['race_id']}: debut={detail.get('is_debut')}, hurdle={detail.get('is_hurdle')}")
+            # 新馬除外
+            if detail.get("is_debut"):
+                logger.info(f"Skipping {race['race_id']}: debut race")
                 continue
 
             race.update(detail)
