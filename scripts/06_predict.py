@@ -326,6 +326,58 @@ def main():
         trio_sorted = sorted(probs["trio"].items(), key=lambda x: x[1], reverse=True)[:5]
         trifecta_sorted = sorted(probs["trifecta"].items(), key=lambda x: x[1], reverse=True)[:5]
 
+        # 能力スコア計算（レース内0-100正規化）
+        def minmax(series, invert=False):
+            mn, mx = series.min(), series.max()
+            if mx == mn:
+                return pd.Series([50.0] * len(series), index=series.index)
+            s = (series - mn) / (mx - mn) * 100
+            return 100 - s if invert else s
+
+        n_h = len(entry_preds)
+        # スピード: avg_speed_3 or speed_index
+        spd_col = "avg_speed_3" if "avg_speed_3" in entry_preds.columns else "speed_index"
+        speed_score = minmax(entry_preds[spd_col].fillna(0)) if spd_col in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
+
+        # コース適性: horse_course_top3_rate / max(horse_top3_rate, 0.01)
+        if "horse_course_top3_rate" in entry_preds.columns and "horse_top3_rate" in entry_preds.columns:
+            course_ratio = entry_preds["horse_course_top3_rate"] / entry_preds["horse_top3_rate"].clip(lower=0.01)
+            course_score = minmax(course_ratio.fillna(1.0))
+        else:
+            course_score = pd.Series([50.0]*n_h, index=entry_preds.index)
+
+        # 近走勢い: 小さい着順ほど良い → invert
+        form_score = minmax(entry_preds["avg_finish_5"].fillna(entry_preds["avg_finish_5"].median()), invert=True) if "avg_finish_5" in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
+
+        # 安定性: finish_std_5 が小さいほど安定 → invert
+        stab_score = minmax(entry_preds["finish_std_5"].fillna(entry_preds["finish_std_5"].median()), invert=True) if "finish_std_5" in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
+
+        # 瞬発力: 近3走の上がり3F順位平均（小さいほど良い → invert）
+        if "avg_last_3f_rank_3" in entry_preds.columns:
+            burst_score = minmax(entry_preds["avg_last_3f_rank_3"].fillna(entry_preds["avg_last_3f_rank_3"].median()), invert=True)
+        elif "avg_last_3f_5" in entry_preds.columns:
+            burst_score = minmax(entry_preds["avg_last_3f_5"].fillna(entry_preds["avg_last_3f_5"].median()), invert=True)
+        else:
+            burst_score = pd.Series([50.0]*n_h, index=entry_preds.index)
+
+        # 騎手相性: combo_top3_rate > 0なら使用、なければjockey_top3_rate
+        if "combo_top3_rate" in entry_preds.columns:
+            jockey_base = entry_preds["combo_top3_rate"].where(entry_preds.get("combo_rides", pd.Series(0, index=entry_preds.index)) >= 3, entry_preds.get("jockey_top3_rate", pd.Series(0.21, index=entry_preds.index)))
+        else:
+            jockey_base = entry_preds.get("jockey_top3_rate", pd.Series(0.21, index=entry_preds.index))
+        jockey_score = minmax(jockey_base.fillna(0.21))
+
+        ability_scores_df = pd.DataFrame({
+            "number": entry_preds["number"].astype(int),
+            "speed": speed_score.round(0).astype(int),
+            "burst": burst_score.round(0).astype(int),
+            "course": course_score.round(0).astype(int),
+            "form": form_score.round(0).astype(int),
+            "stability": stab_score.round(0).astype(int),
+            "jockey": jockey_score.round(0).astype(int),
+            "has_history": entry_preds.get("has_history", pd.Series(1, index=entry_preds.index)).astype(int),
+        }).set_index("number")
+
         horses_json = []
         for _, row in entry_preds.sort_values("number").iterrows():
             num = int(row.get("number", 0))
@@ -335,6 +387,7 @@ def main():
             bracket = next(
                 (e.get("bracket", 0) for e in entries if e.get("number") == num), 0
             )
+            ab = ability_scores_df.loc[num] if num in ability_scores_df.index else None
             horses_json.append({
                 "number": num,
                 "bracket": int(bracket),
@@ -344,6 +397,15 @@ def main():
                 "win_odds": float(odds_val),
                 "win_prob": round(float(probs["win"].get(num, 0)), 6),
                 "place_prob": round(float(probs["place"].get(num, 0)), 6),
+                "ability": {
+                    "speed": int(ab["speed"]) if ab is not None else 50,
+                    "burst": int(ab["burst"]) if ab is not None else 50,
+                    "course": int(ab["course"]) if ab is not None else 50,
+                    "form": int(ab["form"]) if ab is not None else 50,
+                    "stability": int(ab["stability"]) if ab is not None else 50,
+                    "jockey": int(ab["jockey"]) if ab is not None else 50,
+                    "has_data": bool(ab["has_history"]) if ab is not None else False,
+                },
             })
 
         today_races.append({

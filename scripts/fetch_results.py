@@ -90,7 +90,7 @@ def fetch_result(race_id: str) -> dict | None:
 # ────────────────────────────────────────────
 
 def analyze_trends(predictions: dict, results: dict) -> dict:
-    """完了レースからコース別傾向を計算する。"""
+    """完了レースからコース・芝ダート別傾向を計算する。"""
     venue_data: dict[str, list] = {}
 
     for race in predictions["races"]:
@@ -99,7 +99,8 @@ def analyze_trends(predictions: dict, results: dict) -> dict:
             continue
 
         result = results[race_id]
-        venue = race["place_name"]
+        surface = race.get("surface", "芝")
+        venue = f"{race['place_name']} {surface}"
         if venue not in venue_data:
             venue_data[venue] = []
 
@@ -126,7 +127,7 @@ def analyze_trends(predictions: dict, results: dict) -> dict:
             "winner_odds": winner.get("win_odds", 0),
             "winner_pop": winner_pop,
             "n_horses": race["n_horses"],
-            "surface": race["surface"],
+            "surface": surface,
             "distance": race["distance"],
             "2nd": result["2nd"],
             "3rd": result["3rd"],

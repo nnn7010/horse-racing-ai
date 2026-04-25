@@ -11,11 +11,52 @@ RESULTS_FILE = ROOT / "data/raw/today_results.json"
 OUT_FILE = ROOT / "docs/index.html"
 
 
+import math
+
+ABILITY_LABELS = ["S", "瞬", "C", "F", "安", "騎"]  # スピード,瞬発力,コース,近走,安定,騎手
+ABILITY_KEYS = ["speed", "burst", "course", "form", "stability", "jockey"]
+ABILITY_COLORS = ["#64b5f6", "#4dd0e1", "#81c784", "#ffb74d", "#ce93d8", "#f06292"]
+
+
+def radar_svg(scores: list[int], size: int = 72) -> str:
+    """5軸のレーダーチャートSVGを生成する。"""
+    n = len(scores)
+    cx, cy, r = size / 2, size / 2, size * 0.42
+    angles = [math.pi / 2 + 2 * math.pi * i / n for i in range(n)]
+
+    def pt(val, angle, scale=1.0):
+        rv = r * (val / 100) * scale
+        return cx + rv * math.cos(angle), cy - rv * math.sin(angle)
+
+    # 背景グリッド
+    grids = ""
+    for level in [0.25, 0.5, 0.75, 1.0]:
+        pts = " ".join(f"{cx + r*level*math.cos(a):.1f},{cy - r*level*math.sin(a):.1f}" for a in angles)
+        grids += f'<polygon points="{pts}" fill="none" stroke="#333" stroke-width="0.5"/>'
+
+    # 軸線
+    axes = "".join(f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{cx + r*math.cos(a):.1f}" y2="{cy - r*math.sin(a):.1f}" stroke="#444" stroke-width="0.5"/>' for a in angles)
+
+    # データポリゴン
+    data_pts = " ".join(f"{pt(s, a)[0]:.1f},{pt(s, a)[1]:.1f}" for s, a in zip(scores, angles))
+    polygon = f'<polygon points="{data_pts}" fill="rgba(100,181,246,0.25)" stroke="#64b5f6" stroke-width="1.5"/>'
+
+    # ラベル
+    labels = ""
+    for i, (label, angle) in enumerate(zip(ABILITY_LABELS, angles)):
+        lx = cx + (r + 9) * math.cos(angle)
+        ly = cy - (r + 9) * math.sin(angle)
+        labels += f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" fill="{ABILITY_COLORS[i]}" font-size="8" font-weight="bold">{label}</text>'
+
+    return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{grids}{axes}{polygon}{labels}</svg>'
+
+
 def render_race(race, race_num):
     surface_icon = "🌿" if race["surface"] == "芝" else "🟤"
     horses_sorted = sorted(race["horses"], key=lambda h: -h["win_prob"])
 
     rows = ""
+    ability_section = ""
     for i, h in enumerate(horses_sorted):
         win_pct = h["win_prob"] * 100
         place_pct = h["place_prob"] * 100
@@ -23,6 +64,32 @@ def render_race(race, race_num):
         odds_str = f"{odds:.1f}" if odds > 0 else "-"
         cls = ' class="top"' if i < 3 else ""
         rows += f'<tr{cls}><td>{h["number"]}</td><td>{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td>{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>'
+
+    # 能力チャートセクション（上位5頭）
+    top5 = horses_sorted[:5]
+    charts = ""
+    for h in top5:
+        ab = h.get("ability")
+        if not ab:
+            continue
+        scores = [ab.get(k, 50) for k in ABILITY_KEYS]
+        svg = radar_svg(scores)
+        no_data = "" if ab.get("has_data") else '<span class="nd">*</span>'
+        bars = "".join(
+            f'<div class="ab-row"><span style="color:{ABILITY_COLORS[j]}">{ABILITY_LABELS[j]}</span>'
+            f'<div class="ab-bg"><div class="ab-fill" style="width:{scores[j]}%;background:{ABILITY_COLORS[j]}"></div></div>'
+            f'<span class="ab-num">{scores[j]}</span></div>'
+            for j in range(len(ABILITY_KEYS))
+        )
+        charts += (
+            f'<div class="ab-card">'
+            f'<div class="ab-name">{h["number"]}番 {h["horse_name"]}{no_data}</div>'
+            f'{svg}'
+            f'<div class="ab-bars">{bars}</div>'
+            f'</div>'
+        )
+    if charts:
+        ability_section = f'<div class="ab-section"><div class="ab-legend">S=スピード 瞬=瞬発力 C=コース適性 F=近走 安=安定性 騎=騎手</div><div class="ab-grid">{charts}</div></div>'
 
     trio_rows = ""
     for i, t in enumerate(race["trio_top5"], 1):
@@ -50,6 +117,7 @@ def render_race(race, race_num):
         f'<div class="d">'
         f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>1着%</th><th>3着%</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
+        f'{ability_section}'
         f'<div class="bt">'
         f'<table><thead><tr><th colspan="3">三連複 TOP5</th></tr></thead><tbody>{trio_rows}</tbody></table>'
         f'<table><thead><tr><th colspan="3">三連単 TOP5</th></tr></thead><tbody>{trifecta_rows}</tbody></table>'
@@ -84,9 +152,10 @@ def render_trends(trends: dict, results: dict) -> str:
                 f'<td>{r["winner_odds"]:.1f}倍</td></tr>'
             )
 
+        surface_icon = "🌿" if "芝" in venue else "🟤"
         cards += f"""
 <div class="tc">
-  <div class="tc-h">🏟 {venue} <span class="tc-n">{n}R完了</span></div>
+  <div class="tc-h">{surface_icon} {venue} <span class="tc-n">{n}R完了</span></div>
   <div class="tc-row">
     <div class="tc-item">
       <div class="tc-label">枠順傾向</div>
@@ -186,6 +255,18 @@ td:nth-child(6){{color:#4caf50}}
 .tc-tbl td,.tc-tbl th{{font-size:.75em;padding:3px 4px}}
 .tc-tbl th:nth-child(2){{text-align:left}}
 .tc-tbl td:nth-child(2){{text-align:left}}
+.ab-section{{margin:8px 0}}
+.ab-legend{{color:#666;font-size:.7em;margin-bottom:6px}}
+.ab-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}}
+.ab-card{{background:#111;border-radius:6px;padding:6px;text-align:center}}
+.ab-name{{font-size:.75em;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.ab-bars{{margin-top:4px}}
+.ab-row{{display:flex;align-items:center;gap:3px;margin-bottom:2px;font-size:.7em}}
+.ab-row span:first-child{{width:10px;text-align:center}}
+.ab-bg{{flex:1;background:#222;border-radius:2px;height:6px}}
+.ab-fill{{height:6px;border-radius:2px}}
+.ab-num{{width:20px;text-align:right;color:#888}}
+.nd{{color:#ef5350;font-size:.7em}}
 </style>
 </head>
 <body>
