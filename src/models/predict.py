@@ -104,7 +104,12 @@ def predict_probabilities(
             win_probs_cal = win_calibrator.predict(win_probs_raw)
         else:
             win_probs_cal = win_probs_raw
-        df["pred_win_prob_raw"] = win_probs_cal
+
+        # Isotonic calibrationのステップ関数による同値化を防ぐため、
+        # キャリブレーション後の値を基準に生スコアで微小差をつける
+        # blend = 95% calibrated + 5% raw (順位差を保持しつつキャリブレーション効果も維持)
+        win_probs_blended = 0.95 * win_probs_cal + 0.05 * win_probs_raw
+        df["pred_win_prob_raw"] = win_probs_blended
 
         # レース内で正規化（合計=1: 1頭のみ1着になる）
         if "race_id" in df.columns:
@@ -112,8 +117,8 @@ def predict_probabilities(
                 lambda x: x / x.sum() if x.sum() > 0 else x
             )
         else:
-            total = win_probs_cal.sum()
-            df["pred_win_prob"] = win_probs_cal / total if total > 0 else win_probs_cal
+            total = win_probs_blended.sum()
+            df["pred_win_prob"] = win_probs_blended / total if total > 0 else win_probs_blended
 
         df["pred_win_prob"] = df["pred_win_prob"].clip(0.001, 0.99)
 

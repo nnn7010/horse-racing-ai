@@ -146,6 +146,7 @@ def main():
             return {}
 
     all_predictions = []
+    today_races = []
 
     for race in target_races:
         race_id = race["race_id"]
@@ -284,10 +285,58 @@ def main():
                 "win_prob": float(probs["win"].get(row.get("number", 0), 0)),
             })
 
+        # today_predictions.json 用データ収集
+        trio_sorted = sorted(probs["trio"].items(), key=lambda x: x[1], reverse=True)[:5]
+        trifecta_sorted = sorted(probs["trifecta"].items(), key=lambda x: x[1], reverse=True)[:5]
+
+        horses_json = []
+        for _, row in entry_preds.sort_values("number").iterrows():
+            num = int(row.get("number", 0))
+            num_str = str(num).zfill(2)
+            odds_val = race_win_odds.get(num_str, 0)
+            horses_json.append({
+                "number": num,
+                "horse_name": row.get("horse_name", ""),
+                "jockey_name": row.get("jockey_name", ""),
+                "impost": float(row.get("impost", 0)),
+                "win_odds": float(odds_val),
+                "win_prob": round(float(probs["win"].get(num, 0)), 4),
+                "place_prob": round(float(probs["place"].get(num, 0)), 4),
+            })
+
+        today_races.append({
+            "race_id": race_id,
+            "place_name": race.get("place_name", ""),
+            "race_name": race.get("race_name", ""),
+            "surface": race.get("surface", ""),
+            "distance": int(race.get("distance", 0)),
+            "track_condition": race.get("track_condition", ""),
+            "start_time": race.get("start_time", ""),
+            "n_horses": len(entries),
+            "horses": horses_json,
+            "trio_top5": [
+                {"combo": [int(x) for x in sorted(k)], "prob": round(float(v), 6)}
+                for k, v in trio_sorted
+            ],
+            "trifecta_top5": [
+                {"combo": [int(x) for x in k], "prob": round(float(v), 6)}
+                for k, v in trifecta_sorted
+            ],
+        })
+
     if all_predictions:
         pred_df = pd.DataFrame(all_predictions)
         pred_df.to_csv(output_dir / "predictions.csv", index=False, encoding="utf-8-sig")
         logger.info(f"\nSaved {len(all_predictions)} predictions to {output_dir / 'predictions.csv'}")
+
+    if today_races:
+        import datetime
+        date_str = today_races[0]["race_id"][0:4] + "/" + today_races[0]["race_id"][4:6] + "/" + today_races[0]["race_id"][6:8] if today_races else ""
+        today_json = {"date": date_str, "races": today_races}
+        json_path = raw_dir / "today_predictions.json"
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(today_json, f, ensure_ascii=False, indent=2)
+        logger.info(f"Saved today_predictions.json ({len(today_races)} races)")
 
 
 if __name__ == "__main__":
