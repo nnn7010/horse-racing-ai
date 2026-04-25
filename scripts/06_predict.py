@@ -412,12 +412,95 @@ def main():
         course_key = f"{place_code_num}_{is_turf}_{distance}"
         course_profile = course_profiles.get(course_key, {}).get("scores", {})
 
+        def estimate_running_style(burst: int, speed: int) -> str:
+            """burst/speedスコア(0-100)から脚質を推定する。"""
+            if burst >= 70 and speed <= 40:
+                return "追込"
+            elif burst >= 60 and speed <= 55:
+                return "差し"
+            elif burst <= 35 and speed >= 60:
+                return "逃げ"
+            elif burst <= 45 and speed >= 50:
+                return "先行"
+            elif burst >= 55:
+                return "差し"
+            else:
+                return "先行"
+
+        def generate_comment(row, ab: dict, win_prob: float, place_prob: float, style: str) -> str:
+            """各馬の特徴を短文コメントとして生成する。"""
+            parts = []
+
+            # 近走成績
+            avg_f = float(row.get("avg_finish_5", 0) or 0)
+            if avg_f > 0:
+                if avg_f <= 2.5:
+                    parts.append("近走絶好調")
+                elif avg_f <= 4.0:
+                    parts.append("近走安定")
+                elif avg_f >= 7.0:
+                    parts.append("近走不振")
+
+            # コース適性
+            course_rate = float(row.get("horse_course_top3_rate", 0) or 0)
+            course_runs_raw = row.get("horse_course_runs", 0)
+            course_runs = int(course_runs_raw) if pd.notna(course_runs_raw) else 0
+            if course_runs >= 3:
+                if course_rate >= 0.55:
+                    parts.append(f"このコース得意({int(course_rate*100)}%)")
+                elif course_rate <= 0.15:
+                    parts.append("コース実績薄")
+
+            # 前走間隔
+            days = float(row.get("days_since_last", 0) or 0)
+            if days >= 90:
+                parts.append("休み明け")
+            elif days <= 14:
+                parts.append("中1週")
+
+            # 距離変化
+            dist_chg = float(row.get("distance_change", 0) or 0)
+            if dist_chg >= 200:
+                parts.append("距離延長")
+            elif dist_chg <= -200:
+                parts.append("距離短縮")
+
+            # 騎手
+            jockey_rate = float(row.get("jockey_top3_rate", 0) or 0)
+            combo_rides_raw = row.get("combo_rides", 0)
+            combo_rides = int(combo_rides_raw) if pd.notna(combo_rides_raw) else 0
+            combo_rate = float(row.get("combo_top3_rate", 0) or 0)
+            if combo_rides >= 5 and combo_rate >= 0.5:
+                parts.append("コンビ好相性")
+            elif jockey_rate >= 0.40:
+                parts.append("騎手上位")
+            elif jockey_rate <= 0.15:
+                parts.append("騎手苦戦中")
+
+            # 脚質コメント
+            style_map = {
+                "逃げ": "ハナを切るタイプ",
+                "先行": "好位追走タイプ",
+                "差し": "中団から差すタイプ",
+                "追込": "後方から追い込むタイプ",
+            }
+            parts.append(style_map.get(style, ""))
+
+            # 期待値
+            if win_prob >= 0.25:
+                parts.append("軸候補")
+            elif win_prob >= 0.15:
+                parts.append("対抗")
+
+            return "。".join(p for p in parts if p)
+
         horses_json = []
+        style_counts = {"逃げ": 0, "先行": 0, "差し": 0, "追込": 0}
+
         for _, row in entry_preds.sort_values("number").iterrows():
             num = int(row.get("number", 0))
             num_str = str(num).zfill(2)
             odds_val = race_win_odds.get(num_str, 0)
-            # 枠番をentriesから逆引き
             bracket = next(
                 (e.get("bracket", 0) for e in entries if e.get("number") == num), 0
             )
@@ -432,7 +515,7 @@ def main():
                 "jockey": int(ab["jockey"]) if ab is not None else 50,
                 "has_data": bool(ab["has_history"]) if ab is not None else False,
             }
-            # コース適性スコア: 各軸でコース要求を下回った分をペナルティ
+            # コース適性スコア
             if course_profile:
                 keys = ["speed", "burst", "power", "course", "form", "stability", "jockey"]
                 shortfalls = [max(0, course_profile.get(k, 50) - ab_dict[k]) for k in keys]
@@ -441,6 +524,16 @@ def main():
             else:
                 fit_score = 50
             ab_dict["fit"] = fit_score
+
+            # 脚質推定
+            style = estimate_running_style(ab_dict["burst"], ab_dict["speed"])
+            style_counts[style] = style_counts.get(style, 0) + 1
+
+            # コメント生成
+            wp = float(probs["win"].get(num, 0))
+            pp = float(probs["place"].get(num, 0))
+            comment = generate_comment(row, ab_dict, wp, pp, style)
+
             horses_json.append({
                 "number": num,
                 "bracket": int(bracket),
@@ -448,10 +541,33 @@ def main():
                 "jockey_name": row.get("jockey_name", ""),
                 "impost": float(row.get("impost", 0)),
                 "win_odds": float(odds_val),
-                "win_prob": round(float(probs["win"].get(num, 0)), 6),
-                "place_prob": round(float(probs["place"].get(num, 0)), 6),
+                "win_prob": round(wp, 6),
+                "place_prob": round(pp, 6),
+                "running_style": style,
+                "comment": comment,
                 "ability": ab_dict,
             })
+
+        # 展開予測
+        front_count = style_counts.get("逃げ", 0) + style_counts.get("先行", 0)
+        n_total = len(horses_json)
+        front_ratio = front_count / max(n_total, 1)
+        if style_counts.get("逃げ", 0) >= 3 or front_ratio >= 0.5:
+            pace = "ハイペース"
+            pace_note = "先行馬多数 → 差し・追込有利"
+        elif style_counts.get("逃げ", 0) == 0 or front_ratio <= 0.25:
+            pace = "スローペース"
+            pace_note = "逃げ馬少ない → 先行有利"
+        else:
+            pace = "ミドルペース"
+            pace_note = "平均的なペース想定"
+        pace_prediction = {
+            "pace": pace,
+            "note": pace_note,
+            "front": front_count,
+            "closers": style_counts.get("差し", 0) + style_counts.get("追込", 0),
+            "total": n_total,
+        }
 
         today_races.append({
             "race_id": race_id,
@@ -463,6 +579,7 @@ def main():
             "start_time": race.get("start_time", ""),
             "n_horses": len(entries),
             "course_profile": course_profile or {},
+            "pace_prediction": pace_prediction,
             "horses": horses_json,
             "trio_top5": [
                 {"combo": [int(x) for x in sorted(k)], "prob": round(float(v), 6)}

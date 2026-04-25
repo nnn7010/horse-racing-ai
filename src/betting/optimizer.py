@@ -68,7 +68,7 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
         ns = str(num).zfill(2)
         odds = win_odds.get(ns, 0)
         prob = probs["win"].get(num, 0)
-        if prob >= 0.10:
+        if prob >= 0.20:
             win_picks.append({"num": num, "odds": odds, "prob": prob})
 
     if win_picks:
@@ -98,7 +98,7 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
         ns = str(num).zfill(2)
         odds = place_odds_dict.get(ns, 0)
         prob = probs["place"].get(num, 0)
-        if prob >= 0.50:
+        if prob >= 0.70:
             place_picks.append({"num": num, "odds": odds, "prob": prob})
 
     if place_picks:
@@ -119,58 +119,10 @@ def build_recommendations(race_df: pd.DataFrame, all_odds: dict, budget: int) ->
             "n_bets": len(picks),
         })
 
-    # === 3. 馬連（1頭軸 × 相手3頭）===
-    quin_picks = []
-    for partner in numbers[1:8]:
-        wi = probs["win"].get(axis, 0)
-        wj = probs["win"].get(partner, 0)
-        prob = wi * wj / max(1 - wi, 0.01) + wj * wi / max(1 - wj, 0.01)
-        prob = min(prob, 0.3)
-        if prob >= 0.20:
-            quin_picks.append({"partner": partner, "prob": prob})
+    # === 3. 馬連（無効: バックテストでROI 42%のみ、採算不可）===
+    # quin_picks disabled
 
-    if quin_picks:
-        quin_picks.sort(key=lambda x: x["prob"], reverse=True)
-        picks = quin_picks[:3]
-        total_prob = sum(p["prob"] for p in picks)
-        min_odds = calc_min_composite_odds(total_prob)
-        partners = [p["partner"] for p in picks]
-        ticket_groups.append({
-            "bet_type": "馬連",
-            "summary": f"軸 {axis}番{name(axis)} − {', '.join(f'{p}番' for p in partners)}",
-            "picks": [{"numbers": f"{axis}-{p['partner']}",
-                       "names": f"{name(axis)}-{name(p['partner'])}",
-                       "odds": 0, "prob": p["prob"]} for p in picks],
-            "composite_odds": 0,
-            "min_composite_odds": min_odds,
-            "total_prob": total_prob,
-            "n_bets": len(picks),
-        })
-
-    # === 4. 馬単（1頭軸 → 相手3頭）===
-    exacta_picks = []
-    for partner in numbers[1:8]:
-        prob = probs["win"].get(axis, 0) * probs["win"].get(partner, 0) / max(1 - probs["win"].get(axis, 0), 0.01)
-        if prob >= 0.20:
-            exacta_picks.append({"partner": partner, "prob": prob})
-
-    if exacta_picks:
-        exacta_picks.sort(key=lambda x: x["prob"], reverse=True)
-        picks = exacta_picks[:3]
-        total_prob = sum(p["prob"] for p in picks)
-        min_odds = calc_min_composite_odds(total_prob)
-        partners = [p["partner"] for p in picks]
-        ticket_groups.append({
-            "bet_type": "馬単",
-            "summary": f"1着 {axis}番{name(axis)} → 2着 {', '.join(f'{p}番' for p in partners)}",
-            "picks": [{"numbers": f"{axis}→{p['partner']}",
-                       "names": f"{name(axis)}→{name(p['partner'])}",
-                       "odds": 0, "prob": p["prob"]} for p in picks],
-            "composite_odds": 0,
-            "min_composite_odds": min_odds,
-            "total_prob": total_prob,
-            "n_bets": len(picks),
-        })
+    # 馬単・馬連: バックテストでROI低下のため無効化
 
     # === 的中確率 ===
     miss_prob = 1.0

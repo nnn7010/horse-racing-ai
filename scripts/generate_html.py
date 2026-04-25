@@ -13,19 +13,30 @@ OUT_FILE = ROOT / "docs/index.html"
 
 
 
+STYLE_BADGE = {
+    "逃げ": '<span class="sb sb-hana">逃</span>',
+    "先行": '<span class="sb sb-sen">先</span>',
+    "差し": '<span class="sb sb-sashi">差</span>',
+    "追込": '<span class="sb sb-oikomi">追</span>',
+}
+
+
 def render_race(race, race_num):
     surface_icon = "🌿" if race["surface"] == "芝" else "🟤"
     horses_sorted = sorted(race["horses"], key=lambda h: -h["win_prob"])
 
     rows = ""
-    ability_section = ""
     for i, h in enumerate(horses_sorted):
         win_pct = h["win_prob"] * 100
         place_pct = h["place_prob"] * 100
         odds = h.get("win_odds", 0)
         odds_str = f"{odds:.1f}" if odds > 0 else "-"
+        style = h.get("running_style", "")
+        badge = STYLE_BADGE.get(style, "")
+        comment = h.get("comment", "")
         cls = ' class="top"' if i < 3 else ""
-        rows += f'<tr{cls}><td>{h["number"]}</td><td>{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td>{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>'
+        comment_row = f'<tr class="comment-row"><td></td><td colspan="5" class="comment">{comment}</td></tr>' if comment else ""
+        rows += f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td>{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>{comment_row}'
 
     ability_section = ""
 
@@ -47,12 +58,32 @@ def render_race(race, race_num):
     meta += f" {race['n_horses']}頭"
     time_str = race.get("start_time", "")
 
+    # 展開予測
+    pp = race.get("pace_prediction", {})
+    if pp:
+        pace = pp.get("pace", "")
+        note = pp.get("note", "")
+        front = pp.get("front", 0)
+        closers = pp.get("closers", 0)
+        pace_color = "#ef5350" if pace == "ハイペース" else "#64b5f6" if pace == "スローペース" else "#ffb74d"
+        pace_html = (
+            f'<div class="pace">'
+            f'<span class="pace-label">展開予測</span>'
+            f'<span class="pace-val" style="color:{pace_color}">{pace}</span>'
+            f'<span class="pace-note">{note}</span>'
+            f'<span class="pace-dist">先行系{front}頭 差追{closers}頭</span>'
+            f'</div>'
+        )
+    else:
+        pace_html = ""
+
     return (
         f'<details><summary>'
         f'<b>{race_num}R</b> {race["race_name"]}'
         f'<small> {meta}{" " + time_str if time_str else ""}</small>'
         f'</summary>'
         f'<div class="d">'
+        f'{pace_html}'
         f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>1着%</th><th>3着%</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
         f'{ability_section}'
@@ -192,6 +223,18 @@ td:nth-child(6){{color:#4caf50}}
 .tc-tbl td,.tc-tbl th{{font-size:.75em;padding:3px 4px}}
 .tc-tbl th:nth-child(2){{text-align:left}}
 .tc-tbl td:nth-child(2){{text-align:left}}
+.sb{{display:inline-block;font-size:.68em;font-weight:bold;border-radius:3px;padding:1px 4px;margin-right:3px;vertical-align:middle}}
+.sb-hana{{background:#ef5350;color:#fff}}
+.sb-sen{{background:#42a5f5;color:#fff}}
+.sb-sashi{{background:#66bb6a;color:#fff}}
+.sb-oikomi{{background:#ab47bc;color:#fff}}
+.comment-row td{{padding:1px 5px 5px;border-bottom:none}}
+.comment{{color:#9e9e9e;font-size:.73em;font-style:italic;text-align:left!important}}
+.pace{{background:#1a1a2e;border-radius:5px;padding:5px 10px;margin-bottom:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}}
+.pace-label{{color:#666;font-size:.72em}}
+.pace-val{{font-weight:bold;font-size:.88em}}
+.pace-note{{color:#aaa;font-size:.75em}}
+.pace-dist{{color:#666;font-size:.72em;margin-left:auto}}
 </style>
 </head>
 <body>
