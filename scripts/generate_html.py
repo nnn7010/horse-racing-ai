@@ -253,10 +253,23 @@ def generate():
             results = json.load(f)
 
     import datetime
-    date = datetime.date.today().strftime("%Y/%m/%d")
-    today_str = datetime.date.today().strftime("%Y%m%d")
+    today = datetime.date.today()
+    date = today.strftime("%Y/%m/%d")
+    today_str = today.strftime("%Y%m%d")
 
-    # target_races.json から日付マップを作成して当日のレースに絞る
+    # 同週末の2日(土日)を対象 — 開催が今日のみなら今日のみ
+    weekday = today.weekday()  # 0=Mon, 5=Sat, 6=Sun
+    if weekday == 5:  # 土
+        weekend_dates = [today.strftime("%Y%m%d"), (today + datetime.timedelta(days=1)).strftime("%Y%m%d")]
+    elif weekday == 6:  # 日
+        weekend_dates = [(today - datetime.timedelta(days=1)).strftime("%Y%m%d"), today.strftime("%Y%m%d")]
+    else:
+        # 平日: 直近の土日
+        days_to_sat = (5 - weekday) % 7
+        sat = today + datetime.timedelta(days=days_to_sat)
+        weekend_dates = [sat.strftime("%Y%m%d"), (sat + datetime.timedelta(days=1)).strftime("%Y%m%d")]
+
+    # target_races.json から日付マップを作成
     TARGET_FILE = ROOT / "data/raw/target_races.json"
     date_map = {}
     if TARGET_FILE.exists():
@@ -266,20 +279,37 @@ def generate():
 
     races = data["races"]
     if date_map:
-        races = [r for r in races if date_map.get(r["race_id"]) == today_str]
-        if not races:
-            races = data["races"]  # フォールバック: 全部表示
+        wknd_races = [r for r in races if date_map.get(r["race_id"]) in weekend_dates]
+        if wknd_races:
+            races = wknd_races
 
-    venues = {}
+    # 日付別×場別にグルーピング
+    by_date_venue = {}
     for race in races:
-        venues.setdefault(race["place_name"], []).append(race)
+        d = date_map.get(race["race_id"], today_str)
+        by_date_venue.setdefault(d, {}).setdefault(race["place_name"], []).append(race)
 
     trend_html = render_trends(trends, results)
 
+    # 日付ラベル
+    weekday_jp = ["月", "火", "水", "木", "金", "土", "日"]
+    def fmt_date(s):
+        d = datetime.date(int(s[:4]), int(s[4:6]), int(s[6:]))
+        is_today = (d == today)
+        suffix = " (本日)" if is_today else ""
+        return f"{d.month}/{d.day}({weekday_jp[d.weekday()]}){suffix}"
+
     sections = ""
-    for venue, vraces in venues.items():
-        blocks = "".join(render_race(r, i + 1) for i, r in enumerate(vraces))
-        sections += f'<h2>🏟 {venue}</h2>{blocks}'
+    for d in sorted(by_date_venue.keys()):
+        venues = by_date_venue[d]
+        d_label = fmt_date(d)
+        is_today = (d == today_str)
+        date_cls = " date-today" if is_today else ""
+        sections += f'<div class="date-section{date_cls}"><h2 class="date-h">📅 {d_label}</h2>'
+        for venue, vraces in venues.items():
+            blocks = "".join(render_race(r, i + 1) for i, r in enumerate(vraces))
+            sections += f'<h3 class="venue-h">🏟 {venue}</h3>{blocks}'
+        sections += '</div>'
 
     updated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -358,6 +388,11 @@ td:nth-child(6){{color:#4caf50}}
 .rec-cand{{display:inline-block;background:#1a3a1a;border:1px solid #2e5a2e;border-radius:3px;padding:1px 6px;margin:0 3px 2px 0;color:#e0e0e0}}
 .rec-cand b{{color:#a5d6a7}}
 .rec-cand small{{color:#888;font-size:.85em}}
+.date-section{{margin-bottom:20px;padding-bottom:8px}}
+.date-section + .date-section{{border-top:2px solid #333;padding-top:14px}}
+.date-h{{color:#fff;font-size:1.05em;margin:8px 0 10px;padding:6px 10px;background:#263238;border-radius:5px}}
+.date-today .date-h{{background:linear-gradient(90deg,#1565c0 0%,#263238 60%);color:#fff}}
+.venue-h{{color:#ce93d8;font-size:.95em;margin:14px 0 6px}}
 </style>
 </head>
 <body>
@@ -373,7 +408,7 @@ td:nth-child(6){{color:#4caf50}}
         f.write(html)
 
     print(f"Generated: {OUT_FILE} ({len(html):,} bytes)")
-    print(f"Races: {len(races)} ({', '.join(f'{v}:{len(r)}R' for v, r in venues.items())})")
+    print(f"Races: {len(races)} across {len(by_date_venue)} day(s)")
 
 
 if __name__ == "__main__":
