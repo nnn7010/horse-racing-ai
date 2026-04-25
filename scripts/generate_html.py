@@ -28,31 +28,34 @@ def radar_svg(scores: list[int], size: int = 72, demands: list[int] | None = Non
         rv = r * (val / 100)
         return cx + rv * math.cos(angle), cy - rv * math.sin(angle)
 
-    # 背景グリッド
+    # 背景グリッド（50%と100%のみ）
     grids = ""
-    for level in [0.25, 0.5, 0.75, 1.0]:
-        pts = " ".join(f"{cx + r*level*math.cos(a):.1f},{cy - r*level*math.sin(a):.1f}" for a in angles)
-        grids += f'<polygon points="{pts}" fill="none" stroke="#333" stroke-width="0.5"/>'
+    for level in [0.5, 1.0]:
+        pts = " ".join(f"{cx+r*level*math.cos(a):.0f},{cy-r*level*math.sin(a):.0f}" for a in angles)
+        grids += f'<polygon points="{pts}" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>'
 
     # 軸線
-    axes = "".join(f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{cx + r*math.cos(a):.1f}" y2="{cy - r*math.sin(a):.1f}" stroke="#444" stroke-width="0.5"/>' for a in angles)
+    axes = "".join(
+        f'<line x1="{cx:.0f}" y1="{cy:.0f}" x2="{cx+r*math.cos(a):.0f}" y2="{cy-r*math.sin(a):.0f}" stroke="#333" stroke-width="0.5"/>'
+        for a in angles
+    )
 
     # コース要求ライン（金色・破線）
     demand_polygon = ""
     if demands and len(demands) == n:
-        d_pts = " ".join(f"{pt(d, a)[0]:.1f},{pt(d, a)[1]:.1f}" for d, a in zip(demands, angles))
-        demand_polygon = f'<polygon points="{d_pts}" fill="none" stroke="#ffd54f" stroke-width="1" stroke-dasharray="2,1.5" opacity="0.85"/>'
+        d_pts = " ".join(f"{pt(d,a)[0]:.0f},{pt(d,a)[1]:.0f}" for d, a in zip(demands, angles))
+        demand_polygon = f'<polygon points="{d_pts}" fill="none" stroke="#ffd54f" stroke-width="1" stroke-dasharray="2,2"/>'
 
     # 馬の能力ポリゴン（青）
-    data_pts = " ".join(f"{pt(s, a)[0]:.1f},{pt(s, a)[1]:.1f}" for s, a in zip(scores, angles))
-    polygon = f'<polygon points="{data_pts}" fill="rgba(100,181,246,0.25)" stroke="#64b5f6" stroke-width="1.5"/>'
+    data_pts = " ".join(f"{pt(s,a)[0]:.0f},{pt(s,a)[1]:.0f}" for s, a in zip(scores, angles))
+    polygon = f'<polygon points="{data_pts}" fill="rgba(100,181,246,0.2)" stroke="#64b5f6" stroke-width="1.5"/>'
 
     # ラベル
     labels = ""
     for i, (label, angle) in enumerate(zip(ABILITY_LABELS, angles)):
         lx = cx + (r + 9) * math.cos(angle)
         ly = cy - (r + 9) * math.sin(angle)
-        labels += f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" fill="{ABILITY_COLORS[i]}" font-size="8" font-weight="bold">{label}</text>'
+        labels += f'<text x="{lx:.0f}" y="{ly:.0f}" text-anchor="middle" dominant-baseline="middle" fill="{ABILITY_COLORS[i]}" font-size="8" font-weight="bold">{label}</text>'
 
     return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{grids}{axes}{demand_polygon}{polygon}{labels}</svg>'
 
@@ -72,7 +75,7 @@ def render_race(race, race_num):
         rows += f'<tr{cls}><td>{h["number"]}</td><td>{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td>{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>'
 
     # 能力チャートセクション（上位5頭）
-    top5 = horses_sorted[:5]
+    top5 = horses_sorted[:3]
     course_profile = race.get("course_profile", {})
     demands = [course_profile.get(k, 50) for k in ABILITY_KEYS] if course_profile else None
     charts = ""
@@ -85,18 +88,11 @@ def render_race(race, race_num):
         no_data = "" if ab.get("has_data") else '<span class="nd">*</span>'
         fit = ab.get("fit", 50)
         fit_color = "#00e676" if fit >= 75 else "#ffeb3b" if fit >= 55 else "#ef5350"
-        bars = "".join(
-            f'<div class="ab-row"><span style="color:{ABILITY_COLORS[j]}">{ABILITY_LABELS[j]}</span>'
-            f'<div class="ab-bg"><div class="ab-fill" style="width:{scores[j]}%;background:{ABILITY_COLORS[j]}"></div></div>'
-            f'<span class="ab-num">{scores[j]}</span></div>'
-            for j in range(len(ABILITY_KEYS))
-        )
         charts += (
             f'<div class="ab-card">'
             f'<div class="ab-name">{h["number"]}番 {h["horse_name"]}{no_data}'
             f'<span class="ab-fit" style="color:{fit_color}">適{fit}</span></div>'
             f'{svg}'
-            f'<div class="ab-bars">{bars}</div>'
             f'</div>'
         )
     if charts:
