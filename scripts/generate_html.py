@@ -424,7 +424,7 @@ async function refreshOdds() {{
   }}
 }}
 refreshOdds();
-setInterval(refreshOdds, 60000);
+setInterval(refreshOdds, 30000);
 </script>
 </body>
 </html>"""
