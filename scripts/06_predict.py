@@ -141,14 +141,33 @@ def main():
 
     # 単勝オッズ取得用
     import hashlib as _hl
+    import time as _time
+    import requests as _requests
+
+    _odds_headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://race.netkeiba.com/",
+    }
 
     def _get_win_odds_for_race(race_id):
-        cache = f"data/cache/{_hl.md5(f'https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update'.encode()).hexdigest()}.html"
+        url = f"https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update"
+        cache_path = Path(f"data/cache/{_hl.md5(url.encode()).hexdigest()}.html")
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(cache) as f:
-                data = json.loads(f.read())
+            # キャッシュがあれば使用（1時間以内のもの）
+            if cache_path.exists() and (_time.time() - cache_path.stat().st_mtime) < 3600:
+                with open(cache_path) as f:
+                    data = json.loads(f.read())
+            else:
+                resp = _requests.get(url, headers=_odds_headers, timeout=10)
+                resp.raise_for_status()
+                data = resp.json()
+                with open(cache_path, "w") as f:
+                    json.dump(data, f)
+                _time.sleep(1.5)
             return {k: float(v[0]) for k, v in data["data"]["odds"]["1"].items()}
-        except:
+        except Exception as e:
+            logger.warning(f"Failed to fetch odds for {race_id}: {e}")
             return {}
 
     all_predictions = []
