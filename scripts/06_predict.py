@@ -111,11 +111,18 @@ def main():
     with open(raw_dir / "target_races.json", encoding="utf-8") as f:
         target_races = json.load(f)
 
-    # 今日のレースのみに絞る
+    # 対象日のレースに絞る
     import datetime
-    today_str = datetime.date.today().strftime("%Y%m%d")
-    target_races = [r for r in target_races if r.get("date", "") == today_str]
-    logger.info(f"Today ({today_str}): {len(target_races)} races")
+    target_date_strs = set()
+    for r in target_races:
+        d = r.get("date", "")
+        if d:
+            target_date_strs.add(d)
+    # 日付指定がない場合は今日のみ
+    if not target_date_strs:
+        today_str = datetime.date.today().strftime("%Y%m%d")
+        target_races = [r for r in target_races if r.get("date", "") == today_str]
+    logger.info(f"Target dates: {sorted(target_date_strs)}, {len(target_races)} races")
 
     # 過去特徴量から統計を構築
     hist_df = pd.read_parquet(processed_dir / "features.parquet")
@@ -504,7 +511,8 @@ def main():
             bracket = next(
                 (e.get("bracket", 0) for e in entries if e.get("number") == num), 0
             )
-            ab = ability_scores_df.loc[num] if num in ability_scores_df.index else None
+            ab_match = ability_scores_df.loc[ability_scores_df.index == num]
+            ab = ab_match.iloc[0] if len(ab_match) > 0 else None
             ab_dict = {
                 "speed": int(ab["speed"]) if ab is not None else 50,
                 "burst": int(ab["burst"]) if ab is not None else 50,

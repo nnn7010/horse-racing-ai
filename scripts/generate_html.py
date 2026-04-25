@@ -20,6 +20,88 @@ STYLE_BADGE = {
     "追込": '<span class="sb sb-oikomi">追</span>',
 }
 
+# 推奨買い目の閾値
+WIN_PROB_MIN = 0.20      # 軸: 単勝確率
+WIN_ODDS_MIN = 3.0       # 軸: 単勝オッズ
+TOP3_MIN = 0.40          # 2-3着候補: top3確率
+TOP3_TOP_N = 4           # 上位N頭から選ぶ
+
+
+def build_recommendations(race):
+    """レースから推奨買い目を生成する。
+    軸: win_prob≥20% & 単勝オッズ≥3
+    三連単フォーメーション: 軸固定 → top3上位4頭∩top3≥40% を2-3着に流し
+    候補<2の場合は単勝のみ。
+    """
+    horses = race["horses"]
+    win_axes = []
+    for h in horses:
+        if h["win_prob"] >= WIN_PROB_MIN and h.get("win_odds", 0) >= WIN_ODDS_MIN:
+            win_axes.append(h)
+    if not win_axes:
+        return None
+
+    # top3確率でソート
+    sorted_top3 = sorted(horses, key=lambda h: -h["place_prob"])
+
+    recs = []
+    for axis in win_axes:
+        axis_num = axis["number"]
+        # top4 (軸除外) ∩ top3≥40%
+        top4 = [h for h in sorted_top3 if h["number"] != axis_num][:TOP3_TOP_N]
+        cands = [h for h in top4 if h["place_prob"] >= TOP3_MIN]
+
+        rec = {
+            "axis": axis,
+            "win_only": len(cands) < 2,
+            "candidates": cands,
+            "n_tickets": 0,
+        }
+        if not rec["win_only"]:
+            rec["n_tickets"] = len(cands) * (len(cands) - 1)
+        recs.append(rec)
+    return recs
+
+
+def render_recommendations(recs):
+    if not recs:
+        return ""
+    blocks = ""
+    for rec in recs:
+        axis = rec["axis"]
+        axis_html = (
+            f'<span class="rec-axis-num">{axis["number"]}</span>'
+            f'<span class="rec-axis-name">{axis["horse_name"]}</span>'
+            f'<span class="rec-axis-meta">単{axis.get("win_odds",0):.1f}倍 / 1着{axis["win_prob"]*100:.0f}%</span>'
+        )
+        if rec["win_only"]:
+            blocks += (
+                f'<div class="rec-card">'
+                f'<div class="rec-head"><span class="rec-tag rec-tag-win">単勝のみ</span> 2-3着候補不足</div>'
+                f'<div class="rec-axis">軸: {axis_html}</div>'
+                f'</div>'
+            )
+        else:
+            cand_html = ""
+            for c in rec["candidates"]:
+                cand_html += (
+                    f'<span class="rec-cand">'
+                    f'<b>{c["number"]}</b> {c["horse_name"]} '
+                    f'<small>({c["place_prob"]*100:.0f}%/{c.get("win_odds",0):.1f}倍)</small>'
+                    f'</span>'
+                )
+            blocks += (
+                f'<div class="rec-card">'
+                f'<div class="rec-head">'
+                f'<span class="rec-tag rec-tag-tri">単勝＋三連単フォーメーション</span> '
+                f'<span class="rec-tickets">{rec["n_tickets"]}点</span>'
+                f'</div>'
+                f'<div class="rec-axis">軸(1着): {axis_html}</div>'
+                f'<div class="rec-cands"><span class="rec-label">2-3着候補:</span>{cand_html}</div>'
+                f'</div>'
+            )
+    return f'<div class="rec-section"><div class="rec-title">💡 推奨買い目</div>{blocks}</div>'
+
 
 def render_race(race, race_num):
     surface_icon = "🌿" if race["surface"] == "芝" else "🟤"
@@ -58,6 +140,10 @@ def render_race(race, race_num):
     meta += f" {race['n_horses']}頭"
     time_str = race.get("start_time", "")
 
+    # 推奨買い目
+    recs = build_recommendations(race)
+    rec_html = render_recommendations(recs) if recs else ""
+
     # 展開予測
     pp = race.get("pace_prediction", {})
     if pp:
@@ -77,12 +163,16 @@ def render_race(race, race_num):
     else:
         pace_html = ""
 
+    # サマリー: 推奨買い目があるレースに🎯マーク
+    rec_indicator = '<span class="rec-indicator">🎯</span>' if recs else ''
+
     return (
         f'<details><summary>'
-        f'<b>{race_num}R</b> {race["race_name"]}'
+        f'<b>{race_num}R</b> {race["race_name"]}{rec_indicator}'
         f'<small> {meta}{" " + time_str if time_str else ""}</small>'
         f'</summary>'
         f'<div class="d">'
+        f'{rec_html}'
         f'{pace_html}'
         f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>1着%</th><th>3着%</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
@@ -164,7 +254,21 @@ def generate():
 
     import datetime
     date = datetime.date.today().strftime("%Y/%m/%d")
+    today_str = datetime.date.today().strftime("%Y%m%d")
+
+    # target_races.json から日付マップを作成して当日のレースに絞る
+    TARGET_FILE = ROOT / "data/raw/target_races.json"
+    date_map = {}
+    if TARGET_FILE.exists():
+        with open(TARGET_FILE, encoding="utf-8") as f:
+            for r in json.load(f):
+                date_map[r["race_id"]] = r.get("date", "")
+
     races = data["races"]
+    if date_map:
+        races = [r for r in races if date_map.get(r["race_id"]) == today_str]
+        if not races:
+            races = data["races"]  # フォールバック: 全部表示
 
     venues = {}
     for race in races:
@@ -235,6 +339,25 @@ td:nth-child(6){{color:#4caf50}}
 .pace-val{{font-weight:bold;font-size:.88em}}
 .pace-note{{color:#aaa;font-size:.75em}}
 .pace-dist{{color:#666;font-size:.72em;margin-left:auto}}
+.rec-indicator{{margin-left:6px}}
+.rec-section{{background:linear-gradient(135deg,#1a2e1a 0%,#1e3a1e 100%);border:1px solid #2e5a2e;border-radius:8px;padding:9px 11px;margin-bottom:9px}}
+.rec-title{{color:#a5d6a7;font-size:.82em;font-weight:bold;margin-bottom:7px}}
+.rec-card{{background:#0d1f0d;border:1px solid #2a4a2a;border-radius:6px;padding:7px 9px;margin-bottom:6px}}
+.rec-card:last-child{{margin-bottom:0}}
+.rec-head{{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.78em}}
+.rec-tag{{display:inline-block;padding:2px 7px;border-radius:3px;font-weight:bold;font-size:.92em}}
+.rec-tag-tri{{background:#2e7d32;color:#fff}}
+.rec-tag-win{{background:#f57c00;color:#fff}}
+.rec-tickets{{color:#aaa;margin-left:auto;font-size:.92em}}
+.rec-axis{{font-size:.85em;color:#e0e0e0;margin-bottom:5px}}
+.rec-axis-num{{display:inline-block;background:#1565c0;color:#fff;border-radius:3px;padding:1px 6px;margin-right:5px;font-weight:bold}}
+.rec-axis-name{{font-weight:bold}}
+.rec-axis-meta{{color:#999;font-size:.88em;margin-left:6px}}
+.rec-cands{{font-size:.78em;line-height:1.7}}
+.rec-label{{color:#888;margin-right:6px}}
+.rec-cand{{display:inline-block;background:#1a3a1a;border:1px solid #2e5a2e;border-radius:3px;padding:1px 6px;margin:0 3px 2px 0;color:#e0e0e0}}
+.rec-cand b{{color:#a5d6a7}}
+.rec-cand small{{color:#888;font-size:.85em}}
 </style>
 </head>
 <body>
