@@ -922,7 +922,7 @@
           "horse_name": "シエラモレーナ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 167.0,
+          "win_odds": 448.4,
           "win_prob": 0.01,
           "place_prob": 0.0168
         },
@@ -931,7 +931,7 @@
           "horse_name": "カズノダイジョウ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 11.2,
+          "win_odds": 13.5,
           "win_prob": 0.0477,
           "place_prob": 0.1074
         },
@@ -940,7 +940,7 @@
           "horse_name": "リラ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 7.0,
+          "win_odds": 5.2,
           "win_prob": 0.1352,
           "place_prob": 0.6769
         },
@@ -949,7 +949,7 @@
           "horse_name": "スターリットフレア",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 17.5,
+          "win_odds": 19.7,
           "win_prob": 0.0322,
           "place_prob": 0.0276
         },
@@ -958,7 +958,7 @@
           "horse_name": "ルージュアストレア",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 10.1,
+          "win_odds": 7.0,
           "win_prob": 0.1401,
           "place_prob": 0.2279
         },
@@ -967,7 +967,7 @@
           "horse_name": "グランマエストロ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 2.0,
+          "win_odds": 2.2,
           "win_prob": 0.1998,
           "place_prob": 0.6769
         },
@@ -976,7 +976,7 @@
           "horse_name": "ペリバジャ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 136.3,
+          "win_odds": 303.1,
           "win_prob": 0.01,
           "place_prob": 0.0709
         },
@@ -985,7 +985,7 @@
           "horse_name": "ハネマン",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 109.1,
+          "win_odds": 257.1,
           "win_prob": 0.01,
           "place_prob": 0.1031
         },
@@ -994,7 +994,7 @@
           "horse_name": "アリアス",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 18.2,
+          "win_odds": 20.9,
           "win_prob": 0.1145,
           "place_prob": 0.2279
         },
@@ -1003,7 +1003,7 @@
           "horse_name": "ノブピースオブラブ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 132.6,
+          "win_odds": 315.5,
           "win_prob": 0.01,
           "place_prob": 0.0276
         },
@@ -1012,7 +1012,7 @@
           "horse_name": "ダノンケリー",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 7.1,
+          "win_odds": 6.9,
           "win_prob": 0.1401,
           "place_prob": 0.4044
         },
@@ -1021,7 +1021,7 @@
           "horse_name": "ニシノマーレ",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 26.2,
+          "win_odds": 18.0,
           "win_prob": 0.0322,
           "place_prob": 0.1517
         },
@@ -1030,7 +1030,7 @@
           "horse_name": "ジューンレトリバー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 43.5,
+          "win_odds": 48.3,
           "win_prob": 0.0321,
           "place_prob": 0.031
         },
@@ -1039,7 +1039,7 @@
           "horse_name": "ミスティユニバンス",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 29.7,
+          "win_odds": 26.9,
           "win_prob": 0.0477,
           "place_prob": 0.0709
         },
@@ -1048,7 +1048,7 @@
           "horse_name": "ジュニートワン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 58.2,
+          "win_odds": 66.1,
           "win_prob": 0.01,
           "place_prob": 0.0709
         },
@@ -1057,7 +1057,7 @@
           "horse_name": "ジーティートゥーリ",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 87.2,
+          "win_odds": 145.8,
           "win_prob": 0.01,
           "place_prob": 0.0276
         },
@@ -1066,7 +1066,7 @@
           "horse_name": "アドマイヤパープル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 44.5,
+          "win_odds": 60.7,
           "win_prob": 0.01,
           "place_prob": 0.0709
         },
@@ -1075,7 +1075,7 @@
           "horse_name": "アルマサーガ",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 245.6,
+          "win_odds": 580.9,
           "win_prob": 0.0084,
           "place_prob": 0.01
         }
@@ -1180,7 +1180,7 @@
           "horse_name": "セントゴーデンス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 44.8,
+          "win_odds": 160.8,
           "win_prob": 0.0168,
           "place_prob": 0.0582
         },
@@ -1189,7 +1189,7 @@
           "horse_name": "ホウオウルクソール",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 13.4,
+          "win_odds": 16.9,
           "win_prob": 0.1064,
           "place_prob": 0.0882
         },
@@ -1198,7 +1198,7 @@
           "horse_name": "ヴォーカライズ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 10.4,
+          "win_odds": 10.2,
           "win_prob": 0.1063,
           "place_prob": 0.3008
         },
@@ -1207,7 +1207,7 @@
           "horse_name": "タイセイエキサイト",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 170.6,
+          "win_odds": 541.5,
           "win_prob": 0.0079,
           "place_prob": 0.0138
         },
@@ -1216,7 +1216,7 @@
           "horse_name": "ステラデルークス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 15.2,
+          "win_odds": 21.3,
           "win_prob": 0.0168,
           "place_prob": 0.1091
         },
@@ -1225,7 +1225,7 @@
           "horse_name": "キーンセンス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 22.4,
+          "win_odds": 59.7,
           "win_prob": 0.0253,
           "place_prob": 0.1245
         },
@@ -1234,7 +1234,7 @@
           "horse_name": "ジーティーブラック",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 32.6,
+          "win_odds": 41.9,
           "win_prob": 0.1064,
           "place_prob": 0.1871
         },
@@ -1243,7 +1243,7 @@
           "horse_name": "ザーフィル",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 4.0,
+          "win_odds": 2.9,
           "win_prob": 0.1572,
           "place_prob": 0.3663
         },
@@ -1252,7 +1252,7 @@
           "horse_name": "フクシマブリルハム",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 51.6,
+          "win_odds": 123.6,
           "win_prob": 0.0375,
           "place_prob": 0.0582
         },
@@ -1261,7 +1261,7 @@
           "horse_name": "ビービークローサー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 2.6,
+          "win_odds": 1.8,
           "win_prob": 0.1102,
           "place_prob": 0.6674
         },
@@ -1270,7 +1270,7 @@
           "horse_name": "タケルムサシ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 41.4,
+          "win_odds": 64.0,
           "win_prob": 0.0901,
           "place_prob": 0.2239
         },
@@ -1279,7 +1279,7 @@
           "horse_name": "シビックアスコット",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 36.3,
+          "win_odds": 155.7,
           "win_prob": 0.0079,
           "place_prob": 0.0226
         },
@@ -1288,7 +1288,7 @@
           "horse_name": "リアライズタキオン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 8.3,
+          "win_odds": 18.3,
           "win_prob": 0.0375,
           "place_prob": 0.1173
         },
@@ -1297,7 +1297,7 @@
           "horse_name": "サマーマッドネス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 16.2,
+          "win_odds": 46.0,
           "win_prob": 0.0584,
           "place_prob": 0.4209
         },
@@ -1306,7 +1306,7 @@
           "horse_name": "ヴェネチアンキング",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 68.5,
+          "win_odds": 162.4,
           "win_prob": 0.0253,
           "place_prob": 0.1173
         },
@@ -1315,7 +1315,7 @@
           "horse_name": "テイクオンミー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 42.2,
+          "win_odds": 65.2,
           "win_prob": 0.0901,
           "place_prob": 0.1245
         }
@@ -1420,7 +1420,7 @@
           "horse_name": "ザローズハーツ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 39.1,
+          "win_odds": 68.1,
           "win_prob": 0.0201,
           "place_prob": 0.0324
         },
@@ -1429,7 +1429,7 @@
           "horse_name": "レインボーラッキー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 59.2,
+          "win_odds": 97.5,
           "win_prob": 0.0303,
           "place_prob": 0.121
         },
@@ -1438,7 +1438,7 @@
           "horse_name": "ピラニアキッス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.1,
+          "win_odds": 14.3,
           "win_prob": 0.0701,
           "place_prob": 0.3201
         },
@@ -1447,7 +1447,7 @@
           "horse_name": "コルヴィル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 28.0,
+          "win_odds": 36.1,
           "win_prob": 0.0323,
           "place_prob": 0.126
         },
@@ -1456,7 +1456,7 @@
           "horse_name": "メルシージュテーム",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.1,
+          "win_odds": 11.6,
           "win_prob": 0.061,
           "place_prob": 0.0832
         },
@@ -1465,7 +1465,7 @@
           "horse_name": "ブルージュ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 8.7,
+          "win_odds": 9.9,
           "win_prob": 0.045,
           "place_prob": 0.0832
         },
@@ -1474,7 +1474,7 @@
           "horse_name": "キャットテイル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 3.6,
+          "win_odds": 2.8,
           "win_prob": 0.1885,
           "place_prob": 0.3201
         },
@@ -1483,7 +1483,7 @@
           "horse_name": "マオノクラッシュ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 27.5,
+          "win_odds": 30.8,
           "win_prob": 0.0323,
           "place_prob": 0.178
         },
@@ -1492,7 +1492,7 @@
           "horse_name": "エイミームーン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 54.6,
+          "win_odds": 56.7,
           "win_prob": 0.045,
           "place_prob": 0.1676
         },
@@ -1501,7 +1501,7 @@
           "horse_name": "ケープウィッカム",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 7.4,
+          "win_odds": 6.9,
           "win_prob": 0.108,
           "place_prob": 0.2674
         },
@@ -1510,7 +1510,7 @@
           "horse_name": "ラルガメンテ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 12.1,
+          "win_odds": 17.1,
           "win_prob": 0.061,
           "place_prob": 0.3003
         },
@@ -1519,7 +1519,7 @@
           "horse_name": "ミサビスケッツ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 19.7,
+          "win_odds": 20.3,
           "win_prob": 0.045,
           "place_prob": 0.2674
         },
@@ -1528,7 +1528,7 @@
           "horse_name": "ハヌル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 62.3,
+          "win_odds": 112.7,
           "win_prob": 0.0201,
           "place_prob": 0.0832
         },
@@ -1537,7 +1537,7 @@
           "horse_name": "パッションディーバ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 34.8,
+          "win_odds": 75.2,
           "win_prob": 0.045,
           "place_prob": 0.3201
         },
@@ -1546,7 +1546,7 @@
           "horse_name": "ベリーベリーベリー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 131.8,
+          "win_odds": 151.2,
           "win_prob": 0.0079,
           "place_prob": 0.01
         },
@@ -1555,7 +1555,7 @@
           "horse_name": "クラリネットソナタ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 4.7,
+          "win_odds": 3.8,
           "win_prob": 0.1885,
           "place_prob": 0.3201
         }
@@ -1660,7 +1660,7 @@
           "horse_name": "アセンブリールーム",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 2.4,
+          "win_odds": 2.2,
           "win_prob": 0.2126,
           "place_prob": 0.8
         },
@@ -1669,7 +1669,7 @@
           "horse_name": "チャイボーグ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 54.3,
+          "win_odds": 57.6,
           "win_prob": 0.0128,
           "place_prob": 0.0101
         },
@@ -1678,7 +1678,7 @@
           "horse_name": "スタニングヴュー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 24.2,
+          "win_odds": 26.4,
           "win_prob": 0.0983,
           "place_prob": 0.2736
         },
@@ -1687,7 +1687,7 @@
           "horse_name": "トロピカルティー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 6.0,
+          "win_odds": 7.1,
           "win_prob": 0.2051,
           "place_prob": 0.6156
         },
@@ -1696,7 +1696,7 @@
           "horse_name": "アトリウムチャペル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 8.6,
+          "win_odds": 8.9,
           "win_prob": 0.1127,
           "place_prob": 0.3275
         },
@@ -1705,7 +1705,7 @@
           "horse_name": "ツインピークス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 15.8,
+          "win_odds": 15.6,
           "win_prob": 0.1127,
           "place_prob": 0.3275
         },
@@ -1714,7 +1714,7 @@
           "horse_name": "ソニックライン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 5.7,
+          "win_odds": 5.6,
           "win_prob": 0.0723,
           "place_prob": 0.3275
         },
@@ -1723,7 +1723,7 @@
           "horse_name": "ナクライト",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.8,
+          "win_odds": 3.9,
           "win_prob": 0.1737,
           "place_prob": 0.3073
         }
@@ -1828,7 +1828,7 @@
           "horse_name": "ヤコブセン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 48.0,
+          "win_odds": 52.6,
           "win_prob": 0.0345,
           "place_prob": 0.0892
         },
@@ -1837,7 +1837,7 @@
           "horse_name": "アルゲンテウス",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 15.2,
+          "win_odds": 15.7,
           "win_prob": 0.0512,
           "place_prob": 0.2361
         },
@@ -1846,7 +1846,7 @@
           "horse_name": "マイネルフォルツァ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 34.1,
+          "win_odds": 35.3,
           "win_prob": 0.0107,
           "place_prob": 0.0239
         },
@@ -1855,7 +1855,7 @@
           "horse_name": "レベルスルール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 10.2,
+          "win_odds": 9.8,
           "win_prob": 0.1505,
           "place_prob": 0.2361
         },
@@ -1864,7 +1864,7 @@
           "horse_name": "オメガインペリアル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 22.1,
+          "win_odds": 23.2,
           "win_prob": 0.1505,
           "place_prob": 0.4438
         },
@@ -1873,7 +1873,7 @@
           "horse_name": "ダノンミッション",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 1.8,
+          "win_odds": 1.9,
           "win_prob": 0.2146,
           "place_prob": 0.7958
         },
@@ -1882,7 +1882,7 @@
           "horse_name": "ビーオンザカバー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 7.5,
+          "win_odds": 6.6,
           "win_prob": 0.1505,
           "place_prob": 0.5202
         },
@@ -1891,7 +1891,7 @@
           "horse_name": "コスモスプモーニ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 79.2,
+          "win_odds": 71.6,
           "win_prob": 0.0229,
           "place_prob": 0.0613
         },
@@ -1900,7 +1900,7 @@
           "horse_name": "ノビリシマビジョン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 3.2,
+          "win_odds": 3.1,
           "win_prob": 0.2146,
           "place_prob": 0.5936
         }
@@ -2005,7 +2005,7 @@
           "horse_name": "ピックアップライン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 25.7,
+          "win_odds": 29.1,
           "win_prob": 0.0358,
           "place_prob": 0.2106
         },
@@ -2014,7 +2014,7 @@
           "horse_name": "クインズデネブ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 18.2,
+          "win_odds": 18.6,
           "win_prob": 0.0358,
           "place_prob": 0.1171
         },
@@ -2023,7 +2023,7 @@
           "horse_name": "ラストシャリナ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 19.8,
+          "win_odds": 21.8,
           "win_prob": 0.0555,
           "place_prob": 0.176
         },
@@ -2032,7 +2032,7 @@
           "horse_name": "メイショウハチロー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 2.9,
+          "win_odds": 3.0,
           "win_prob": 0.1494,
           "place_prob": 0.4349
         },
@@ -2041,7 +2041,7 @@
           "horse_name": "ベンヌ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.1,
+          "win_odds": 11.4,
           "win_prob": 0.0358,
           "place_prob": 0.2106
         },
@@ -2050,7 +2050,7 @@
           "horse_name": "トクシーカイザー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 7.9,
+          "win_odds": 8.1,
           "win_prob": 0.0356,
           "place_prob": 0.176
         },
@@ -2059,7 +2059,7 @@
           "horse_name": "スプランドゥール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 45.7,
+          "win_odds": 49.1,
           "win_prob": 0.0158,
           "place_prob": 0.0547
         },
@@ -2068,7 +2068,7 @@
           "horse_name": "カネショウレジェン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 12.3,
+          "win_odds": 11.3,
           "win_prob": 0.1494,
           "place_prob": 0.5227
         },
@@ -2077,7 +2077,7 @@
           "horse_name": "エンセリオ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 92.7,
+          "win_odds": 95.1,
           "win_prob": 0.0356,
           "place_prob": 0.0547
         },
@@ -2086,7 +2086,7 @@
           "horse_name": "シャパリュ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 19.1,
+          "win_odds": 18.5,
           "win_prob": 0.101,
           "place_prob": 0.1171
         },
@@ -2095,7 +2095,7 @@
           "horse_name": "レーウィン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 38.5,
+          "win_odds": 46.0,
           "win_prob": 0.0157,
           "place_prob": 0.0547
         },
@@ -2104,7 +2104,7 @@
           "horse_name": "フウセツ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 18.9,
+          "win_odds": 20.7,
           "win_prob": 0.0484,
           "place_prob": 0.0547
         },
@@ -2113,7 +2113,7 @@
           "horse_name": "イノセントキャット",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 41.1,
+          "win_odds": 44.7,
           "win_prob": 0.0356,
           "place_prob": 0.0829
         },
@@ -2122,7 +2122,7 @@
           "horse_name": "ワンダラー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.0,
+          "win_odds": 11.6,
           "win_prob": 0.1494,
           "place_prob": 0.5227
         },
@@ -2131,7 +2131,7 @@
           "horse_name": "ペイシャケイプ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 5.1,
+          "win_odds": 4.4,
           "win_prob": 0.101,
           "place_prob": 0.2106
         }
@@ -2236,7 +2236,7 @@
           "horse_name": "トゥーナスタディ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 351.4,
+          "win_odds": 350.6,
           "win_prob": 0.0055,
           "place_prob": 0.0143
         },
@@ -2245,7 +2245,7 @@
           "horse_name": "カットソロ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 64.6,
+          "win_odds": 64.1,
           "win_prob": 0.0748,
           "place_prob": 0.2324
         },
@@ -2254,7 +2254,7 @@
           "horse_name": "パラディオン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 111.8,
+          "win_odds": 107.6,
           "win_prob": 0.0118,
           "place_prob": 0.0264
         },
@@ -2263,7 +2263,7 @@
           "horse_name": "ブラックオリンピア",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 2.2,
+          "win_odds": 2.4,
           "win_prob": 0.1105,
           "place_prob": 0.6927
         },
@@ -2272,7 +2272,7 @@
           "horse_name": "ミッキーファルコン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 27.4,
+          "win_odds": 26.6,
           "win_prob": 0.0633,
           "place_prob": 0.2324
         },
@@ -2281,7 +2281,7 @@
           "horse_name": "テルヒコウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 17.4,
+          "win_odds": 17.0,
           "win_prob": 0.0775,
           "place_prob": 0.1217
         },
@@ -2290,7 +2290,7 @@
           "horse_name": "タイダルロック",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 6.6,
+          "win_odds": 6.1,
           "win_prob": 0.0264,
           "place_prob": 0.1942
         },
@@ -2299,7 +2299,7 @@
           "horse_name": "ラストスマイル",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 15.3,
+          "win_odds": 15.2,
           "win_prob": 0.0117,
           "place_prob": 0.1293
         },
@@ -2308,7 +2308,7 @@
           "horse_name": "ヒシアムルーズ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 130.9,
+          "win_odds": 142.3,
           "win_prob": 0.0411,
           "place_prob": 0.1293
         },
@@ -2317,7 +2317,7 @@
           "horse_name": "アッカン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 53.4,
+          "win_odds": 54.4,
           "win_prob": 0.0748,
           "place_prob": 0.0604
         },
@@ -2326,7 +2326,7 @@
           "horse_name": "ノチェセラーダ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 24.7,
+          "win_odds": 23.8,
           "win_prob": 0.0633,
           "place_prob": 0.0915
         },
@@ -2335,7 +2335,7 @@
           "horse_name": "サガルマータ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 20.6,
+          "win_odds": 19.9,
           "win_prob": 0.0775,
           "place_prob": 0.2324
         },
@@ -2344,7 +2344,7 @@
           "horse_name": "コスモギガンティア",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 82.7,
+          "win_odds": 84.1,
           "win_prob": 0.0117,
           "place_prob": 0.0604
         },
@@ -2353,7 +2353,7 @@
           "horse_name": "ヨカオウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 131.8,
+          "win_odds": 135.2,
           "win_prob": 0.0748,
           "place_prob": 0.0604
         },
@@ -2362,7 +2362,7 @@
           "horse_name": "ノーブルサヴェージ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 4.8,
+          "win_odds": 4.7,
           "win_prob": 0.1105,
           "place_prob": 0.3801
         },
@@ -2371,7 +2371,7 @@
           "horse_name": "ゴーイントゥスカイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 9.6,
+          "win_odds": 9.1,
           "win_prob": 0.0748,
           "place_prob": 0.1942
         },
@@ -2389,7 +2389,7 @@
           "horse_name": "ケントン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 127.5,
+          "win_odds": 128.5,
           "win_prob": 0.0265,
           "place_prob": 0.0264
         }
@@ -2494,7 +2494,7 @@
           "horse_name": "エーデル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 30.1,
+          "win_odds": 35.9,
           "win_prob": 0.0331,
           "place_prob": 0.0757
         },
@@ -2503,7 +2503,7 @@
           "horse_name": "ホウキボシ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 5.3,
+          "win_odds": 5.1,
           "win_prob": 0.206,
           "place_prob": 0.6486
         },
@@ -2512,7 +2512,7 @@
           "horse_name": "ディーズゴールド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.7,
+          "win_odds": 3.8,
           "win_prob": 0.206,
           "place_prob": 0.5908
         },
@@ -2521,7 +2521,7 @@
           "horse_name": "キョウエイフロイデ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 8.4,
+          "win_odds": 8.6,
           "win_prob": 0.206,
           "place_prob": 0.5734
         },
@@ -2530,7 +2530,7 @@
           "horse_name": "タマモカンパネラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 12.9,
+          "win_odds": 13.4,
           "win_prob": 0.1445,
           "place_prob": 0.3617
         },
@@ -2539,7 +2539,7 @@
           "horse_name": "アースイオス",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 100.7,
+          "win_odds": 92.3,
           "win_prob": 0.0103,
           "place_prob": 0.01
         },
@@ -2548,7 +2548,7 @@
           "horse_name": "バロンドール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.7,
+          "win_odds": 13.1,
           "win_prob": 0.022,
           "place_prob": 0.0219
         },
@@ -2557,7 +2557,7 @@
           "horse_name": "バルダンツァ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.1,
+          "win_odds": 9.9,
           "win_prob": 0.0354,
           "place_prob": 0.107
         },
@@ -2566,7 +2566,7 @@
           "horse_name": "スーパージョック",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 17.3,
+          "win_odds": 18.9,
           "win_prob": 0.0331,
           "place_prob": 0.107
         },
@@ -2575,7 +2575,7 @@
           "horse_name": "テンクウジョー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 76.3,
+          "win_odds": 75.7,
           "win_prob": 0.022,
           "place_prob": 0.1008
         },
@@ -2584,7 +2584,7 @@
           "horse_name": "ピコニ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 31.7,
+          "win_odds": 33.3,
           "win_prob": 0.022,
           "place_prob": 0.1608
         },
@@ -2593,7 +2593,7 @@
           "horse_name": "クレイヴィンオナー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 45.3,
+          "win_odds": 49.5,
           "win_prob": 0.0103,
           "place_prob": 0.05
         },
@@ -2602,7 +2602,7 @@
           "horse_name": "コーカサスゴールド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.9,
+          "win_odds": 3.5,
           "win_prob": 0.0492,
           "place_prob": 0.1924
         }
@@ -3613,7 +3613,7 @@
           "horse_name": "コスモフィレンツェ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 3.2,
+          "win_odds": 3.3,
           "win_prob": 0.0616,
           "place_prob": 0.3719
         },
@@ -3622,7 +3622,7 @@
           "horse_name": "エルナト",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 6.4,
+          "win_odds": 5.5,
           "win_prob": 0.1162,
           "place_prob": 0.3107
         },
@@ -3631,7 +3631,7 @@
           "horse_name": "サトノトリニティ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 11.5,
+          "win_odds": 14.5,
           "win_prob": 0.1331,
           "place_prob": 0.3719
         },
@@ -3640,7 +3640,7 @@
           "horse_name": "タガノミトゥンドゥ",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 48.9,
+          "win_odds": 83.7,
           "win_prob": 0.0151,
           "place_prob": 0.0376
         },
@@ -3649,7 +3649,7 @@
           "horse_name": "フウセン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 3.9,
+          "win_odds": 2.9,
           "win_prob": 0.2425,
           "place_prob": 0.8
         },
@@ -3658,7 +3658,7 @@
           "horse_name": "ロスニーニョス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 107.2,
+          "win_odds": 224.8,
           "win_prob": 0.0179,
           "place_prob": 0.0423
         },
@@ -3667,7 +3667,7 @@
           "horse_name": "レイワノキセキ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.3,
+          "win_odds": 20.1,
           "win_prob": 0.0614,
           "place_prob": 0.1464
         },
@@ -3676,7 +3676,7 @@
           "horse_name": "チュオンソン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 69.7,
+          "win_odds": 151.2,
           "win_prob": 0.0179,
           "place_prob": 0.0103
         },
@@ -3685,7 +3685,7 @@
           "horse_name": "ビップヴォルフ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 4.1,
+          "win_odds": 4.4,
           "win_prob": 0.0855,
           "place_prob": 0.3719
         },
@@ -3694,7 +3694,7 @@
           "horse_name": "マーゴットショット",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 61.3,
+          "win_odds": 112.1,
           "win_prob": 0.0578,
           "place_prob": 0.0423
         },
@@ -3703,7 +3703,7 @@
           "horse_name": "スウィーティーベル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 13.2,
+          "win_odds": 18.4,
           "win_prob": 0.1332,
           "place_prob": 0.3719
         },
@@ -3712,7 +3712,7 @@
           "horse_name": "エアセンチュリー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 53.6,
+          "win_odds": 125.7,
           "win_prob": 0.0576,
           "place_prob": 0.0966
         }
@@ -3817,7 +3817,7 @@
           "horse_name": "ランスオブヒーロー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 3.8,
+          "win_odds": 3.3,
           "win_prob": 0.1984,
           "place_prob": 0.351
         },
@@ -3826,7 +3826,7 @@
           "horse_name": "セルヴァジオ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 7.2,
+          "win_odds": 6.5,
           "win_prob": 0.0557,
           "place_prob": 0.2484
         },
@@ -3835,7 +3835,7 @@
           "horse_name": "メイショウマグナ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 49.4,
+          "win_odds": 209.0,
           "win_prob": 0.0146,
           "place_prob": 0.01
         },
@@ -3844,7 +3844,7 @@
           "horse_name": "レッドパラジウム",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 8.5,
+          "win_odds": 6.7,
           "win_prob": 0.0174,
           "place_prob": 0.01
         },
@@ -3853,7 +3853,7 @@
           "horse_name": "ビサイレント",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 83.9,
+          "win_odds": 305.8,
           "win_prob": 0.0146,
           "place_prob": 0.01
         },
@@ -3862,7 +3862,7 @@
           "horse_name": "メイショウゼルク",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 65.8,
+          "win_odds": 203.4,
           "win_prob": 0.0146,
           "place_prob": 0.01
         },
@@ -3871,7 +3871,7 @@
           "horse_name": "ヒデガミティアラ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 118.9,
+          "win_odds": 396.2,
           "win_prob": 0.0173,
           "place_prob": 0.0638
         },
@@ -3880,7 +3880,7 @@
           "horse_name": "チュウワメロディー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 12.7,
+          "win_odds": 11.1,
           "win_prob": 0.0831,
           "place_prob": 0.631
         },
@@ -3889,7 +3889,7 @@
           "horse_name": "クープグラッセ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 8.4,
+          "win_odds": 23.2,
           "win_prob": 0.0557,
           "place_prob": 0.164
         },
@@ -3898,7 +3898,7 @@
           "horse_name": "サンライズレマ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 36.5,
+          "win_odds": 43.1,
           "win_prob": 0.1287,
           "place_prob": 0.164
         },
@@ -3907,7 +3907,7 @@
           "horse_name": "ヴェロシオン",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 98.5,
+          "win_odds": 291.0,
           "win_prob": 0.0146,
           "place_prob": 0.01
         },
@@ -3916,7 +3916,7 @@
           "horse_name": "ブランチアウト",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.8,
+          "win_odds": 6.2,
           "win_prob": 0.0594,
           "place_prob": 0.2484
         },
@@ -3925,7 +3925,7 @@
           "horse_name": "ニホンピロエール",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 128.6,
+          "win_odds": 367.9,
           "win_prob": 0.0146,
           "place_prob": 0.01
         },
@@ -3934,7 +3934,7 @@
           "horse_name": "トウカイジーク",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.8,
+          "win_odds": 5.2,
           "win_prob": 0.0826,
           "place_prob": 0.164
         },
@@ -3943,7 +3943,7 @@
           "horse_name": "クロスボーダー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 13.4,
+          "win_odds": 8.6,
           "win_prob": 0.1288,
           "place_prob": 0.5273
         },
@@ -3952,7 +3952,7 @@
           "horse_name": "キングケープ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 35.1,
+          "win_odds": 105.5,
           "win_prob": 0.0173,
           "place_prob": 0.0718
         },
@@ -3961,7 +3961,7 @@
           "horse_name": "ダーコ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 12.4,
+          "win_odds": -3.0,
           "win_prob": 0.0826,
           "place_prob": 0.3076
         }
@@ -4066,7 +4066,7 @@
           "horse_name": "ルファーダ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 20.9,
+          "win_odds": 33.0,
           "win_prob": 0.0504,
           "place_prob": 0.1578
         },
@@ -4075,7 +4075,7 @@
           "horse_name": "ブラックレジェンド",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.1,
+          "win_odds": 10.0,
           "win_prob": 0.142,
           "place_prob": 0.3089
         },
@@ -4084,7 +4084,7 @@
           "horse_name": "ロードアマルフィ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.1,
+          "win_odds": 5.7,
           "win_prob": 0.0503,
           "place_prob": 0.2658
         },
@@ -4093,7 +4093,7 @@
           "horse_name": "キタノファーンヒル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 54.1,
+          "win_odds": 254.6,
           "win_prob": 0.0224,
           "place_prob": 0.0215
         },
@@ -4102,7 +4102,7 @@
           "horse_name": "ロードヴェルテクス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.1,
+          "win_odds": 71.2,
           "win_prob": 0.0337,
           "place_prob": 0.105
         },
@@ -4111,7 +4111,7 @@
           "horse_name": "ジュンドラドラ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 5.2,
+          "win_odds": 3.4,
           "win_prob": 0.0501,
           "place_prob": 0.355
         },
@@ -4120,7 +4120,7 @@
           "horse_name": "キリオス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 8.3,
+          "win_odds": 7.9,
           "win_prob": 0.142,
           "place_prob": 0.355
         },
@@ -4129,7 +4129,7 @@
           "horse_name": "ダンジョンヒーロー",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 55.9,
+          "win_odds": 192.9,
           "win_prob": 0.0105,
           "place_prob": 0.0191
         },
@@ -4138,7 +4138,7 @@
           "horse_name": "ケイアイアマゾン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 16.8,
+          "win_odds": 22.4,
           "win_prob": 0.036,
           "place_prob": 0.105
         },
@@ -4147,7 +4147,7 @@
           "horse_name": "ケンタッキーホーム",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 3.9,
+          "win_odds": 3.5,
           "win_prob": 0.078,
           "place_prob": 0.1578
         },
@@ -4156,7 +4156,7 @@
           "horse_name": "ワザオギ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 10.2,
+          "win_odds": 9.2,
           "win_prob": 0.142,
           "place_prob": 0.2658
         },
@@ -4165,7 +4165,7 @@
           "horse_name": "アミラル",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 37.3,
+          "win_odds": 98.6,
           "win_prob": 0.0503,
           "place_prob": 0.2658
         },
@@ -4174,7 +4174,7 @@
           "horse_name": "ロックバンド",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 25.3,
+          "win_odds": 42.0,
           "win_prob": 0.142,
           "place_prob": 0.46
         },
@@ -4183,7 +4183,7 @@
           "horse_name": "ドメイン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 22.0,
+          "win_odds": 28.1,
           "win_prob": 0.0504,
           "place_prob": 0.1578
         }
@@ -4288,7 +4288,7 @@
           "horse_name": "アイガーリー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 10.6,
+          "win_odds": 13.3,
           "win_prob": 0.1094,
           "place_prob": 0.2087
         },
@@ -4297,7 +4297,7 @@
           "horse_name": "ブレットパス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 1.5,
+          "win_odds": 1.3,
           "win_prob": 0.2282,
           "place_prob": 0.8
         },
@@ -4306,7 +4306,7 @@
           "horse_name": "キシダンチョウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.2,
+          "win_odds": 8.6,
           "win_prob": 0.2282,
           "place_prob": 0.6221
         },
@@ -4315,7 +4315,7 @@
           "horse_name": "ブラックシャリマー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 4.6,
+          "win_odds": 5.4,
           "win_prob": 0.0808,
           "place_prob": 0.4311
         },
@@ -4324,7 +4324,7 @@
           "horse_name": "ララファキュルテ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.1,
+          "win_odds": 8.1,
           "win_prob": 0.2282,
           "place_prob": 0.7036
         },
@@ -4333,7 +4333,7 @@
           "horse_name": "ジャストビート",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 35.7,
+          "win_odds": 40.7,
           "win_prob": 0.1253,
           "place_prob": 0.2087
         }
@@ -4438,7 +4438,7 @@
           "horse_name": "メイショウサチダケ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 4.9,
+          "win_odds": 5.4,
           "win_prob": 0.1179,
           "place_prob": 0.2801
         },
@@ -4447,7 +4447,7 @@
           "horse_name": "モンタルチーノ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 4.8,
+          "win_odds": 4.3,
           "win_prob": 0.051,
           "place_prob": 0.1849
         },
@@ -4456,7 +4456,7 @@
           "horse_name": "ルクスアドラー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 80.3,
+          "win_odds": 94.2,
           "win_prob": 0.0339,
           "place_prob": 0.0719
         },
@@ -4465,7 +4465,7 @@
           "horse_name": "サリュエ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.9,
+          "win_odds": 13.1,
           "win_prob": 0.0757,
           "place_prob": 0.2689
         },
@@ -4474,7 +4474,7 @@
           "horse_name": "ラガークイン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 18.3,
+          "win_odds": 19.6,
           "win_prob": 0.0333,
           "place_prob": 0.0719
         },
@@ -4483,7 +4483,7 @@
           "horse_name": "コルドンブルー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 5.0,
+          "win_odds": 4.3,
           "win_prob": 0.1817,
           "place_prob": 0.5945
         },
@@ -4492,7 +4492,7 @@
           "horse_name": "ペールノエル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 6.9,
+          "win_odds": 6.2,
           "win_prob": 0.0757,
           "place_prob": 0.5945
         },
@@ -4501,7 +4501,7 @@
           "horse_name": "スウィートリワード",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 47.6,
+          "win_odds": 57.8,
           "win_prob": 0.051,
           "place_prob": 0.1849
         },
@@ -4510,7 +4510,7 @@
           "horse_name": "セクシーマージュ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 19.2,
+          "win_odds": 19.4,
           "win_prob": 0.0757,
           "place_prob": 0.1849
         },
@@ -4519,7 +4519,7 @@
           "horse_name": "ダガーリング",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.4,
+          "win_odds": 14.0,
           "win_prob": 0.051,
           "place_prob": 0.0719
         },
@@ -4528,7 +4528,7 @@
           "horse_name": "シャインズオンユー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 54.1,
+          "win_odds": 63.2,
           "win_prob": 0.051,
           "place_prob": 0.01
         },
@@ -4537,7 +4537,7 @@
           "horse_name": "ヒットザグラウンド",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 59.4,
+          "win_odds": 68.6,
           "win_prob": 0.0333,
           "place_prob": 0.0719
         },
@@ -4546,7 +4546,7 @@
           "horse_name": "イリスアスール",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 30.1,
+          "win_odds": 34.8,
           "win_prob": 0.051,
           "place_prob": 0.0719
         },
@@ -4555,7 +4555,7 @@
           "horse_name": "レインオンミー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 19.4,
+          "win_odds": 23.0,
           "win_prob": 0.0159,
           "place_prob": 0.0719
         },
@@ -4564,7 +4564,7 @@
           "horse_name": "ウォーターエアリー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 20.9,
+          "win_odds": 23.0,
           "win_prob": 0.0512,
           "place_prob": 0.0809
         },
@@ -4573,7 +4573,7 @@
           "horse_name": "ニシノイツキムスメ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 40.0,
+          "win_odds": 45.9,
           "win_prob": 0.051,
           "place_prob": 0.1849
         }
@@ -4678,7 +4678,7 @@
           "horse_name": "デルアヴァー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 6.5,
+          "win_odds": 6.3,
           "win_prob": 0.1633,
           "place_prob": 0.4153
         },
@@ -4687,7 +4687,7 @@
           "horse_name": "マイノワール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 12.0,
+          "win_odds": 11.9,
           "win_prob": 0.0576,
           "place_prob": 0.2209
         },
@@ -4696,7 +4696,7 @@
           "horse_name": "ペンナヴェローチェ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 9.0,
+          "win_odds": 8.8,
           "win_prob": 0.1383,
           "place_prob": 0.4153
         },
@@ -4705,7 +4705,7 @@
           "horse_name": "ピエマンソン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 14.3,
+          "win_odds": 12.7,
           "win_prob": 0.0579,
           "place_prob": 0.2209
         },
@@ -4714,7 +4714,7 @@
           "horse_name": "ショウサンジョージ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 24.8,
+          "win_odds": 28.1,
           "win_prob": 0.0578,
           "place_prob": 0.2209
         },
@@ -4723,7 +4723,7 @@
           "horse_name": "ケイアイメキラ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 48.5,
+          "win_odds": 51.0,
           "win_prob": 0.0578,
           "place_prob": 0.087
         },
@@ -4732,7 +4732,7 @@
           "horse_name": "プルナチャンドラ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 22.9,
+          "win_odds": 22.3,
           "win_prob": 0.0578,
           "place_prob": 0.2209
         },
@@ -4741,7 +4741,7 @@
           "horse_name": "プロミシングスター",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 27.4,
+          "win_odds": 26.5,
           "win_prob": 0.0254,
           "place_prob": 0.0574
         },
@@ -4750,7 +4750,7 @@
           "horse_name": "タガノマカシヤ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.6,
+          "win_odds": 4.0,
           "win_prob": 0.0576,
           "place_prob": 0.4153
         },
@@ -4768,7 +4768,7 @@
           "horse_name": "アラレタバシル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 16.0,
+          "win_odds": 15.6,
           "win_prob": 0.1633,
           "place_prob": 0.3109
         }
@@ -4873,7 +4873,7 @@
           "horse_name": "ケイアイアニラ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.4,
+          "win_odds": 18.9,
           "win_prob": 0.0642,
           "place_prob": 0.2821
         },
@@ -4882,7 +4882,7 @@
           "horse_name": "ジュンウィンダム",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 76.2,
+          "win_odds": 71.1,
           "win_prob": 0.0113,
           "place_prob": 0.0733
         },
@@ -4891,7 +4891,7 @@
           "horse_name": "ペプチドヤマト",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.2,
+          "win_odds": 11.4,
           "win_prob": 0.0287,
           "place_prob": 0.0733
         },
@@ -4900,7 +4900,7 @@
           "horse_name": "オーブルクール",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 9.4,
+          "win_odds": 9.6,
           "win_prob": 0.0645,
           "place_prob": 0.0733
         },
@@ -4909,7 +4909,7 @@
           "horse_name": "メイショウホウレン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 5.6,
+          "win_odds": 5.7,
           "win_prob": 0.1819,
           "place_prob": 0.2821
         },
@@ -4918,7 +4918,7 @@
           "horse_name": "ヒルノドゴール",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 6.9,
+          "win_odds": 6.8,
           "win_prob": 0.0645,
           "place_prob": 0.2357
         },
@@ -4927,7 +4927,7 @@
           "horse_name": "ジョーローリット",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 11.9,
+          "win_odds": 11.6,
           "win_prob": 0.0645,
           "place_prob": 0.4614
         },
@@ -4936,7 +4936,7 @@
           "horse_name": "ケイアイシェルビー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 46.3,
+          "win_odds": 52.0,
           "win_prob": 0.0135,
           "place_prob": 0.0285
         },
@@ -4954,7 +4954,7 @@
           "horse_name": "ゲッティヴィラ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 5.3,
+          "win_odds": 5.0,
           "win_prob": 0.1819,
           "place_prob": 0.5303
         },
@@ -4963,7 +4963,7 @@
           "horse_name": "ドンアミティエ",
           "jockey_name": "",
           "impost": 60.0,
-          "win_odds": 7.1,
+          "win_odds": 6.9,
           "win_prob": 0.1819,
           "place_prob": 0.2821
         },
@@ -4972,7 +4972,7 @@
           "horse_name": "ファムエレガンテ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 4.7,
+          "win_odds": 4.9,
           "win_prob": 0.0999,
           "place_prob": 0.5303
         }
@@ -5077,7 +5077,7 @@
           "horse_name": "ホウオウトランプ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 4.4,
+          "win_odds": 4.3,
           "win_prob": 0.0946,
           "place_prob": 0.506
         },
@@ -5086,7 +5086,7 @@
           "horse_name": "フェアリーライク",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 2.2,
+          "win_odds": 2.3,
           "win_prob": 0.1723,
           "place_prob": 0.6758
         },
@@ -5095,7 +5095,7 @@
           "horse_name": "オデット",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 69.8,
+          "win_odds": 67.5,
           "win_prob": 0.0409,
           "place_prob": 0.0363
         },
@@ -5104,7 +5104,7 @@
           "horse_name": "ユメハハテシナク",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 12.3,
+          "win_odds": 12.9,
           "win_prob": 0.0409,
           "place_prob": 0.0363
         },
@@ -5113,7 +5113,7 @@
           "horse_name": "オリバナム",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.5,
+          "win_odds": 10.2,
           "win_prob": 0.1723,
           "place_prob": 0.3595
         },
@@ -5122,7 +5122,7 @@
           "horse_name": "クスクス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 13.6,
+          "win_odds": 13.9,
           "win_prob": 0.1723,
           "place_prob": 0.3373
         },
@@ -5131,7 +5131,7 @@
           "horse_name": "サクラオーラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 17.0,
+          "win_odds": 17.2,
           "win_prob": 0.0608,
           "place_prob": 0.0934
         },
@@ -5140,7 +5140,7 @@
           "horse_name": "アスクエピソード",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 61.2,
+          "win_odds": 52.4,
           "win_prob": 0.0127,
           "place_prob": 0.0363
         },
@@ -5149,7 +5149,7 @@
           "horse_name": "ショウナンバルドル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 16.6,
+          "win_odds": 17.2,
           "win_prob": 0.0437,
           "place_prob": 0.2
         },
@@ -5158,7 +5158,7 @@
           "horse_name": "リアライズ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 11.6,
+          "win_odds": 11.1,
           "win_prob": 0.0947,
           "place_prob": 0.3595
         },
@@ -5167,7 +5167,7 @@
           "horse_name": "リカントロポ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 9.7,
+          "win_odds": 9.4,
           "win_prob": 0.0947,
           "place_prob": 0.3595
         }
@@ -6223,7 +6223,7 @@
           "horse_name": "ヴォンサクレ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 24.8,
+          "win_odds": 25.4,
           "win_prob": 0.0601,
           "place_prob": 0.074
         },
@@ -6241,7 +6241,7 @@
           "horse_name": "ルミノヴァンクール",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 107.3,
+          "win_odds": 160.3,
           "win_prob": 0.0608,
           "place_prob": 0.074
         },
@@ -6250,7 +6250,7 @@
           "horse_name": "ナムラシンジロー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 77.1,
+          "win_odds": 121.9,
           "win_prob": 0.0286,
           "place_prob": 0.045
         },
@@ -6259,7 +6259,7 @@
           "horse_name": "ブルーブロディ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 72.7,
+          "win_odds": 122.1,
           "win_prob": 0.0241,
           "place_prob": 0.0125
         },
@@ -6268,7 +6268,7 @@
           "horse_name": "イザショウブ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 45.8,
+          "win_odds": 50.9,
           "win_prob": 0.0241,
           "place_prob": 0.045
         },
@@ -6277,7 +6277,7 @@
           "horse_name": "ピコブロッサム",
           "jockey_name": "",
           "impost": 50.0,
-          "win_odds": 54.9,
+          "win_odds": 79.3,
           "win_prob": 0.0241,
           "place_prob": 0.0125
         },
@@ -6286,7 +6286,7 @@
           "horse_name": "ミエノストロング",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 2.7,
+          "win_odds": 2.6,
           "win_prob": 0.2128,
           "place_prob": 0.8
         },
@@ -6295,7 +6295,7 @@
           "horse_name": "ウマナミカイドウ",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 135.7,
+          "win_odds": 234.4,
           "win_prob": 0.0286,
           "place_prob": 0.0125
         },
@@ -6304,7 +6304,7 @@
           "horse_name": "タイキアロハ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.1,
+          "win_odds": 16.1,
           "win_prob": 0.0612,
           "place_prob": 0.0833
         },
@@ -6313,7 +6313,7 @@
           "horse_name": "ブランニューホーム",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 6.3,
+          "win_odds": 6.9,
           "win_prob": 0.0982,
           "place_prob": 0.2883
         },
@@ -6322,7 +6322,7 @@
           "horse_name": "コンフィグシス",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 15.6,
+          "win_odds": 19.5,
           "win_prob": 0.0612,
           "place_prob": 0.1903
         },
@@ -6331,7 +6331,7 @@
           "horse_name": "ヒロイックヴァース",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 3.6,
+          "win_odds": 3.2,
           "win_prob": 0.1365,
           "place_prob": 0.7323
         },
@@ -6340,7 +6340,7 @@
           "horse_name": "イノセントホープ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.8,
+          "win_odds": 23.9,
           "win_prob": 0.0241,
           "place_prob": 0.074
         },
@@ -6349,7 +6349,7 @@
           "horse_name": "トレセデオロ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 11.0,
+          "win_odds": 10.3,
           "win_prob": 0.0286,
           "place_prob": 0.0833
         },
@@ -6358,7 +6358,7 @@
           "horse_name": "レイアン",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 119.9,
+          "win_odds": 209.7,
           "win_prob": 0.0286,
           "place_prob": 0.0833
         }
@@ -6463,7 +6463,7 @@
           "horse_name": "ジェネチェン",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 26.8,
+          "win_odds": 30.2,
           "win_prob": 0.0352,
           "place_prob": 0.0674
         },
@@ -6472,7 +6472,7 @@
           "horse_name": "オンザ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 8.5,
+          "win_odds": 7.6,
           "win_prob": 0.0529,
           "place_prob": 0.2167
         },
@@ -6481,7 +6481,7 @@
           "horse_name": "ストロングボーイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 10.4,
+          "win_odds": 9.7,
           "win_prob": 0.1222,
           "place_prob": 0.2594
         },
@@ -6490,7 +6490,7 @@
           "horse_name": "ガビーズメロディ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 19.8,
+          "win_odds": 56.7,
           "win_prob": 0.0345,
           "place_prob": 0.0262
         },
@@ -6499,7 +6499,7 @@
           "horse_name": "トップオブザキング",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 75.5,
+          "win_odds": 258.1,
           "win_prob": 0.0139,
           "place_prob": 0.01
         },
@@ -6508,7 +6508,7 @@
           "horse_name": "デルマカイモン",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 15.3,
+          "win_odds": 13.0,
           "win_prob": 0.0564,
           "place_prob": 0.1443
         },
@@ -6517,7 +6517,7 @@
           "horse_name": "ラクシオンデクラ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 39.0,
+          "win_odds": 109.1,
           "win_prob": 0.0165,
           "place_prob": 0.0159
         },
@@ -6526,7 +6526,7 @@
           "horse_name": "セブンワンダーズ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 6.1,
+          "win_odds": 6.3,
           "win_prob": 0.0789,
           "place_prob": 0.2594
         },
@@ -6535,7 +6535,7 @@
           "horse_name": "アデルフィー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 9.5,
+          "win_odds": 12.0,
           "win_prob": 0.1222,
           "place_prob": 0.4243
         },
@@ -6544,7 +6544,7 @@
           "horse_name": "ゴールドバローズ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 7.0,
+          "win_odds": 4.5,
           "win_prob": 0.2224,
           "place_prob": 0.2594
         },
@@ -6553,7 +6553,7 @@
           "horse_name": "アリアベルデ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 23.5,
+          "win_odds": 44.1,
           "win_prob": 0.0165,
           "place_prob": 0.0262
         },
@@ -6562,7 +6562,7 @@
           "horse_name": "プレヒティヒ",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 40.9,
+          "win_odds": 103.6,
           "win_prob": 0.0139,
           "place_prob": 0.0674
         },
@@ -6571,7 +6571,7 @@
           "horse_name": "ユニゾン",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 5.5,
+          "win_odds": 6.5,
           "win_prob": 0.0784,
           "place_prob": 0.7731
         },
@@ -6580,7 +6580,7 @@
           "horse_name": "シンエンドーツダ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 6.0,
+          "win_odds": 4.4,
           "win_prob": 0.1222,
           "place_prob": 0.4345
         },
@@ -6589,7 +6589,7 @@
           "horse_name": "マイネルカイザー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 40.0,
+          "win_odds": 157.0,
           "win_prob": 0.0139,
           "place_prob": 0.0159
         }
@@ -6694,7 +6694,7 @@
           "horse_name": "グランテレーズ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 4.9,
+          "win_odds": 5.0,
           "win_prob": 0.0775,
           "place_prob": 0.3237
         },
@@ -6703,7 +6703,7 @@
           "horse_name": "ホリーアン",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 53.3,
+          "win_odds": 202.6,
           "win_prob": 0.0226,
           "place_prob": 0.0392
         },
@@ -6712,7 +6712,7 @@
           "horse_name": "キョラムン",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 7.5,
+          "win_odds": 4.6,
           "win_prob": 0.1083,
           "place_prob": 0.6338
         },
@@ -6721,7 +6721,7 @@
           "horse_name": "トリプルバレル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 14.1,
+          "win_odds": 21.3,
           "win_prob": 0.019,
           "place_prob": 0.0392
         },
@@ -6730,7 +6730,7 @@
           "horse_name": "クリノゴッホ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 59.0,
+          "win_odds": 141.2,
           "win_prob": 0.0474,
           "place_prob": 0.0238
         },
@@ -6739,7 +6739,7 @@
           "horse_name": "カーヌスティ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 4.4,
+          "win_odds": 5.3,
           "win_prob": 0.1679,
           "place_prob": 0.3875
         },
@@ -6748,7 +6748,7 @@
           "horse_name": "アーサーズウェイン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 22.1,
+          "win_odds": 19.9,
           "win_prob": 0.0483,
           "place_prob": 0.1007
         },
@@ -6757,7 +6757,7 @@
           "horse_name": "クレセントウイング",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 4.7,
+          "win_odds": 9.6,
           "win_prob": 0.1227,
           "place_prob": 0.1889
         },
@@ -6766,7 +6766,7 @@
           "horse_name": "ハッピーサプライズ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 26.9,
+          "win_odds": 33.9,
           "win_prob": 0.1227,
           "place_prob": 0.0392
         },
@@ -6775,7 +6775,7 @@
           "horse_name": "バーケンティン",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 13.6,
+          "win_odds": 11.7,
           "win_prob": 0.0483,
           "place_prob": 0.3875
         },
@@ -6784,7 +6784,7 @@
           "horse_name": "ミエノブラボー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 10.5,
+          "win_odds": 8.7,
           "win_prob": 0.0474,
           "place_prob": 0.2029
         },
@@ -6793,7 +6793,7 @@
           "horse_name": "セイプリーズ",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 7.9,
+          "win_odds": 4.8,
           "win_prob": 0.1679,
           "place_prob": 0.6338
         }
@@ -6898,7 +6898,7 @@
           "horse_name": "タキノボリ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 17.6,
+          "win_odds": 23.2,
           "win_prob": 0.0267,
           "place_prob": 0.1363
         },
@@ -6907,7 +6907,7 @@
           "horse_name": "ルシャルムール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 3.1,
+          "win_odds": 2.3,
           "win_prob": 0.17,
           "place_prob": 0.4007
         },
@@ -6916,7 +6916,7 @@
           "horse_name": "ウィズマスタング",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 20.0,
+          "win_odds": 30.3,
           "win_prob": 0.0683,
           "place_prob": 0.2047
         },
@@ -6925,7 +6925,7 @@
           "horse_name": "マテンロウカナロア",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 10.6,
+          "win_odds": 9.3,
           "win_prob": 0.17,
           "place_prob": 0.4605
         },
@@ -6934,7 +6934,7 @@
           "horse_name": "トクシージェネラル",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 43.3,
+          "win_odds": 53.5,
           "win_prob": 0.0106,
           "place_prob": 0.0637
         },
@@ -6943,7 +6943,7 @@
           "horse_name": "タニセンドリーム",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 18.9,
+          "win_odds": 21.9,
           "win_prob": 0.0269,
           "place_prob": 0.0965
         },
@@ -6952,7 +6952,7 @@
           "horse_name": "ハヤブサオヒメサマ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 33.1,
+          "win_odds": 50.0,
           "win_prob": 0.0126,
           "place_prob": 0.0637
         },
@@ -6961,7 +6961,7 @@
           "horse_name": "ロジルーラー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 28.8,
+          "win_odds": 27.0,
           "win_prob": 0.0126,
           "place_prob": 0.0637
         },
@@ -6970,7 +6970,7 @@
           "horse_name": "ヴェラグエリエロ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 36.7,
+          "win_odds": 58.9,
           "win_prob": 0.0269,
           "place_prob": 0.1363
         },
@@ -6979,7 +6979,7 @@
           "horse_name": "ココデイック",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 4.5,
+          "win_odds": 4.9,
           "win_prob": 0.0934,
           "place_prob": 0.245
         },
@@ -6988,7 +6988,7 @@
           "horse_name": "シヴァールバーニ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 48.8,
+          "win_odds": 73.0,
           "win_prob": 0.0126,
           "place_prob": 0.0637
         },
@@ -6997,7 +6997,7 @@
           "horse_name": "オウケンシルヴァー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 7.2,
+          "win_odds": 7.7,
           "win_prob": 0.17,
           "place_prob": 0.506
         },
@@ -7006,7 +7006,7 @@
           "horse_name": "ラッキーヤース",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 9.6,
+          "win_odds": 12.6,
           "win_prob": 0.0934,
           "place_prob": 0.2047
         },
@@ -7015,7 +7015,7 @@
           "horse_name": "チギリ",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 16.5,
+          "win_odds": 17.0,
           "win_prob": 0.0934,
           "place_prob": 0.3448
         },
@@ -7024,7 +7024,7 @@
           "horse_name": "ヒラボクヒーロー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 43.5,
+          "win_odds": 68.4,
           "win_prob": 0.0126,
           "place_prob": 0.01
         }
@@ -7129,7 +7129,7 @@
           "horse_name": "マナボニート",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 8.8,
+          "win_odds": 8.7,
           "win_prob": 0.0645,
           "place_prob": 0.2172
         },
@@ -7147,7 +7147,7 @@
           "horse_name": "カシノリアーナ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 59.5,
+          "win_odds": 70.5,
           "win_prob": 0.0461,
           "place_prob": 0.0296
         },
@@ -7156,7 +7156,7 @@
           "horse_name": "ニシノセイドウ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 11.7,
+          "win_odds": 12.5,
           "win_prob": 0.0461,
           "place_prob": 0.0675
         },
@@ -7165,7 +7165,7 @@
           "horse_name": "ナクソス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 60.7,
+          "win_odds": 59.6,
           "win_prob": 0.0644,
           "place_prob": 0.2172
         },
@@ -7174,7 +7174,7 @@
           "horse_name": "ジャスパールビー",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 50.8,
+          "win_odds": 51.5,
           "win_prob": 0.0872,
           "place_prob": 0.0675
         },
@@ -7183,7 +7183,7 @@
           "horse_name": "ムーンリットアイル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 6.3,
+          "win_odds": 6.1,
           "win_prob": 0.0644,
           "place_prob": 0.2599
         },
@@ -7192,7 +7192,7 @@
           "horse_name": "クワイエットアイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 20.3,
+          "win_odds": 20.9,
           "win_prob": 0.0461,
           "place_prob": 0.0675
         },
@@ -7201,7 +7201,7 @@
           "horse_name": "ディヴァインスカイ",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 21.6,
+          "win_odds": 22.3,
           "win_prob": 0.0135,
           "place_prob": 0.0675
         },
@@ -7210,7 +7210,7 @@
           "horse_name": "メイショウテリオス",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 42.6,
+          "win_odds": 41.3,
           "win_prob": 0.0645,
           "place_prob": 0.1446
         },
@@ -7219,7 +7219,7 @@
           "horse_name": "ロンドンオービタル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 24.5,
+          "win_odds": 22.9,
           "win_prob": 0.0461,
           "place_prob": 0.1446
         },
@@ -7228,7 +7228,7 @@
           "horse_name": "ウォーターデライト",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 18.4,
+          "win_odds": 18.8,
           "win_prob": 0.0872,
           "place_prob": 0.2172
         },
@@ -7237,7 +7237,7 @@
           "horse_name": "フェーダーローター",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 28.1,
+          "win_odds": 32.0,
           "win_prob": 0.0461,
           "place_prob": 0.0675
         },
@@ -7246,7 +7246,7 @@
           "horse_name": "ハッピーラッキー",
           "jockey_name": "",
           "impost": 57.0,
-          "win_odds": 4.4,
+          "win_odds": 4.3,
           "win_prob": 0.0641,
           "place_prob": 0.4887
         },
@@ -7255,7 +7255,7 @@
           "horse_name": "スルーザミル",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 83.4,
+          "win_odds": 103.4,
           "win_prob": 0.0135,
           "place_prob": 0.0296
         },
@@ -7264,7 +7264,7 @@
           "horse_name": "メローネ",
           "jockey_name": "",
           "impost": 55.0,
-          "win_odds": 16.3,
+          "win_odds": 15.8,
           "win_prob": 0.0646,
           "place_prob": 0.4252
         }
@@ -7369,7 +7369,7 @@
           "horse_name": "フミサウンド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 24.5,
+          "win_odds": 26.9,
           "win_prob": 0.0119,
           "place_prob": 0.039
         },
@@ -7378,7 +7378,7 @@
           "horse_name": "セイウンデセオ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.5,
+          "win_odds": 11.8,
           "win_prob": 0.0301,
           "place_prob": 0.1457
         },
@@ -7396,7 +7396,7 @@
           "horse_name": "ウィンストン",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 10.3,
+          "win_odds": 10.2,
           "win_prob": 0.068,
           "place_prob": 0.3221
         },
@@ -7405,7 +7405,7 @@
           "horse_name": "モズトキキ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.8,
+          "win_odds": 11.1,
           "win_prob": 0.0303,
           "place_prob": 0.039
         },
@@ -7414,7 +7414,7 @@
           "horse_name": "クイーンズデイ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.5,
+          "win_odds": 9.5,
           "win_prob": 0.1054,
           "place_prob": 0.2144
         },
@@ -7432,7 +7432,7 @@
           "horse_name": "タガノスペルノヴァ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 45.9,
+          "win_odds": 49.6,
           "win_prob": 0.0142,
           "place_prob": 0.0438
         },
@@ -7441,7 +7441,7 @@
           "horse_name": "バシレウスシチー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 31.7,
+          "win_odds": 32.3,
           "win_prob": 0.0303,
           "place_prob": 0.1002
         },
@@ -7450,7 +7450,7 @@
           "horse_name": "ソレントフレイバー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 34.5,
+          "win_odds": 37.9,
           "win_prob": 0.0919,
           "place_prob": 0.2019
         },
@@ -7459,7 +7459,7 @@
           "horse_name": "セントールビースト",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 19.8,
+          "win_odds": 21.7,
           "win_prob": 0.0486,
           "place_prob": 0.1517
         },
@@ -7468,7 +7468,7 @@
           "horse_name": "マテンロウボンド",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 15.2,
+          "win_odds": 17.0,
           "win_prob": 0.0919,
           "place_prob": 0.3854
         },
@@ -7477,7 +7477,7 @@
           "horse_name": "スネーフリンガ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 35.7,
+          "win_odds": 40.7,
           "win_prob": 0.0679,
           "place_prob": 0.1457
         },
@@ -7486,7 +7486,7 @@
           "horse_name": "シュブロンレーヴル",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 17.2,
+          "win_odds": 16.4,
           "win_prob": 0.1054,
           "place_prob": 0.1002
         },
@@ -7495,7 +7495,7 @@
           "horse_name": "マイネルラッシュ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 31.2,
+          "win_odds": 34.6,
           "win_prob": 0.0301,
           "place_prob": 0.039
         },
@@ -7504,7 +7504,7 @@
           "horse_name": "ヴェントゥーラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 8.9,
+          "win_odds": 8.0,
           "win_prob": 0.0679,
           "place_prob": 0.1457
         }
@@ -7609,7 +7609,7 @@
           "horse_name": "ジェネラーレ",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 7.6,
+          "win_odds": 6.0,
           "win_prob": 0.0381,
           "place_prob": 0.2166
         },
@@ -7627,7 +7627,7 @@
           "horse_name": "キタノソワレ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 7.8,
+          "win_odds": 8.6,
           "win_prob": 0.0851,
           "place_prob": 0.1134
         },
@@ -7645,7 +7645,7 @@
           "horse_name": "ビルカール",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 14.8,
+          "win_odds": 13.7,
           "win_prob": 0.0612,
           "place_prob": 0.2166
         },
@@ -7654,7 +7654,7 @@
           "horse_name": "ワークソング",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 5.4,
+          "win_odds": 5.7,
           "win_prob": 0.0611,
           "place_prob": 0.0853
         },
@@ -7663,7 +7663,7 @@
           "horse_name": "ゴールドハンマー",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 7.6,
+          "win_odds": 7.7,
           "win_prob": 0.0854,
           "place_prob": 0.5446
         },
@@ -7672,7 +7672,7 @@
           "horse_name": "プレゼンティーア",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 12.7,
+          "win_odds": 13.2,
           "win_prob": 0.0854,
           "place_prob": 0.2166
         },
@@ -7681,7 +7681,7 @@
           "horse_name": "サザンエルフ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 15.7,
+          "win_odds": 15.2,
           "win_prob": 0.0381,
           "place_prob": 0.3543
         },
@@ -7690,7 +7690,7 @@
           "horse_name": "シャカシャカシー",
           "jockey_name": "",
           "impost": 58.0,
-          "win_odds": 31.0,
+          "win_odds": 33.1,
           "win_prob": 0.0178,
           "place_prob": 0.0853
         },
@@ -7699,7 +7699,7 @@
           "horse_name": "ルージュアズライト",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 5.3,
+          "win_odds": 5.4,
           "win_prob": 0.2412,
           "place_prob": 0.2166
         },
@@ -7708,7 +7708,7 @@
           "horse_name": "カウスリップ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.9,
+          "win_odds": 12.2,
           "win_prob": 0.1156,
           "place_prob": 0.2166
         }
@@ -7822,7 +7822,7 @@
           "horse_name": "ニシノコマチムスメ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 14.5,
+          "win_odds": 14.9,
           "win_prob": 0.0385,
           "place_prob": 0.0682
         },
@@ -7831,7 +7831,7 @@
           "horse_name": "アルシャンティ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 42.2,
+          "win_odds": 43.7,
           "win_prob": 0.0155,
           "place_prob": 0.01
         },
@@ -7840,7 +7840,7 @@
           "horse_name": "モアニ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 12.9,
+          "win_odds": 13.8,
           "win_prob": 0.0997,
           "place_prob": 0.1559
         },
@@ -7849,7 +7849,7 @@
           "horse_name": "ウインアリス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 42.4,
+          "win_odds": 44.2,
           "win_prob": 0.0183,
           "place_prob": 0.01
         },
@@ -7858,7 +7858,7 @@
           "horse_name": "カポレイラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 34.5,
+          "win_odds": 34.0,
           "win_prob": 0.0155,
           "place_prob": 0.0606
         },
@@ -7867,7 +7867,7 @@
           "horse_name": "ラッキーダンス",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 21.0,
+          "win_odds": 23.6,
           "win_prob": 0.0183,
           "place_prob": 0.0368
         },
@@ -7876,7 +7876,7 @@
           "horse_name": "ビスケットマリー",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 55.4,
+          "win_odds": 57.7,
           "win_prob": 0.0392,
           "place_prob": 0.0682
         },
@@ -7885,7 +7885,7 @@
           "horse_name": "キューティリップ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 6.0,
+          "win_odds": 5.0,
           "win_prob": 0.1364,
           "place_prob": 0.5012
         },
@@ -7894,7 +7894,7 @@
           "horse_name": "ペプロス",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 10.5,
+          "win_odds": 10.9,
           "win_prob": 0.1189,
           "place_prob": 0.3336
         },
@@ -7903,7 +7903,7 @@
           "horse_name": "エナジーショット",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 11.4,
+          "win_odds": 11.9,
           "win_prob": 0.039,
           "place_prob": 0.0368
         },
@@ -7912,7 +7912,7 @@
           "horse_name": "レモンバーム",
           "jockey_name": "",
           "impost": 53.0,
-          "win_odds": 11.5,
+          "win_odds": 11.7,
           "win_prob": 0.0631,
           "place_prob": 0.3336
         },
@@ -7921,7 +7921,7 @@
           "horse_name": "クイーンズワーフ",
           "jockey_name": "",
           "impost": 52.0,
-          "win_odds": 9.0,
+          "win_odds": 8.2,
           "win_prob": 0.1364,
           "place_prob": 0.3336
         },
@@ -7930,7 +7930,7 @@
           "horse_name": "ハレアカラフラ",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 28.3,
+          "win_odds": 28.9,
           "win_prob": 0.0155,
           "place_prob": 0.0606
         },
@@ -7939,7 +7939,7 @@
           "horse_name": "リアルセンター",
           "jockey_name": "",
           "impost": 54.0,
-          "win_odds": 19.8,
+          "win_odds": 19.7,
           "win_prob": 0.039,
           "place_prob": 0.1559
         },
@@ -7948,7 +7948,7 @@
           "horse_name": "オリーボーレン",
           "jockey_name": "",
           "impost": 56.0,
-          "win_odds": 5.4,
+          "win_odds": 6.0,
           "win_prob": 0.1189,
           "place_prob": 0.3336
         }
