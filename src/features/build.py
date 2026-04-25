@@ -107,24 +107,23 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         df["horse_tough_top3_rate"] = (raw_tough + 0.21 * 3) / (tough_runs + 3)
         df.drop(["_is_tough", "_tough_top3"], axis=1, inplace=True)
 
-    # 追い上げ力（最終コーナー位置→着順の位置向上）: 高いほどタフな展開での前進
-    if all(c in df.columns for c in ["passing", "finish_position", "num_runners"]):
-        def _last_corner(s):
-            if not s or not isinstance(s, str):
-                return None
-            try:
-                return int(s.split("-")[-1])
-            except ValueError:
-                return None
-
-        df["_lc"] = df["passing"].apply(_last_corner)
-        n = df["num_runners"].clip(lower=1)
-        # 正規化した位置向上（+ = 後ろから追い上げた）
-        df["_pos_adv"] = (df["_lc"] - df["finish_position"]) / n
-        df["avg_pos_advance_5"] = df.groupby("horse_id")["_pos_adv"].transform(
-            lambda x: x.shift(1).rolling(5, min_periods=1).mean()
+    # タイムのかかるレース（消耗戦）での好走歴: スピード指数が低いレース = 遅い展開
+    # speed_index = time/distance*1000 → 大きいほど遅いレース
+    # race_median_speed: そのレースの全馬中央値 → 全体中央値より遅いレース = タフな消耗戦
+    if all(c in df.columns for c in ["time", "distance", "finish_position", "race_id"]):
+        df["_race_speed"] = df["time"] / df["distance"].clip(lower=1) * 1000
+        race_median = df.groupby("race_id")["_race_speed"].transform("median")
+        overall_median = df["_race_speed"].median()
+        df["_is_slow_race"] = (race_median > overall_median).astype(float)  # 遅いレース=1
+        df["_slow_top3"] = df["_is_slow_race"] * (df["finish_position"] <= 3).astype(float)
+        slow_runs = df.groupby("horse_id")["_is_slow_race"].transform(
+            lambda x: x.expanding().sum().shift(1)
         )
-        df.drop(["_lc", "_pos_adv"], axis=1, inplace=True)
+        raw_slow = df.groupby("horse_id")["_slow_top3"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        df["horse_slow_race_top3_rate"] = (raw_slow + 0.21 * 3) / (slow_runs + 3)
+        df.drop(["_race_speed", "_is_slow_race", "_slow_top3"], axis=1, inplace=True)
 
     # 前走間隔（日数）
     if "date" in df.columns:

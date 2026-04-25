@@ -352,17 +352,17 @@ def main():
         # 安定性: finish_std_5 が小さいほど安定 → invert
         stab_score = minmax(entry_preds["finish_std_5"].fillna(entry_preds["finish_std_5"].median()), invert=True) if "finish_std_5" in entry_preds.columns else pd.Series([50.0]*n_h, index=entry_preds.index)
 
-        # パワー: タフコース実績(60%) + 追い上げ力(40%)
+        # パワー: タフコース実績(50%) + 消耗戦（時間のかかるレース）での好走歴(50%)
         has_tough = "horse_tough_top3_rate" in entry_preds.columns
-        has_adv = "avg_pos_advance_5" in entry_preds.columns
-        if has_tough and has_adv:
+        has_slow = "horse_slow_race_top3_rate" in entry_preds.columns
+        if has_tough and has_slow:
             tough_s = minmax(entry_preds["horse_tough_top3_rate"].fillna(0.21))
-            adv_s = minmax(entry_preds["avg_pos_advance_5"].fillna(0.0))
-            power_score = 0.6 * tough_s + 0.4 * adv_s
+            slow_s = minmax(entry_preds["horse_slow_race_top3_rate"].fillna(0.21))
+            power_score = 0.5 * tough_s + 0.5 * slow_s
         elif has_tough:
             power_score = minmax(entry_preds["horse_tough_top3_rate"].fillna(0.21))
-        elif has_adv:
-            power_score = minmax(entry_preds["avg_pos_advance_5"].fillna(0.0))
+        elif has_slow:
+            power_score = minmax(entry_preds["horse_slow_race_top3_rate"].fillna(0.21))
         else:
             power_score = pd.Series([50.0]*n_h, index=entry_preds.index)
 
