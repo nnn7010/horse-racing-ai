@@ -419,8 +419,10 @@ def main():
         course_key = f"{place_code_num}_{is_turf}_{distance}"
         course_profile = course_profiles.get(course_key, {}).get("scores", {})
 
-        def estimate_running_style(burst: int, speed: int) -> str:
-            """burst/speedスコア(0-100)から脚質を推定する。"""
+        def estimate_running_style(burst: int, speed: int, has_data: bool) -> str:
+            """burst/speedスコア(0-100)から脚質を推定する。データなしは未知。"""
+            if not has_data:
+                return ""
             if burst >= 70 and speed <= 40:
                 return "追込"
             elif burst >= 60 and speed <= 55:
@@ -437,6 +439,10 @@ def main():
         def generate_comment(row, ab: dict, win_prob: float, place_prob: float, style: str) -> str:
             """各馬の特徴を短文コメントとして生成する。"""
             parts = []
+
+            # 初出走の場合は「初出走」のみ表示してreturn
+            if not ab.get("has_data", False):
+                return "初出走（過去データなし）"
 
             # 近走成績
             avg_f = float(row.get("avg_finish_5", 0) or 0)
@@ -534,7 +540,7 @@ def main():
             ab_dict["fit"] = fit_score
 
             # 脚質推定
-            style = estimate_running_style(ab_dict["burst"], ab_dict["speed"])
+            style = estimate_running_style(ab_dict["burst"], ab_dict["speed"], ab_dict.get("has_data", False))
             style_counts[style] = style_counts.get(style, 0) + 1
 
             # コメント生成
