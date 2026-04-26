@@ -288,17 +288,37 @@ def generate():
         suffix = " (本日)" if is_today else ""
         return f"{d.month}/{d.day}({weekday_jp[d.weekday()]}){suffix}"
 
+    sorted_dates = sorted(by_date_venue.keys())
+    # タブ生成: 本日があればデフォルト本日、なければ最新
+    default_date = today_str if today_str in sorted_dates else (sorted_dates[-1] if sorted_dates else today_str)
+
+    tabs_html = ""
     sections = ""
-    for d in sorted(by_date_venue.keys()):
+    if len(sorted_dates) >= 2:
+        tabs = ""
+        for d in sorted_dates:
+            d_label = fmt_date(d)
+            active = " active" if d == default_date else ""
+            tabs += f'<button class="date-tab{active}" data-date="{d}" onclick="switchDate(this)">{d_label}</button>'
+        tabs_html = f'<div class="date-tabs">{tabs}</div>'
+
+    for d in sorted_dates:
         venues = by_date_venue[d]
         d_label = fmt_date(d)
         is_today = (d == today_str)
         date_cls = " date-today" if is_today else ""
-        sections += f'<div class="date-section{date_cls}"><h2 class="date-h">📅 {d_label}</h2>'
+        # 複数日付の場合、デフォルト以外は非表示
+        hidden = ' style="display:none"' if (len(sorted_dates) >= 2 and d != default_date) else ""
+        sections += f'<div class="date-section{date_cls}" data-date="{d}"{hidden}>'
+        if len(sorted_dates) < 2:
+            # 1日だけならヘッダ表示
+            sections += f'<h2 class="date-h">📅 {d_label}</h2>'
         for venue, vraces in venues.items():
             blocks = "".join(render_race(r, i + 1) for i, r in enumerate(vraces))
             sections += f'<h3 class="venue-h">🏟 {venue}</h3>{blocks}'
         sections += '</div>'
+
+    sections = tabs_html + sections
 
     updated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -378,10 +398,14 @@ td:nth-child(6){{color:#4caf50}}
 .rec-cand b{{color:#a5d6a7}}
 .rec-cand small{{color:#888;font-size:.85em}}
 .date-section{{margin-bottom:20px;padding-bottom:8px}}
-.date-section + .date-section{{border-top:2px solid #333;padding-top:14px}}
 .date-h{{color:#fff;font-size:1.05em;margin:8px 0 10px;padding:6px 10px;background:#263238;border-radius:5px}}
 .date-today .date-h{{background:linear-gradient(90deg,#1565c0 0%,#263238 60%);color:#fff}}
 .venue-h{{color:#ce93d8;font-size:.95em;margin:14px 0 6px}}
+.date-tabs{{display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #333;padding-bottom:0}}
+.date-tab{{flex:1;background:#1e1e1e;color:#aaa;border:none;border-radius:6px 6px 0 0;padding:10px 14px;font-size:.92em;font-weight:bold;cursor:pointer;transition:all .15s;border-bottom:3px solid transparent}}
+.date-tab:hover{{background:#252525;color:#e0e0e0}}
+.date-tab.active{{background:#263238;color:#fff;border-bottom:3px solid #1565c0}}
+.date-tab.active::before{{content:"📅 "}}
 .odds-status{{font-size:.65em;margin-left:8px;color:#aaa;font-weight:normal;vertical-align:middle}}
 .odds-flash{{animation:flash 1.2s ease-out}}
 @keyframes flash{{
@@ -437,6 +461,17 @@ async function refreshOdds() {{
 }}
 refreshOdds();
 setInterval(refreshOdds, 30000);
+
+// 日付タブ切替
+function switchDate(btn) {{
+  const target = btn.dataset.date;
+  document.querySelectorAll('.date-tab').forEach(t => t.classList.toggle('active', t.dataset.date === target));
+  document.querySelectorAll('.date-section').forEach(s => {{
+    s.style.display = (s.dataset.date === target) ? '' : 'none';
+  }});
+  // タブ切替時にスクロール上端へ
+  window.scrollTo({{top: 0, behavior: 'smooth'}});
+}}
 
 // レース別オッズ更新ボタン
 // 1) サーバー側 odds.json を即時再取得（必ず成功）
