@@ -51,6 +51,10 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
                 stats[f"prev{i}_last_3f"] = row["last_3f"]
         if len(recent) > 0:
             stats["avg_finish_5"] = recent["finish_position"].mean()
+        # 最後の歴史レースの日付・距離・馬体重を保存（今日基準で再計算用）
+        stats["_last_race_date"] = last.get("date")
+        stats["_last_race_distance"] = last.get("distance")
+        stats["_last_race_horse_weight"] = last.get("horse_weight")
         lookup["horse"][hid] = stats
 
     # 騎手ごとの最新統計
@@ -259,6 +263,34 @@ def main():
                 for k, v in lookup["horse"][hid].items():
                     if k not in row:  # race条件系は上書きしない
                         row[k] = v
+
+                # === 今日のレース基準で前走関連を再計算 ===
+                stats = lookup["horse"][hid]
+                last_date = stats.get("_last_race_date")
+                last_dist = stats.get("_last_race_distance")
+                last_weight = stats.get("_last_race_horse_weight")
+
+                # 今日のレース日付
+                race_date_str = race.get("date", "")
+                if race_date_str and last_date is not None:
+                    try:
+                        race_ts = pd.Timestamp(race_date_str)
+                        last_ts = pd.Timestamp(last_date)
+                        row["days_since_last"] = float((race_ts - last_ts).days)
+                    except Exception:
+                        pass
+                # 距離変化: 今日 - 前走
+                today_dist = race.get("distance", 0)
+                if last_dist is not None and today_dist:
+                    row["prev_distance"] = float(last_dist)
+                    row["distance_change"] = float(today_dist - last_dist)
+                # 前走馬体重
+                if last_weight is not None:
+                    row["prev_weight"] = float(last_weight)
+
+                # 内部マーカー削除（モデル特徴量に流れないように）
+                for k in ["_last_race_date", "_last_race_distance", "_last_race_horse_weight"]:
+                    row.pop(k, None)
 
             # 騎手統計をマージ
             jid = entry.get("jockey_id", "")
