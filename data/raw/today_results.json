@@ -688,5 +688,35 @@
     "3rd_name": "ジョーメッドヴィン",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020212": {
+    "1st": 15,
+    "1st_name": "スナッピードレッサ",
+    "2nd": 14,
+    "2nd_name": "レーティッシュ",
+    "3rd": 10,
+    "3rd_name": "ポッドベル",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030212": {
+    "1st": 6,
+    "1st_name": "ストップヤーニング",
+    "2nd": 12,
+    "2nd_name": "ゼンエスポワール",
+    "3rd": 3,
+    "3rd_name": "アークドール",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010612": {
+    "1st": 5,
+    "1st_name": "レイアポポ",
+    "2nd": 4,
+    "2nd_name": "ダイヤモンド",
+    "3rd": 13,
+    "3rd_name": "レジェンダリーデイ",
+    "payouts": {},
+    "status": "confirmed"
   }
 }

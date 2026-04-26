@@ -603,18 +603,18 @@
   },
   "20260426": {
     "東京 ダート": {
-      "completed": 5,
-      "bracket_bias": "内枠有利",
+      "completed": 6,
+      "bracket_bias": "枠差なし",
       "inner_wins": 3,
-      "outer_wins": 2,
+      "outer_wins": 3,
       "pop_wins": {
-        "1": 2,
+        "1": 3,
         "2": 1,
         "3": 1,
         "other": 1
       },
       "fav_trust": "高",
-      "avg_winner_odds": 5.2,
+      "avg_winner_odds": 4.5,
       "races": [
         {
           "race_id": "202605020201",
@@ -685,6 +685,20 @@
           "distance": 1600,
           "2nd": 16,
           "3rd": 14
+        },
+        {
+          "race_id": "202605020212",
+          "race_name": "4歳以上2勝クラス",
+          "winner_num": 15,
+          "winner_name": "スナッピードレッサ",
+          "winner_bracket": 8,
+          "winner_odds": 1.1,
+          "winner_pop": 1,
+          "n_horses": 16,
+          "surface": "ダート",
+          "distance": 1400,
+          "2nd": 14,
+          "3rd": 10
         }
       ]
     },
@@ -789,18 +803,18 @@
       ]
     },
     "京都 ダート": {
-      "completed": 4,
+      "completed": 5,
       "bracket_bias": "外枠有利",
-      "inner_wins": 0,
+      "inner_wins": 1,
       "outer_wins": 4,
       "pop_wins": {
         "1": 0,
         "2": 1,
-        "3": 0,
+        "3": 1,
         "other": 3
       },
       "fav_trust": "低",
-      "avg_winner_odds": 10.5,
+      "avg_winner_odds": 9.6,
       "races": [
         {
           "race_id": "202608030201",
@@ -857,6 +871,20 @@
           "distance": 1800,
           "2nd": 2,
           "3rd": 15
+        },
+        {
+          "race_id": "202608030212",
+          "race_name": "4歳以上2勝クラス",
+          "winner_num": 6,
+          "winner_name": "ストップヤーニング",
+          "winner_bracket": 4,
+          "winner_odds": 5.8,
+          "winner_pop": 3,
+          "n_horses": 14,
+          "surface": "ダート",
+          "distance": 1800,
+          "2nd": 12,
+          "3rd": 3
         }
       ]
     },
@@ -975,18 +1003,18 @@
       ]
     },
     "福島 ダート": {
-      "completed": 4,
+      "completed": 5,
       "bracket_bias": "外枠有利",
-      "inner_wins": 1,
+      "inner_wins": 2,
       "outer_wins": 3,
       "pop_wins": {
         "1": 1,
         "2": 1,
         "3": 0,
-        "other": 2
+        "other": 3
       },
-      "fav_trust": "中",
-      "avg_winner_odds": 10.8,
+      "fav_trust": "低",
+      "avg_winner_odds": 10.4,
       "races": [
         {
           "race_id": "202603010601",
@@ -1043,6 +1071,20 @@
           "distance": 1700,
           "2nd": 3,
           "3rd": 14
+        },
+        {
+          "race_id": "202603010612",
+          "race_name": "4歳以上1勝クラス",
+          "winner_num": 5,
+          "winner_name": "レイアポポ",
+          "winner_bracket": 3,
+          "winner_odds": 8.9,
+          "winner_pop": 7,
+          "n_horses": 16,
+          "surface": "ダート",
+          "distance": 1150,
+          "2nd": 4,
+          "3rd": 13
         }
       ]
     },
