@@ -618,5 +618,75 @@
     "3rd_name": "エルディアブロ",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020209": {
+    "1st": 7,
+    "1st_name": "カンシン",
+    "2nd": 13,
+    "2nd_name": "モンドデラモーレ",
+    "3rd": 1,
+    "3rd_name": "コートアリシアン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020210": {
+    "1st": 3,
+    "1st_name": "ドンインザムード",
+    "2nd": 16,
+    "2nd_name": "テーオーパスワード",
+    "3rd": 14,
+    "3rd_name": "ナイトアクアリウム",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020211": {
+    "1st": 5,
+    "1st_name": "ラフターラインズ",
+    "2nd": 13,
+    "2nd_name": "エンネ",
+    "3rd": 7,
+    "3rd_name": "リアライズルミナス",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030210": {
+    "1st": 5,
+    "1st_name": "イガッチ",
+    "2nd": 17,
+    "2nd_name": "ネブラディスク",
+    "3rd": 2,
+    "3rd_name": "ミスタージーティー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030211": {
+    "1st": 9,
+    "1st_name": "アドマイヤズーム",
+    "2nd": 1,
+    "2nd_name": "ドラゴンブースト",
+    "3rd": 7,
+    "3rd_name": "ベラジオボンド",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010610": {
+    "1st": 2,
+    "1st_name": "グランキングオー",
+    "2nd": 3,
+    "2nd_name": "セボンサデッセ",
+    "3rd": 14,
+    "3rd_name": "ジュンラトゥール",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010611": {
+    "1st": 6,
+    "1st_name": "サウンドモリアーナ",
+    "2nd": 1,
+    "2nd_name": "レッドアヴァンティ",
+    "3rd": 13,
+    "3rd_name": "ジョーメッドヴィン",
+    "payouts": {},
+    "status": "confirmed"
   }
 }
