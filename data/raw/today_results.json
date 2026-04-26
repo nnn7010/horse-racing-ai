@@ -498,5 +498,115 @@
     "3rd_name": "アート",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020205": {
+    "1st": 16,
+    "1st_name": "ダイユウアレグロ",
+    "2nd": 14,
+    "2nd_name": "クカイリモク",
+    "3rd": 8,
+    "3rd_name": "ブラッキッシュ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020206": {
+    "1st": 2,
+    "1st_name": "フジガイフウ",
+    "2nd": 5,
+    "2nd_name": "エルハーベン",
+    "3rd": 1,
+    "3rd_name": "サレジオ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020207": {
+    "1st": 14,
+    "1st_name": "セブンマイスター",
+    "2nd": 12,
+    "2nd_name": "ノアヴィヴァーチェ",
+    "3rd": 15,
+    "3rd_name": "ハクシンブライアン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020208": {
+    "1st": 3,
+    "1st_name": "ボンヌソワレ",
+    "2nd": 11,
+    "2nd_name": "ホウオウシェリー",
+    "3rd": 10,
+    "3rd_name": "サクセスカラー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030206": {
+    "1st": 5,
+    "1st_name": "カナタコナタ",
+    "2nd": 8,
+    "2nd_name": "ムテキシャチョウ",
+    "3rd": 7,
+    "3rd_name": "タイセイジェイド",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030207": {
+    "1st": 12,
+    "1st_name": "エリカアンディーヴ",
+    "2nd": 11,
+    "2nd_name": "デリュージョン",
+    "3rd": 8,
+    "3rd_name": "ハルフロンティア",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030208": {
+    "1st": 9,
+    "1st_name": "ニホンピロデヴィン",
+    "2nd": 2,
+    "2nd_name": "メイショウクモイ",
+    "3rd": 15,
+    "3rd_name": "メイショウコナン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010606": {
+    "1st": 10,
+    "1st_name": "アスクデッドヒート",
+    "2nd": 5,
+    "2nd_name": "キングズトゥルー",
+    "3rd": 13,
+    "3rd_name": "フララナキラ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010607": {
+    "1st": 10,
+    "1st_name": "ユージュアーナ",
+    "2nd": 6,
+    "2nd_name": "アンリーベイビー",
+    "3rd": 11,
+    "3rd_name": "マタミカンサン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010608": {
+    "1st": 4,
+    "1st_name": "マキシマムドライブ",
+    "2nd": 15,
+    "2nd_name": "タマモブラウンタイ",
+    "3rd": 2,
+    "3rd_name": "ピアストイヤーズ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202603010609": {
+    "1st": 10,
+    "1st_name": "アリスメティーク",
+    "2nd": 2,
+    "2nd_name": "ゼンノインヴォーク",
+    "3rd": 12,
+    "3rd_name": "マイネルアズーロ",
+    "payouts": {},
+    "status": "confirmed"
   }
 }
