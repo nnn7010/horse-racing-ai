@@ -692,7 +692,7 @@
           "winner_num": 15,
           "winner_name": "スナッピードレッサ",
           "winner_bracket": 8,
-          "winner_odds": 1.1,
+          "winner_odds": 1.2,
           "winner_pop": 1,
           "n_horses": 16,
           "surface": "ダート",
@@ -792,7 +792,7 @@
           "winner_num": 5,
           "winner_name": "ラフターラインズ",
           "winner_bracket": 4,
-          "winner_odds": 2.5,
+          "winner_odds": 2.2,
           "winner_pop": 1,
           "n_horses": 13,
           "surface": "芝",
@@ -810,8 +810,8 @@
       "pop_wins": {
         "1": 0,
         "2": 1,
-        "3": 1,
-        "other": 3
+        "3": 0,
+        "other": 4
       },
       "fav_trust": "低",
       "avg_winner_odds": 9.6,
@@ -878,8 +878,8 @@
           "winner_num": 6,
           "winner_name": "ストップヤーニング",
           "winner_bracket": 4,
-          "winner_odds": 5.8,
-          "winner_pop": 3,
+          "winner_odds": 6.0,
+          "winner_pop": 4,
           "n_horses": 14,
           "surface": "ダート",
           "distance": 1800,
@@ -1014,7 +1014,7 @@
         "other": 3
       },
       "fav_trust": "低",
-      "avg_winner_odds": 10.4,
+      "avg_winner_odds": 10.3,
       "races": [
         {
           "race_id": "202603010601",
@@ -1078,8 +1078,8 @@
           "winner_num": 5,
           "winner_name": "レイアポポ",
           "winner_bracket": 3,
-          "winner_odds": 8.9,
-          "winner_pop": 7,
+          "winner_odds": 8.7,
+          "winner_pop": 5,
           "n_horses": 16,
           "surface": "ダート",
           "distance": 1150,
