@@ -278,7 +278,12 @@ def generate():
         d = date_map.get(race["race_id"], today_str)
         by_date_venue.setdefault(d, {}).setdefault(race["place_name"], []).append(race)
 
-    trend_html = render_trends(trends, results)
+    # トレンドが日別構造({date: {venue: {...}}})か旧構造({venue: {...}})か検出
+    is_dated_trends = trends and isinstance(next(iter(trends.values()), {}), dict) and any(
+        isinstance(v, dict) and "completed" in v
+        for inner in trends.values() if isinstance(inner, dict)
+        for v in inner.values() if isinstance(v, dict)
+    )
 
     # 日付ラベル
     weekday_jp = ["月", "火", "水", "木", "金", "土", "日"]
@@ -307,12 +312,23 @@ def generate():
         d_label = fmt_date(d)
         is_today = (d == today_str)
         date_cls = " date-today" if is_today else ""
-        # 複数日付の場合、デフォルト以外は非表示
         hidden = ' style="display:none"' if (len(sorted_dates) >= 2 and d != default_date) else ""
         sections += f'<div class="date-section{date_cls}" data-date="{d}"{hidden}>'
         if len(sorted_dates) < 2:
-            # 1日だけならヘッダ表示
             sections += f'<h2 class="date-h">📅 {d_label}</h2>'
+
+        # 当該日付のトレンド表示
+        if is_dated_trends:
+            day_trends = trends.get(d, {})
+        else:
+            day_trends = trends if d == sorted_dates[0] else {}  # 旧構造は最初の日付に
+        if day_trends:
+            sections += render_trends(day_trends, results)
+        elif not is_today:
+            pass  # 過去日付でトレンドなしはスキップ
+        else:
+            sections += '<div class="trends-empty">📊 本日のレース未開催（傾向はレース終了後に表示）</div>'
+
         for venue, vraces in venues.items():
             blocks = "".join(render_race(r, i + 1) for i, r in enumerate(vraces))
             sections += f'<h3 class="venue-h">🏟 {venue}</h3>{blocks}'
@@ -406,6 +422,7 @@ td:nth-child(6){{color:#4caf50}}
 .date-tab:hover{{background:#252525;color:#e0e0e0}}
 .date-tab.active{{background:#263238;color:#fff;border-bottom:3px solid #1565c0}}
 .date-tab.active::before{{content:"📅 "}}
+.trends-empty{{background:#1a1a2e;border:1px dashed #334;border-radius:6px;padding:16px;text-align:center;color:#888;font-size:.85em;margin-bottom:14px}}
 .odds-status{{font-size:.65em;margin-left:8px;color:#aaa;font-weight:normal;vertical-align:middle}}
 .odds-flash{{animation:flash 1.2s ease-out}}
 @keyframes flash{{
@@ -425,7 +442,6 @@ td:nth-child(6){{color:#4caf50}}
 </head>
 <body>
 <h1>🏇 競馬予想 {date} <span id="odds-status" class="odds-status">⏳</span></h1>
-{trend_html}
 {sections}
 <p class="upd">更新: {updated} / オッズ: <span id="odds-updated">-</span></p>
 <script>

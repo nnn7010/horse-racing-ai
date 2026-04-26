@@ -89,9 +89,12 @@ def fetch_result(race_id: str) -> dict | None:
 # 傾向分析
 # ────────────────────────────────────────────
 
-def analyze_trends(predictions: dict, results: dict) -> dict:
-    """完了レースからコース・芝ダート別傾向を計算する。"""
-    venue_data: dict[str, list] = {}
+def analyze_trends(predictions: dict, results: dict, date_map: dict | None = None) -> dict:
+    """完了レースからコース・芝ダート別傾向を計算する。
+
+    date_map を渡すと {date: {venue: {...}}} 形式で日別に出力。
+    """
+    by_date: dict[str, dict[str, list]] = {}
 
     for race in predictions["races"]:
         race_id = race["race_id"]
@@ -101,8 +104,14 @@ def analyze_trends(predictions: dict, results: dict) -> dict:
         result = results[race_id]
         surface = race.get("surface", "芝")
         venue = f"{race['place_name']} {surface}"
-        if venue not in venue_data:
-            venue_data[venue] = []
+        # 日付特定: date_map優先、なければrace_id先頭8文字
+        if date_map and race_id in date_map:
+            d = date_map[race_id]
+        else:
+            d = race_id[:8] if len(race_id) >= 8 else "unknown"
+
+        by_date.setdefault(d, {}).setdefault(venue, [])
+        venue_data = by_date[d]
 
         winner_num = result["1st"]
         horses = {h["number"]: h for h in race["horses"]}
@@ -133,54 +142,53 @@ def analyze_trends(predictions: dict, results: dict) -> dict:
             "3rd": result["3rd"],
         })
 
-    trends = {}
-    for venue, races in venue_data.items():
-        n = len(races)
-        if n == 0:
-            continue
+    # 日別 × venue 別に集計
+    out: dict = {}
+    for date, venue_dict in by_date.items():
+        date_trends = {}
+        for venue, races in venue_dict.items():
+            n = len(races)
+            if n == 0:
+                continue
 
-        # 枠順傾向（内枠1-4 vs 外枠5-8）
-        inner_wins = sum(1 for r in races if r["winner_bracket"] in range(1, 5))
-        outer_wins = sum(1 for r in races if r["winner_bracket"] in range(5, 9))
+            inner_wins = sum(1 for r in races if r["winner_bracket"] in range(1, 5))
+            outer_wins = sum(1 for r in races if r["winner_bracket"] in range(5, 9))
 
-        # 人気傾向
-        pop_wins = {1: 0, 2: 0, 3: 0, "other": 0}
-        for r in races:
-            p = r["winner_pop"]
-            if p in (1, 2, 3):
-                pop_wins[p] += 1
+            pop_wins = {1: 0, 2: 0, 3: 0, "other": 0}
+            for r in races:
+                p = r["winner_pop"]
+                if p in (1, 2, 3):
+                    pop_wins[p] += 1
+                else:
+                    pop_wins["other"] += 1
+
+            avg_winner_odds = sum(r["winner_odds"] for r in races if r["winner_odds"] > 0) / max(n, 1)
+            fav_trust = "高" if pop_wins[1] / n >= 0.4 else "中" if pop_wins[1] / n >= 0.25 else "低"
+
+            if n >= 3:
+                if inner_wins / n >= 0.6:
+                    bracket_bias = "内枠有利"
+                elif outer_wins / n >= 0.6:
+                    bracket_bias = "外枠有利"
+                else:
+                    bracket_bias = "枠差なし"
             else:
-                pop_wins["other"] += 1
+                bracket_bias = "データ不足"
 
-        # 平均勝ち馬オッズ
-        avg_winner_odds = sum(r["winner_odds"] for r in races if r["winner_odds"] > 0) / max(n, 1)
+            date_trends[venue] = {
+                "completed": n,
+                "bracket_bias": bracket_bias,
+                "inner_wins": inner_wins,
+                "outer_wins": outer_wins,
+                "pop_wins": pop_wins,
+                "fav_trust": fav_trust,
+                "avg_winner_odds": round(avg_winner_odds, 1),
+                "races": races,
+            }
+        if date_trends:
+            out[date] = date_trends
 
-        # 1番人気の信頼度
-        fav_trust = "高" if pop_wins[1] / n >= 0.4 else "中" if pop_wins[1] / n >= 0.25 else "低"
-
-        # 枠傾向テキスト
-        if n >= 3:
-            if inner_wins / n >= 0.6:
-                bracket_bias = "内枠有利"
-            elif outer_wins / n >= 0.6:
-                bracket_bias = "外枠有利"
-            else:
-                bracket_bias = "枠差なし"
-        else:
-            bracket_bias = "データ不足"
-
-        trends[venue] = {
-            "completed": n,
-            "bracket_bias": bracket_bias,
-            "inner_wins": inner_wins,
-            "outer_wins": outer_wins,
-            "pop_wins": pop_wins,
-            "fav_trust": fav_trust,
-            "avg_winner_odds": round(avg_winner_odds, 1),
-            "races": races,
-        }
-
-    return trends
+    return out
 
 
 # ────────────────────────────────────────────
@@ -227,14 +235,25 @@ def main(push: bool = False):
             json.dump(existing, f, ensure_ascii=False, indent=2)
         print(f"\n✓ {len(existing)} レース保存 → {RESULTS_FILE.name}")
 
-    # 傾向分析
-    trends = analyze_trends(predictions, existing)
+    # 傾向分析（日別）
+    target_file = ROOT / "data/raw/target_races.json"
+    date_map = {}
+    if target_file.exists():
+        with open(target_file, encoding="utf-8") as f:
+            for r in json.load(f):
+                date_map[r["race_id"]] = r.get("date", "")
+    trends_by_date = analyze_trends(predictions, existing, date_map=date_map)
     trends_file = ROOT / "data/raw/today_trends.json"
     with open(trends_file, "w", encoding="utf-8") as f:
-        json.dump(trends, f, ensure_ascii=False, indent=2)
+        json.dump(trends_by_date, f, ensure_ascii=False, indent=2)
 
-    # 傾向を表示
+    # 傾向を表示（最新日付のみ）
     print("\n=== 本日のコース傾向 ===")
+    if not trends_by_date:
+        return
+    latest_date = sorted(trends_by_date.keys())[-1]
+    trends = trends_by_date[latest_date]
+    print(f"日付: {latest_date}")
     for venue, t in trends.items():
         print(f"\n【{venue}】{t['completed']}R完了")
         print(f"  枠順: {t['bracket_bias']} (内{t['inner_wins']}-外{t['outer_wins']})")
