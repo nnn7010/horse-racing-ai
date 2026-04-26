@@ -212,6 +212,7 @@ data/raw/*
 !data/raw/today_predictions.json
 !data/raw/today_results.json
 !data/raw/today_trends.json
+!data/raw/target_races.json
 data/processed/
 models/*.pkl
 models/*.txt
