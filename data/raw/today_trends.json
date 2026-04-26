@@ -1,18 +1,18 @@
 {
-  "20260502": {
+  "20260425": {
     "東京 ダート": {
-      "completed": 10,
+      "completed": 7,
       "bracket_bias": "外枠有利",
-      "inner_wins": 4,
-      "outer_wins": 6,
+      "inner_wins": 2,
+      "outer_wins": 5,
       "pop_wins": {
         "1": 3,
-        "2": 2,
-        "3": 3,
-        "other": 2
+        "2": 1,
+        "3": 2,
+        "other": 1
       },
-      "fav_trust": "中",
-      "avg_winner_odds": 5.4,
+      "fav_trust": "高",
+      "avg_winner_odds": 4.6,
       "races": [
         {
           "race_id": "202605020101",
@@ -111,64 +111,22 @@
           "distance": 1600,
           "2nd": 4,
           "3rd": 7
-        },
-        {
-          "race_id": "202605020201",
-          "race_name": "3歳未勝利",
-          "winner_num": 6,
-          "winner_name": "ケイツープラ",
-          "winner_bracket": 3,
-          "winner_odds": 7.0,
-          "winner_pop": 3,
-          "n_horses": 16,
-          "surface": "ダート",
-          "distance": 1400,
-          "2nd": 15,
-          "3rd": 9
-        },
-        {
-          "race_id": "202605020202",
-          "race_name": "3歳未勝利",
-          "winner_num": 12,
-          "winner_name": "サトノフェンサー",
-          "winner_bracket": 7,
-          "winner_odds": 3.1,
-          "winner_pop": 2,
-          "n_horses": 14,
-          "surface": "ダート",
-          "distance": 1600,
-          "2nd": 6,
-          "3rd": 8
-        },
-        {
-          "race_id": "202605020203",
-          "race_name": "3歳未勝利",
-          "winner_num": 1,
-          "winner_name": "ユイノカタリベ",
-          "winner_bracket": 1,
-          "winner_odds": 11.8,
-          "winner_pop": 6,
-          "n_horses": 16,
-          "surface": "ダート",
-          "distance": 1300,
-          "2nd": 14,
-          "3rd": 16
         }
       ]
     },
     "東京 芝": {
-      "completed": 6,
+      "completed": 5,
       "bracket_bias": "外枠有利",
       "inner_wins": 2,
-      "outer_wins": 4,
+      "outer_wins": 3,
       "pop_wins": {
-        "1": 3,
+        "1": 2,
         "2": 1,
         "3": 0,
         "other": 2
       },
       "fav_trust": "高",
-      "avg_winner_odds": 9.9,
+      "avg_winner_odds": 11.4,
       "races": [
         {
           "race_id": "202605020104",
@@ -239,38 +197,22 @@
           "distance": 2400,
           "2nd": 7,
           "3rd": 4
-        },
-        {
-          "race_id": "202605020204",
-          "race_name": "3歳未勝利",
-          "winner_num": 6,
-          "winner_name": "イブキ",
-          "winner_bracket": 6,
-          "winner_odds": 2.6,
-          "winner_pop": 1,
-          "n_horses": 10,
-          "surface": "芝",
-          "distance": 2400,
-          "2nd": 8,
-          "3rd": 2
         }
       ]
-    }
-  },
-  "20260803": {
+    },
     "京都 ダート": {
-      "completed": 7,
+      "completed": 5,
       "bracket_bias": "外枠有利",
       "inner_wins": 2,
-      "outer_wins": 5,
+      "outer_wins": 3,
       "pop_wins": {
         "1": 1,
-        "2": 1,
+        "2": 0,
         "3": 1,
-        "other": 4
+        "other": 3
       },
       "fav_trust": "低",
-      "avg_winner_odds": 21.7,
+      "avg_winner_odds": 28.2,
       "races": [
         {
           "race_id": "202608030101",
@@ -341,50 +283,22 @@
           "distance": 1200,
           "2nd": 11,
           "3rd": 3
-        },
-        {
-          "race_id": "202608030201",
-          "race_name": "3歳未勝利",
-          "winner_num": 16,
-          "winner_name": "ツァレヴナ",
-          "winner_bracket": 8,
-          "winner_odds": 7.8,
-          "winner_pop": 5,
-          "n_horses": 16,
-          "surface": "ダート",
-          "distance": 1200,
-          "2nd": 7,
-          "3rd": 2
-        },
-        {
-          "race_id": "202608030202",
-          "race_name": "3歳未勝利",
-          "winner_num": 14,
-          "winner_name": "テイエムスターラン",
-          "winner_bracket": 8,
-          "winner_odds": 3.5,
-          "winner_pop": 2,
-          "n_horses": 15,
-          "surface": "ダート",
-          "distance": 1800,
-          "2nd": 12,
-          "3rd": 6
         }
       ]
     },
     "京都 芝": {
-      "completed": 10,
+      "completed": 7,
       "bracket_bias": "枠差なし",
-      "inner_wins": 5,
-      "outer_wins": 5,
+      "inner_wins": 3,
+      "outer_wins": 4,
       "pop_wins": {
         "1": 5,
-        "2": 1,
+        "2": 0,
         "3": 0,
-        "other": 4
+        "other": 2
       },
       "fav_trust": "高",
-      "avg_winner_odds": 6.9,
+      "avg_winner_odds": 6.8,
       "races": [
         {
           "race_id": "202608030103",
@@ -483,66 +397,22 @@
           "distance": 1600,
           "2nd": 9,
           "3rd": 11
-        },
-        {
-          "race_id": "202608030203",
-          "race_name": "3歳未勝利",
-          "winner_num": 7,
-          "winner_name": "タナスーペルノーバ",
-          "winner_bracket": 4,
-          "winner_odds": 9.7,
-          "winner_pop": 6,
-          "n_horses": 18,
-          "surface": "芝",
-          "distance": 1200,
-          "2nd": 4,
-          "3rd": 13
-        },
-        {
-          "race_id": "202608030204",
-          "race_name": "4歳以上障害未勝利",
-          "winner_num": 5,
-          "winner_name": "スノーディーヴァ",
-          "winner_bracket": 4,
-          "winner_odds": 7.0,
-          "winner_pop": 4,
-          "n_horses": 14,
-          "surface": "芝",
-          "distance": 2910,
-          "2nd": 12,
-          "3rd": 8
-        },
-        {
-          "race_id": "202608030205",
-          "race_name": "3歳未勝利",
-          "winner_num": 8,
-          "winner_name": "ロングホリデー",
-          "winner_bracket": 6,
-          "winner_odds": 4.7,
-          "winner_pop": 2,
-          "n_horses": 12,
-          "surface": "芝",
-          "distance": 2000,
-          "2nd": 9,
-          "3rd": 11
         }
       ]
-    }
-  },
-  "20260301": {
+    },
     "福島 ダート": {
-      "completed": 7,
+      "completed": 5,
       "bracket_bias": "外枠有利",
       "inner_wins": 2,
-      "outer_wins": 5,
+      "outer_wins": 3,
       "pop_wins": {
-        "1": 2,
+        "1": 1,
         "2": 2,
         "3": 0,
-        "other": 3
+        "other": 2
       },
-      "fav_trust": "中",
-      "avg_winner_odds": 7.3,
+      "fav_trust": "低",
+      "avg_winner_odds": 6.3,
       "races": [
         {
           "race_id": "202603010501",
@@ -613,50 +483,22 @@
           "distance": 1150,
           "2nd": 11,
           "3rd": 6
-        },
-        {
-          "race_id": "202603010601",
-          "race_name": "3歳未勝利",
-          "winner_num": 12,
-          "winner_name": "モズオウンゴール",
-          "winner_bracket": 6,
-          "winner_odds": 2.2,
-          "winner_pop": 1,
-          "n_horses": 16,
-          "surface": "ダート",
-          "distance": 1150,
-          "2nd": 7,
-          "3rd": 14
-        },
-        {
-          "race_id": "202603010603",
-          "race_name": "3歳未勝利",
-          "winner_num": 13,
-          "winner_name": "エリーニック",
-          "winner_bracket": 7,
-          "winner_odds": 17.4,
-          "winner_pop": 6,
-          "n_horses": 15,
-          "surface": "ダート",
-          "distance": 1700,
-          "2nd": 10,
-          "3rd": 2
         }
       ]
     },
     "福島 芝": {
-      "completed": 10,
+      "completed": 7,
       "bracket_bias": "内枠有利",
-      "inner_wins": 6,
-      "outer_wins": 4,
+      "inner_wins": 5,
+      "outer_wins": 2,
       "pop_wins": {
         "1": 2,
         "2": 0,
-        "3": 2,
-        "other": 6
+        "3": 1,
+        "other": 4
       },
-      "fav_trust": "低",
-      "avg_winner_odds": 7.5,
+      "fav_trust": "中",
+      "avg_winner_odds": 7.2,
       "races": [
         {
           "race_id": "202603010502",
@@ -755,7 +597,259 @@
           "distance": 1800,
           "2nd": 1,
           "3rd": 13
+        }
+      ]
+    }
+  },
+  "20260426": {
+    "東京 ダート": {
+      "completed": 3,
+      "bracket_bias": "内枠有利",
+      "inner_wins": 2,
+      "outer_wins": 1,
+      "pop_wins": {
+        "1": 0,
+        "2": 1,
+        "3": 1,
+        "other": 1
+      },
+      "fav_trust": "低",
+      "avg_winner_odds": 7.3,
+      "races": [
+        {
+          "race_id": "202605020201",
+          "race_name": "3歳未勝利",
+          "winner_num": 6,
+          "winner_name": "ケイツープラ",
+          "winner_bracket": 3,
+          "winner_odds": 7.0,
+          "winner_pop": 3,
+          "n_horses": 16,
+          "surface": "ダート",
+          "distance": 1400,
+          "2nd": 15,
+          "3rd": 9
         },
+        {
+          "race_id": "202605020202",
+          "race_name": "3歳未勝利",
+          "winner_num": 12,
+          "winner_name": "サトノフェンサー",
+          "winner_bracket": 7,
+          "winner_odds": 3.1,
+          "winner_pop": 2,
+          "n_horses": 14,
+          "surface": "ダート",
+          "distance": 1600,
+          "2nd": 6,
+          "3rd": 8
+        },
+        {
+          "race_id": "202605020203",
+          "race_name": "3歳未勝利",
+          "winner_num": 1,
+          "winner_name": "ユイノカタリベ",
+          "winner_bracket": 1,
+          "winner_odds": 11.8,
+          "winner_pop": 6,
+          "n_horses": 16,
+          "surface": "ダート",
+          "distance": 1300,
+          "2nd": 14,
+          "3rd": 16
+        }
+      ]
+    },
+    "東京 芝": {
+      "completed": 1,
+      "bracket_bias": "データ不足",
+      "inner_wins": 0,
+      "outer_wins": 1,
+      "pop_wins": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "other": 0
+      },
+      "fav_trust": "高",
+      "avg_winner_odds": 2.6,
+      "races": [
+        {
+          "race_id": "202605020204",
+          "race_name": "3歳未勝利",
+          "winner_num": 6,
+          "winner_name": "イブキ",
+          "winner_bracket": 6,
+          "winner_odds": 2.6,
+          "winner_pop": 1,
+          "n_horses": 10,
+          "surface": "芝",
+          "distance": 2400,
+          "2nd": 8,
+          "3rd": 2
+        }
+      ]
+    },
+    "京都 ダート": {
+      "completed": 2,
+      "bracket_bias": "データ不足",
+      "inner_wins": 0,
+      "outer_wins": 2,
+      "pop_wins": {
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "other": 1
+      },
+      "fav_trust": "低",
+      "avg_winner_odds": 5.7,
+      "races": [
+        {
+          "race_id": "202608030201",
+          "race_name": "3歳未勝利",
+          "winner_num": 16,
+          "winner_name": "ツァレヴナ",
+          "winner_bracket": 8,
+          "winner_odds": 7.8,
+          "winner_pop": 5,
+          "n_horses": 16,
+          "surface": "ダート",
+          "distance": 1200,
+          "2nd": 7,
+          "3rd": 2
+        },
+        {
+          "race_id": "202608030202",
+          "race_name": "3歳未勝利",
+          "winner_num": 14,
+          "winner_name": "テイエムスターラン",
+          "winner_bracket": 8,
+          "winner_odds": 3.5,
+          "winner_pop": 2,
+          "n_horses": 15,
+          "surface": "ダート",
+          "distance": 1800,
+          "2nd": 12,
+          "3rd": 6
+        }
+      ]
+    },
+    "京都 芝": {
+      "completed": 3,
+      "bracket_bias": "内枠有利",
+      "inner_wins": 2,
+      "outer_wins": 1,
+      "pop_wins": {
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "other": 2
+      },
+      "fav_trust": "低",
+      "avg_winner_odds": 7.1,
+      "races": [
+        {
+          "race_id": "202608030203",
+          "race_name": "3歳未勝利",
+          "winner_num": 7,
+          "winner_name": "タナスーペルノーバ",
+          "winner_bracket": 4,
+          "winner_odds": 9.7,
+          "winner_pop": 6,
+          "n_horses": 18,
+          "surface": "芝",
+          "distance": 1200,
+          "2nd": 4,
+          "3rd": 13
+        },
+        {
+          "race_id": "202608030204",
+          "race_name": "4歳以上障害未勝利",
+          "winner_num": 5,
+          "winner_name": "スノーディーヴァ",
+          "winner_bracket": 4,
+          "winner_odds": 7.0,
+          "winner_pop": 4,
+          "n_horses": 14,
+          "surface": "芝",
+          "distance": 2910,
+          "2nd": 12,
+          "3rd": 8
+        },
+        {
+          "race_id": "202608030205",
+          "race_name": "3歳未勝利",
+          "winner_num": 8,
+          "winner_name": "ロングホリデー",
+          "winner_bracket": 6,
+          "winner_odds": 4.7,
+          "winner_pop": 2,
+          "n_horses": 12,
+          "surface": "芝",
+          "distance": 2000,
+          "2nd": 9,
+          "3rd": 11
+        }
+      ]
+    },
+    "福島 ダート": {
+      "completed": 2,
+      "bracket_bias": "データ不足",
+      "inner_wins": 0,
+      "outer_wins": 2,
+      "pop_wins": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "other": 1
+      },
+      "fav_trust": "高",
+      "avg_winner_odds": 9.8,
+      "races": [
+        {
+          "race_id": "202603010601",
+          "race_name": "3歳未勝利",
+          "winner_num": 12,
+          "winner_name": "モズオウンゴール",
+          "winner_bracket": 6,
+          "winner_odds": 2.2,
+          "winner_pop": 1,
+          "n_horses": 16,
+          "surface": "ダート",
+          "distance": 1150,
+          "2nd": 7,
+          "3rd": 14
+        },
+        {
+          "race_id": "202603010603",
+          "race_name": "3歳未勝利",
+          "winner_num": 13,
+          "winner_name": "エリーニック",
+          "winner_bracket": 7,
+          "winner_odds": 17.4,
+          "winner_pop": 6,
+          "n_horses": 15,
+          "surface": "ダート",
+          "distance": 1700,
+          "2nd": 10,
+          "3rd": 2
+        }
+      ]
+    },
+    "福島 芝": {
+      "completed": 3,
+      "bracket_bias": "外枠有利",
+      "inner_wins": 1,
+      "outer_wins": 2,
+      "pop_wins": {
+        "1": 0,
+        "2": 0,
+        "3": 1,
+        "other": 2
+      },
+      "fav_trust": "低",
+      "avg_winner_odds": 8.3,
+      "races": [
         {
           "race_id": "202603010602",
           "race_name": "3歳未勝利",
