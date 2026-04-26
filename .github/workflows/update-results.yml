@@ -1,0 +1,46 @@
+name: Update Race Results
+
+on:
+  schedule:
+    # 土日 09:00-19:00 JST (00:00-10:00 UTC) に10分ごと
+    - cron: '*/10 0-10 * * 6,0'
+    # 金曜夜の前日の繰越レース取得用
+    - cron: '*/30 14-23 * * 5'
+  workflow_dispatch:  # 手動実行可
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-results
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests beautifulsoup4 lxml pyyaml
+
+      - name: Fetch results
+        run: python3 scripts/fetch_results.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/raw/today_results.json data/raw/today_trends.json docs/index.html
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: auto-update results at $(date '+%H:%M')"
+            git push
+          fi
