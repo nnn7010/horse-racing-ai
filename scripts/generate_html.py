@@ -297,6 +297,41 @@ def generate():
     # タブ生成: 本日があればデフォルト本日、なければ最新
     default_date = today_str if today_str in sorted_dates else (sorted_dates[-1] if sorted_dates else today_str)
 
+    # 週末合計トレンド計算（複数日のレース結果を統合）
+    weekend_trends = {}
+    if is_dated_trends and len(trends) >= 1:
+        # venue別に複数日の races を統合して再集計
+        venue_races = {}
+        for date_key, day_t in trends.items():
+            for venue, vt in day_t.items():
+                venue_races.setdefault(venue, []).extend(vt.get("races", []))
+
+        for venue, vraces in venue_races.items():
+            n = len(vraces)
+            if n == 0: continue
+            inner_wins = sum(1 for r in vraces if r.get("winner_bracket", 0) in range(1, 5))
+            outer_wins = sum(1 for r in vraces if r.get("winner_bracket", 0) in range(5, 9))
+            pop_wins = {1: 0, 2: 0, 3: 0, "other": 0}
+            for r in vraces:
+                p = r.get("winner_pop", 99)
+                if p in (1, 2, 3): pop_wins[p] += 1
+                else: pop_wins["other"] += 1
+            avg_winner_odds = sum(r.get("winner_odds", 0) for r in vraces if r.get("winner_odds", 0) > 0) / max(n, 1)
+            fav_trust = "高" if pop_wins[1]/n >= 0.4 else "中" if pop_wins[1]/n >= 0.25 else "低"
+            if n >= 3:
+                if inner_wins/n >= 0.6: bracket_bias = "内枠有利"
+                elif outer_wins/n >= 0.6: bracket_bias = "外枠有利"
+                else: bracket_bias = "枠差なし"
+            else:
+                bracket_bias = "データ不足"
+            weekend_trends[venue] = {
+                "completed": n, "bracket_bias": bracket_bias,
+                "inner_wins": inner_wins, "outer_wins": outer_wins,
+                "pop_wins": pop_wins, "fav_trust": fav_trust,
+                "avg_winner_odds": round(avg_winner_odds, 1),
+                "races": vraces,
+            }
+
     tabs_html = ""
     sections = ""
     if len(sorted_dates) >= 2:
@@ -305,6 +340,9 @@ def generate():
             d_label = fmt_date(d)
             active = " active" if d == default_date else ""
             tabs += f'<button class="date-tab{active}" data-date="{d}" onclick="switchDate(this)">{d_label}</button>'
+        # 週末合計タブ（トレンドあるなら）
+        if weekend_trends:
+            tabs += f'<button class="date-tab" data-date="weekend" onclick="switchDate(this)">📊 週末合計</button>'
         tabs_html = f'<div class="date-tabs">{tabs}</div>'
 
     for d in sorted_dates:
@@ -332,6 +370,13 @@ def generate():
         for venue, vraces in venues.items():
             blocks = "".join(render_race(r, i + 1) for i, r in enumerate(vraces))
             sections += f'<h3 class="venue-h">🏟 {venue}</h3>{blocks}'
+        sections += '</div>'
+
+    # 週末合計セクション（トレンドのみ表示）
+    if weekend_trends:
+        sections += f'<div class="date-section weekend-section" data-date="weekend" style="display:none">'
+        sections += f'<h2 class="date-h">📊 週末合計（{fmt_date(sorted_dates[0])} 〜 {fmt_date(sorted_dates[-1])}）</h2>'
+        sections += render_trends(weekend_trends, results)
         sections += '</div>'
 
     sections = tabs_html + sections
