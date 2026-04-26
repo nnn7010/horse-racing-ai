@@ -608,5 +608,15 @@
     "3rd_name": "マイネルアズーロ",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202608030209": {
+    "1st": 1,
+    "1st_name": "オメガナビゲーター",
+    "2nd": 8,
+    "2nd_name": "アスクコモンタレヴ",
+    "3rd": 6,
+    "3rd_name": "エルディアブロ",
+    "payouts": {},
+    "status": "confirmed"
   }
 }
