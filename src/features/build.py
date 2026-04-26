@@ -45,6 +45,9 @@ def build_features(
     # === レース条件特徴量 ===
     df = _add_race_condition_features(df)
 
+    # === コース適性ギャップ特徴量 ===
+    df = _add_course_ability_features(df)
+
     # 不要な文字列列を除外
     feature_cols = [c for c in df.columns if df[c].dtype in [np.float64, np.int64, np.float32, np.int32, "float64", "int64", "float32", "int32"]]
     meta_cols = ["race_id", "horse_id", "date", "finish_position", "number", "horse_name", "jockey_name", "trainer_name", "jockey_id", "trainer_id"]
@@ -329,6 +332,128 @@ def _add_race_condition_features(df: pd.DataFrame) -> pd.DataFrame:
     if "num_runners" not in df.columns and "race_id" in df.columns:
         df["num_runners"] = df.groupby("race_id")["number"].transform("max")
 
+    return df
+
+
+def _add_course_ability_features(df: pd.DataFrame) -> pd.DataFrame:
+    """コースが求める能力と馬の能力のギャップを特徴量として追加する。
+
+    course_profiles.json から各コースの能力要求値（5-95pctile基準のスコア 0-100）を取得し、
+    馬の各能力軸との差分（surplus: 正=馬が上回る、負=不足）を特徴量にする。
+    モデルが「このコースでこの馬の能力は十分か？」を判断できるようにする。
+    """
+    import json
+    profiles_file = Path(__file__).resolve().parents[2] / "data/processed/course_profiles.json"
+    if not profiles_file.exists():
+        logger.warning("course_profiles.json not found, skipping course ability features")
+        return df
+
+    with open(profiles_file) as f:
+        profiles = json.load(f)
+
+    df = df.copy()
+
+    # コースキーを構築
+    if not all(c in df.columns for c in ["place_code_num", "is_turf", "distance"]):
+        # place_code_num/is_turf が未計算の場合
+        if "place_code" in df.columns and "place_code_num" not in df.columns:
+            df["place_code_num"] = pd.to_numeric(df["place_code"], errors="coerce").fillna(0).astype(int)
+        if "surface" in df.columns and "is_turf" not in df.columns:
+            df["is_turf"] = (df["surface"] == "芝").astype(int)
+
+    if not all(c in df.columns for c in ["place_code_num", "is_turf", "distance"]):
+        return df
+
+    df["_course_key"] = (
+        df["place_code_num"].astype(str) + "_"
+        + df["is_turf"].astype(str) + "_"
+        + df["distance"].astype(str)
+    )
+
+    # 各コースの能力要求値をマッピング
+    AXES = ["speed", "burst", "power", "course", "form", "stability", "jockey"]
+    for axis in AXES:
+        df[f"_demand_{axis}"] = df["_course_key"].map(
+            {k: v["scores"].get(axis, 50.0) for k, v in profiles.items()}
+        ).fillna(50.0)
+
+    # 馬の能力をグローバル基準で0-100に正規化（5-95pctile、コースプロファイルと同じ基準）
+    # speed: avg_speed_3 (低い=速い → invert)
+    # burst: avg_last_3f_rank_3 (低い=速い → invert)
+    # power: 0.5*horse_tough_top3_rate + 0.5*horse_slow_race_top3_rate
+    # course: horse_course_top3_rate
+    # form: avg_finish_5 (低い=好調 → invert)
+    # stability: finish_std_5 (低い=安定 → invert)
+    # jockey: jockey_top3_rate
+
+    ability_map = {
+        "speed":     ("avg_speed_3",            True),
+        "burst":     ("avg_last_3f_rank_3",     True),
+        "course":    ("horse_course_top3_rate",  False),
+        "form":      ("avg_finish_5",           True),
+        "stability": ("finish_std_5",           True),
+        "jockey":    ("jockey_top3_rate",       False),
+    }
+
+    for axis, (col, invert) in ability_map.items():
+        if col not in df.columns:
+            df[f"_horse_{axis}"] = 50.0
+            continue
+        vals = df[col].replace(0, np.nan)
+        q05 = vals.quantile(0.05)
+        q95 = vals.quantile(0.95)
+        if q95 == q05:
+            df[f"_horse_{axis}"] = 50.0
+        else:
+            normed = (vals.fillna(vals.median()) - q05) / (q95 - q05) * 100
+            normed = normed.clip(0, 100)
+            if invert:
+                normed = 100 - normed
+            df[f"_horse_{axis}"] = normed
+
+    # パワー: tough + slow の合成
+    has_tough = "horse_tough_top3_rate" in df.columns
+    has_slow = "horse_slow_race_top3_rate" in df.columns
+    if has_tough and has_slow:
+        for col in ["horse_tough_top3_rate", "horse_slow_race_top3_rate"]:
+            vals = df[col].replace(0, np.nan)
+            q05, q95 = vals.quantile(0.05), vals.quantile(0.95)
+            if q95 == q05:
+                df[f"_normed_{col}"] = 50.0
+            else:
+                df[f"_normed_{col}"] = ((vals.fillna(vals.median()) - q05) / (q95 - q05) * 100).clip(0, 100)
+        df["_horse_power"] = 0.5 * df["_normed_horse_tough_top3_rate"] + 0.5 * df["_normed_horse_slow_race_top3_rate"]
+        df.drop(["_normed_horse_tough_top3_rate", "_normed_horse_slow_race_top3_rate"], axis=1, inplace=True)
+    elif has_tough:
+        vals = df["horse_tough_top3_rate"].replace(0, np.nan)
+        q05, q95 = vals.quantile(0.05), vals.quantile(0.95)
+        df["_horse_power"] = ((vals.fillna(vals.median()) - q05) / (q95 - q05) * 100).clip(0, 100) if q95 != q05 else 50.0
+    else:
+        df["_horse_power"] = 50.0
+
+    # ギャップ特徴量: horse_ability - course_demand (正=余裕、負=不足)
+    for axis in AXES:
+        df[f"course_{axis}_gap"] = df[f"_horse_{axis}"] - df[f"_demand_{axis}"]
+
+    # 総合コース適性スコア: 不足分の平均ペナルティ
+    shortfall_cols = []
+    for axis in AXES:
+        col = f"_shortfall_{axis}"
+        df[col] = (df[f"_demand_{axis}"] - df[f"_horse_{axis}"]).clip(lower=0)
+        shortfall_cols.append(col)
+    df["course_fit_score"] = 100 - df[shortfall_cols].mean(axis=1)
+    df["course_fit_score"] = df["course_fit_score"].clip(0, 100)
+
+    # 不要な中間列を削除
+    drop_cols = (
+        [f"_demand_{a}" for a in AXES]
+        + [f"_horse_{a}" for a in AXES]
+        + [f"_shortfall_{a}" for a in AXES]
+        + ["_course_key"]
+    )
+    df.drop([c for c in drop_cols if c in df.columns], axis=1, inplace=True)
+
+    logger.info(f"Added course ability features: {[f'course_{a}_gap' for a in AXES]} + course_fit_score")
     return df
 
 

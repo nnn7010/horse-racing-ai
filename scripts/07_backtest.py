@@ -97,14 +97,26 @@ def simulate_race(race_df, race_result, payouts):
                 num = int(nums_str)
                 if num == actual_1st:
                     hit = 1
-                    payout = bet["odds"] * bet["amount"]
+                    # 実際の単勝払い戻しがあれば使用（100円あたり）
+                    if payouts.get("win"):
+                        payout = payouts["win"] / 100 * bet["amount"]
+                    else:
+                        payout = bet["odds"] * bet["amount"]
 
             elif bt == "複勝":
                 num = int(nums_str)
                 if num in {actual_1st, actual_2nd, actual_3rd}:
                     hit = 1
-                    est = all_odds["place"].get(str(num).zfill(2), 0)
-                    payout = est * bet["amount"] if est > 0 else 0
+                    # 実際の複勝払い戻しから該当馬番の配当を検索
+                    place_payout = 0
+                    if payouts.get("place_detail"):
+                        place_payout = payouts["place_detail"].get(str(num), 0)
+                    if place_payout > 0:
+                        payout = place_payout / 100 * bet["amount"]
+                    else:
+                        # フォールバック: 推定オッズ
+                        est = all_odds["place"].get(str(num).zfill(2), 0)
+                        payout = est * bet["amount"] if est > 0 else 0
 
             elif bt == "馬連":
                 parts = sorted([int(x) for x in nums_str.split("-")])
@@ -240,6 +252,12 @@ def main():
                         p["win"] = payouts["win"][0].get("amount", 0)
                     if payouts.get("place"):
                         p["place"] = [x.get("amount", 0) for x in payouts["place"]]
+                        # 馬番→配当のマッピング
+                        p["place_detail"] = {}
+                        for x in payouts["place"]:
+                            nums_str = x.get("numbers", "").strip()
+                            if nums_str:
+                                p["place_detail"][nums_str] = x.get("amount", 0)
                     if payouts.get("trio"):
                         p["trio"] = payouts["trio"][0].get("amount", 0)
                     if payouts.get("trifecta"):
