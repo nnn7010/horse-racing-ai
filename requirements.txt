@@ -13,3 +13,4 @@ matplotlib>=3.8
 seaborn>=0.13
 streamlit>=1.30
 pyarrow>=14.0
+supabase>=2.0  # 大井版オンライン状態保存（環境変数なしならローカルSQLiteで動作）

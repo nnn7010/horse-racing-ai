@@ -220,3 +220,11 @@ outputs/
 *.parquet
 .DS_Store
 !data/processed/course_profiles.json
+
+# Horse Racing AI - Oi (大井)
+data/oi/cache/
+data/oi/raw/
+data/oi/processed/
+data/oi/live/*.db
+models/oi/*.txt
+models/oi/*.json
