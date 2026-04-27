@@ -432,6 +432,11 @@ def main():
             jockey_base = entry_preds.get("jockey_top3_rate", pd.Series(0.21, index=entry_preds.index))
         jockey_score = minmax(jockey_base.fillna(0.21))
 
+        # コーナー通過順位由来の脚質シグナル（過去5走平均）
+        early_pos_series = entry_preds.get("avg_early_pos_ratio_5", pd.Series(np.nan, index=entry_preds.index))
+        lead_rate_series = entry_preds.get("early_lead_rate", pd.Series(np.nan, index=entry_preds.index))
+        closer_rate_series = entry_preds.get("closer_rate", pd.Series(np.nan, index=entry_preds.index))
+
         ability_scores_df = pd.DataFrame({
             "number": entry_preds["number"].astype(int),
             "speed": speed_score.round(0).astype(int),
@@ -441,6 +446,9 @@ def main():
             "form": form_score.round(0).astype(int),
             "stability": stab_score.round(0).astype(int),
             "jockey": jockey_score.round(0).astype(int),
+            "early_pos_ratio": early_pos_series.values,
+            "early_lead_rate": lead_rate_series.values,
+            "closer_rate": closer_rate_series.values,
             "has_history": entry_preds.get("has_history", pd.Series(1, index=entry_preds.index)).astype(int),
         }).set_index("number")
 
@@ -451,10 +459,35 @@ def main():
         course_key = f"{place_code_num}_{is_turf}_{distance}"
         course_profile = course_profiles.get(course_key, {}).get("scores", {})
 
-        def estimate_running_style(burst: int, speed: int, has_data: bool) -> str:
-            """burst/speedスコア(0-100)から脚質を推定する。データなしは未知。"""
+        def estimate_running_style(
+            early_pos_ratio: float,
+            early_lead_rate: float,
+            closer_rate: float,
+            burst: int,
+            speed: int,
+            has_data: bool,
+        ) -> str:
+            """脚質推定。
+
+            一次優先: コーナー通過順位ベース（過去5走の序盤位置 / 頭数）。
+            データ不足時は burst/speed ヒューリスティックにフォールバック。
+            """
             if not has_data:
                 return ""
+
+            # コーナー通過データがある場合
+            if pd.notna(early_pos_ratio):
+                lead = early_lead_rate if pd.notna(early_lead_rate) else 0.0
+                close = closer_rate if pd.notna(closer_rate) else 0.0
+                if lead >= 0.6 or early_pos_ratio < 0.18:
+                    return "逃げ"
+                if early_pos_ratio < 0.40:
+                    return "先行"
+                if close >= 0.5 or early_pos_ratio > 0.70:
+                    return "追込"
+                return "差し"
+
+            # フォールバック: 旧ヒューリスティック
             if burst >= 70 and speed <= 40:
                 return "追込"
             elif burst >= 60 and speed <= 55:
@@ -561,6 +594,10 @@ def main():
                 "jockey": int(ab["jockey"]) if ab is not None else 50,
                 "has_data": bool(ab["has_history"]) if ab is not None else False,
             }
+            # コーナー位置（脚質判定用、JSONには出さず内部のみ）
+            _early_pos = float(ab["early_pos_ratio"]) if ab is not None and pd.notna(ab.get("early_pos_ratio", np.nan)) else float("nan")
+            _lead_rate = float(ab["early_lead_rate"]) if ab is not None and pd.notna(ab.get("early_lead_rate", np.nan)) else float("nan")
+            _closer_rate = float(ab["closer_rate"]) if ab is not None and pd.notna(ab.get("closer_rate", np.nan)) else float("nan")
             # コース適性スコア
             if course_profile:
                 keys = ["speed", "burst", "power", "course", "form", "stability", "jockey"]
@@ -571,8 +608,11 @@ def main():
                 fit_score = 50
             ab_dict["fit"] = fit_score
 
-            # 脚質推定
-            style = estimate_running_style(ab_dict["burst"], ab_dict["speed"], ab_dict.get("has_data", False))
+            # 脚質推定（コーナー通過順位優先、データ無は burst/speed フォールバック）
+            style = estimate_running_style(
+                _early_pos, _lead_rate, _closer_rate,
+                ab_dict["burst"], ab_dict["speed"], ab_dict.get("has_data", False),
+            )
             style_counts[style] = style_counts.get(style, 0) + 1
 
             # コメント生成
@@ -594,16 +634,21 @@ def main():
                 "ability": ab_dict,
             })
 
-        # 展開予測
+        # 展開予測（コーナー通過順位ベースの脚質を集計）
         front_count = style_counts.get("逃げ", 0) + style_counts.get("先行", 0)
         n_total = len(horses_json)
         front_ratio = front_count / max(n_total, 1)
-        if style_counts.get("逃げ", 0) >= 3 or front_ratio >= 0.5:
+        # 「真の逃げ馬」: early_lead_rate >= 0.5（過去5走の半数以上で序盤2位以内）
+        true_leaders = int((ability_scores_df["early_lead_rate"].fillna(0) >= 0.5).sum())
+        if style_counts.get("逃げ", 0) >= 3 or front_ratio >= 0.5 or true_leaders >= 3:
             pace = "ハイペース"
             pace_note = "先行馬多数 → 差し・追込有利"
-        elif style_counts.get("逃げ", 0) == 0 or front_ratio <= 0.25:
+        elif true_leaders == 0 and style_counts.get("逃げ", 0) <= 1:
             pace = "スローペース"
             pace_note = "逃げ馬少ない → 先行有利"
+        elif front_ratio <= 0.25:
+            pace = "スローペース"
+            pace_note = "前に行く馬が少ない → 先行有利"
         else:
             pace = "ミドルペース"
             pace_note = "平均的なペース想定"
@@ -611,6 +656,7 @@ def main():
             "pace": pace,
             "note": pace_note,
             "front": front_count,
+            "true_leaders": true_leaders,
             "closers": style_counts.get("差し", 0) + style_counts.get("追込", 0),
             "total": n_total,
         }

@@ -33,6 +33,9 @@ def build_features(
         if available:
             df = df.merge(horses_df[available], on="horse_id", how="left")
 
+    # === コーナー通過順位特徴量（脚質の本物の指標） ===
+    df = _add_corner_features(df)
+
     # === 馬の特徴量 ===
     df = _add_horse_features(df)
 
@@ -57,6 +60,81 @@ def build_features(
     result = df[keep_cols].copy()
     logger.info(f"Built features: {result.shape[0]} rows x {result.shape[1]} cols")
     return result
+
+
+def _parse_passing(passing: str) -> list[int]:
+    """通過順位文字列 ("5-5-4-3" など) を整数リストにパースする。
+
+    netkeiba は距離・コース形態によりコーナー数が 2~4 になる。
+    要素数を揃えず、取れたぶんだけ返す（呼び出し側でレース内正規化する想定）。
+    """
+    if not passing or not isinstance(passing, str):
+        return []
+    parts = []
+    for tok in passing.replace(" ", "").split("-"):
+        try:
+            v = int(tok)
+            if 1 <= v <= 30:
+                parts.append(v)
+        except ValueError:
+            continue
+    return parts
+
+
+def _add_corner_features(df: pd.DataFrame) -> pd.DataFrame:
+    """コーナー通過順位から脚質関連特徴量を生成する。
+
+    生成する特徴量（過去N走の平均/比率）:
+      - corner_first / corner_last: 最初/最後のコーナー通過順位（生値）
+      - early_pos_ratio: 序盤位置 / 頭数 （0=最前列、1=最後方）
+      - pos_change: 最終 - 最初（負=後ろから差した、正=垂れた）
+      - prev{i}_corner_first / prev{i}_early_pos_ratio （i=1..5）
+      - avg_early_pos_ratio_5: 過去5走の早期位置比率の平均
+      - avg_pos_change_5: 過去5走のコーナー間順位変動の平均
+      - early_lead_rate: 過去5走で序盤2位以内だった率
+      - closer_rate: 過去5走で序盤後方1/3に居た率
+    """
+    df = df.copy()
+    if "passing" not in df.columns:
+        df["passing"] = ""
+
+    # 1走ぶんの基本量を計算
+    parsed = df["passing"].apply(_parse_passing)
+    df["corner_first"] = parsed.apply(lambda xs: xs[0] if xs else np.nan)
+    df["corner_last"] = parsed.apply(lambda xs: xs[-1] if xs else np.nan)
+    df["pos_change"] = df["corner_last"] - df["corner_first"]
+
+    # 頭数で正規化（取得済みの num_runners が無い行は number の最大で代用）
+    if "num_runners" in df.columns:
+        denom = pd.to_numeric(df["num_runners"], errors="coerce")
+    else:
+        denom = df.groupby("race_id")["number"].transform("max")
+    denom = denom.where(denom > 0)
+    df["early_pos_ratio"] = df["corner_first"] / denom
+    df["last_pos_ratio"] = df["corner_last"] / denom
+
+    # 過去5走シフト
+    for i in range(1, 6):
+        for col in ["corner_first", "early_pos_ratio", "pos_change"]:
+            df[f"prev{i}_{col}"] = df.groupby("horse_id")[col].shift(i)
+
+    prev_early = [f"prev{i}_early_pos_ratio" for i in range(1, 6)]
+    prev_pos_change = [f"prev{i}_pos_change" for i in range(1, 6)]
+    df["avg_early_pos_ratio_5"] = df[prev_early].mean(axis=1)
+    df["avg_pos_change_5"] = df[prev_pos_change].mean(axis=1)
+
+    # 序盤2位以内だった率（リーク防止: 自レースは含めない）
+    df["_lead_flag"] = (df["corner_first"] <= 2).astype(float)
+    df["_closer_flag"] = (df["early_pos_ratio"] >= 2 / 3).astype(float)
+    df["early_lead_rate"] = df.groupby("horse_id")["_lead_flag"].transform(
+        lambda x: x.shift(1).rolling(5, min_periods=1).mean()
+    )
+    df["closer_rate"] = df.groupby("horse_id")["_closer_flag"].transform(
+        lambda x: x.shift(1).rolling(5, min_periods=1).mean()
+    )
+    df.drop(["_lead_flag", "_closer_flag"], axis=1, inplace=True)
+
+    return df
 
 
 def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -467,6 +545,8 @@ def get_feature_columns(df: pd.DataFrame) -> list[str]:
         "place_code",
         "win_odds", "place_odds",
         "target", "popularity", "time", "last_3f",  # prevent leakage
+        "corner_first", "corner_last", "pos_change",
+        "early_pos_ratio", "last_pos_ratio",  # 当該レース結果なのでリーク
         "jockey_rides", "last_3f_rank", "prev_class_num", "sire_course_runs",  # intermediate cols
     }
     feature_cols = [

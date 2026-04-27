@@ -196,6 +196,9 @@ def _parse_past_results(soup) -> list[dict]:
         else:
             row["time"] = 0.0
 
+        # 通過順 (col 20: "5-5-4-3" 形式)
+        row["passing"] = tds[20].get_text(strip=True) if len(tds) > 20 else ""
+
         # 上がり3F
         agari_text = tds[22].get_text(strip=True) if len(tds) > 22 else ""
         try:
