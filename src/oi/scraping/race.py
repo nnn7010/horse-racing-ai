@@ -35,7 +35,7 @@ def parse_race_id(race_id: str) -> dict:
 def fetch_race_result(race_id: str) -> dict:
     """大井レース結果ページから着順・タイム・払戻等を取得する。"""
     url = f"https://nar.netkeiba.com/race/result.html?race_id={race_id}"
-    html = fetch(url, encoding="utf-8")
+    html = fetch(url, encoding="euc-jp")
     soup = BeautifulSoup(html, "lxml")
 
     meta = parse_race_id(race_id)
@@ -85,14 +85,16 @@ def fetch_race_result(race_id: str) -> dict:
         else:
             result["course_type"] = ""
 
-    # クラス・条件
+    # クラス・条件: RaceData02 の span 構造 = [回][場][日目][条件][頭数][本賞金]
     race_data02 = soup.select_one(".RaceData02")
     if race_data02:
         spans = race_data02.select("span")
+        result["race_class"] = spans[3].get_text(strip=True) if len(spans) >= 4 else ""
         if len(spans) >= 5:
-            result["race_class"] = spans[4].get_text(strip=True)
-        else:
-            result["race_class"] = ""
+            head_text = spans[4].get_text(strip=True)
+            head_m = re.search(r"(\d+)頭", head_text)
+            if head_m:
+                result["entry_count"] = int(head_m.group(1))
     else:
         result["race_class"] = ""
 
@@ -127,7 +129,12 @@ def fetch_race_result(race_id: str) -> dict:
 
 
 def _parse_result_row(tr, race_id: str) -> dict | None:
-    """結果テーブル1行をパースする。"""
+    """結果テーブル1行をパースする。
+
+    nar.netkeiba 結果テーブルの列構造（2024-2025確認済）:
+      0:着順 1:枠 2:馬番 3:馬名 4:性齢 5:斤量 6:騎手 7:タイム
+      8:着差 9:人気 10:単勝オッズ 11:後3F 12:厩舎 13:馬体重(増減)
+    """
     tds = tr.select("td")
     if len(tds) < 8:
         return None
@@ -137,36 +144,31 @@ def _parse_result_row(tr, race_id: str) -> dict | None:
     def _txt(idx: int) -> str:
         return tds[idx].get_text(strip=True) if idx < len(tds) else ""
 
-    # 着順
+    # 着順（1〜n の整数。除外・中止は文字列）
     finish_text = _txt(0)
     try:
         row["finish_position"] = int(finish_text)
     except ValueError:
-        row["finish_position"] = 0  # 中止・除外等
+        row["finish_position"] = 0
+        row["finish_status"] = finish_text  # 取消/中止/失格 等
 
-    # 枠番
     row["bracket"] = int(_txt(1)) if _txt(1).isdigit() else 0
-    # 馬番
     row["number"] = int(_txt(2)) if _txt(2).isdigit() else 0
 
     # 馬名・馬ID
     horse_link = tr.select_one("a[href*='/horse/']")
     if horse_link:
         row["horse_name"] = horse_link.get_text(strip=True)
-        href = horse_link.get("href", "")
-        hid = re.search(r"/horse/(\w+)", href)
+        hid = re.search(r"/horse/(\w+)", horse_link.get("href", ""))
         row["horse_id"] = hid.group(1) if hid else ""
     else:
-        row["horse_name"] = ""
+        row["horse_name"] = _txt(3)
         row["horse_id"] = ""
 
-    # 性齢
     row["sex_age"] = _txt(4)
 
-    # 斤量
-    impost_text = _txt(5)
     try:
-        row["impost"] = float(impost_text)
+        row["impost"] = float(_txt(5))
     except ValueError:
         row["impost"] = 0.0
 
@@ -174,110 +176,58 @@ def _parse_result_row(tr, race_id: str) -> dict | None:
     jockey_link = tr.select_one("a[href*='/jockey/']")
     if jockey_link:
         row["jockey_name"] = jockey_link.get_text(strip=True)
-        href = jockey_link.get("href", "")
-        jid = re.search(r"/jockey/(?:result/)?(\w+)", href)
+        jid = re.search(r"/jockey/(?:result/)?(\w+)", jockey_link.get("href", ""))
         row["jockey_id"] = jid.group(1) if jid else ""
     else:
         row["jockey_name"] = _txt(6)
         row["jockey_id"] = ""
 
-    # タイム
+    # タイム・着差
     time_text = _txt(7)
     row["time_str"] = time_text
     row["time"] = _parse_time(time_text)
-
-    # 着差
     row["margin"] = _txt(8)
 
-    # 通過順（大井は4角まで）
-    passing_idx = _find_col_by_pattern(tds, r"^\d+(-\d+)*$", start=10)
-    row["passing"] = _txt(passing_idx) if passing_idx >= 0 else ""
+    # 人気・単勝オッズ
+    pop_text = _txt(9)
+    row["popularity"] = int(pop_text) if pop_text.isdigit() else 0
+    odds_text = _txt(10)
+    try:
+        row["win_odds"] = float(odds_text)
+    except ValueError:
+        row["win_odds"] = 0.0
 
     # 上がり3F
-    last_3f_idx = _find_col_by_header_neighbor(tds, prefer=15)
-    last_3f_text = _txt(last_3f_idx) if last_3f_idx >= 0 else ""
+    last_3f_text = _txt(11)
     try:
         row["last_3f"] = float(last_3f_text)
     except ValueError:
         row["last_3f"] = 0.0
 
-    # 単勝オッズ・人気・馬体重・調教師
-    # 列位置がレイアウトにより微妙に異なるため、tr全体から取得
-    odds_text = ""
-    pop_text = ""
-    weight_text = ""
-    for td in tds:
-        t = td.get_text(strip=True)
-        # 単勝オッズらしき値（小数点ありの数値）
-        if not odds_text and re.fullmatch(r"\d{1,4}\.\d{1,2}", t):
-            odds_text = t
-        elif not pop_text and re.fullmatch(r"\d{1,2}", t) and 1 <= int(t) <= 18:
-            # 人気らしき1-18の整数（但し馬番と被るので確実ではない）
-            pop_text = t
-        # 馬体重 例: 480(+2)
-        wt_m = re.search(r"(\d{3,4})\(([+-]?\d+)\)", t)
-        if wt_m and not weight_text:
-            weight_text = t
-
-    try:
-        row["win_odds"] = float(odds_text) if odds_text else 0.0
-    except ValueError:
-        row["win_odds"] = 0.0
-
-    if weight_text:
-        wt_m = re.search(r"(\d{3,4})\(([+-]?\d+)\)", weight_text)
-        if wt_m:
-            row["horse_weight"] = int(wt_m.group(1))
-            row["weight_change"] = int(wt_m.group(2))
-        else:
-            row["horse_weight"] = 0
-            row["weight_change"] = 0
-    else:
-        row["horse_weight"] = 0
-        row["weight_change"] = 0
-
-    # 人気は popularity 列を本来 dedicated に取りたいが、地方版のレイアウトを実物確認後に微調整
-    row["popularity"] = 0
+    # 通過順は別カラムが無い場合あり（地方は4角のみ表示なし）
+    row["passing"] = ""
 
     # 調教師
     trainer_link = tr.select_one("a[href*='/trainer/']")
     if trainer_link:
         row["trainer_name"] = trainer_link.get_text(strip=True)
-        href = trainer_link.get("href", "")
-        tid = re.search(r"/trainer/(?:result/)?(\w+)", href)
+        tid = re.search(r"/trainer/(?:result/)?(\w+)", trainer_link.get("href", ""))
         row["trainer_id"] = tid.group(1) if tid else ""
     else:
-        row["trainer_name"] = ""
+        row["trainer_name"] = _txt(12)
         row["trainer_id"] = ""
 
+    # 馬体重(増減) 例: "496 (-8)"
+    weight_text = _txt(13)
+    wt_m = re.search(r"(\d{3,4})\s*\(\s*([+\-−]?\d+)\s*\)", weight_text)
+    if wt_m:
+        row["horse_weight"] = int(wt_m.group(1))
+        row["weight_change"] = int(wt_m.group(2).replace("−", "-"))
+    else:
+        row["horse_weight"] = 0
+        row["weight_change"] = 0
+
     return row
-
-
-def _find_col_by_pattern(tds, pattern: str, start: int = 0) -> int:
-    rx = re.compile(pattern)
-    for i in range(start, len(tds)):
-        if rx.fullmatch(tds[i].get_text(strip=True)):
-            return i
-    return -1
-
-
-def _find_col_by_header_neighbor(tds, prefer: int) -> int:
-    """テーブルレイアウト揺れ吸収用。preferの位置がfloatっぽければそこを返す。"""
-    if prefer < len(tds):
-        t = tds[prefer].get_text(strip=True)
-        if re.fullmatch(r"\d{1,3}\.\d", t):
-            return prefer
-    # 走査して上がり3F相当（30〜45秒台の小数1桁）を探す
-    for i, td in enumerate(tds):
-        t = td.get_text(strip=True)
-        if re.fullmatch(r"\d{2}\.\d", t):
-            try:
-                v = float(t)
-                if 30.0 <= v <= 50.0:
-                    return i
-            except ValueError:
-                pass
-    return -1
 
 
 def _parse_time(time_str: str) -> float:
@@ -329,10 +279,13 @@ def _parse_payouts(soup) -> dict:
 
 
 def _bet_type_key(bet_type: str) -> str | None:
+    # nar.netkeiba は「3連複/3連単」、jra.netkeiba は「三連複/三連単」
     if "単勝" in bet_type:
         return "win"
     if "複勝" in bet_type:
         return "place"
+    if "枠単" in bet_type:
+        return "bracket_exacta"
     if "枠連" in bet_type:
         return "bracket_quinella"
     if "馬連" in bet_type:
@@ -341,8 +294,8 @@ def _bet_type_key(bet_type: str) -> str | None:
         return "wide"
     if "馬単" in bet_type:
         return "exacta"
-    if "三連複" in bet_type:
+    if "三連複" in bet_type or "3連複" in bet_type:
         return "trio"
-    if "三連単" in bet_type:
+    if "三連単" in bet_type or "3連単" in bet_type:
         return "trifecta"
     return None

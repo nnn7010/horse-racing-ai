@@ -52,8 +52,11 @@ def fetch_horse_info(horse_id: str) -> dict:
     ped_soup = BeautifulSoup(ped_html, "lxml")
     info.update(_parse_pedigree(ped_soup))
 
-    # 過去成績（JRA・地方混在）
-    info["past_results"] = _parse_past_results(soup)
+    # 過去成績（JRA・地方混在）— 2024年以降は /horse/result/{id} に分離されている
+    result_url = f"https://db.netkeiba.com/horse/result/{horse_id}"
+    result_html = fetch(result_url, encoding="euc-jp")
+    result_soup = BeautifulSoup(result_html, "lxml")
+    info["past_results"] = _parse_past_results(result_soup)
 
     return info
 
@@ -72,17 +75,22 @@ OTHER_NAR_PLACES = {
 
 
 def classify_past_result(row: dict) -> str:
-    """過去成績の1行を JRA / 大井 / 南関他 / 地方他 / 海外 に分類する。"""
-    place = row.get("place", "")
-    if place in JRA_PLACE_NAMES:
+    """過去成績の1行を JRA / 大井 / 南関他 / 地方他 / 海外 に分類する。
+
+    JRA は "4東京7"(=4回東京7日目) 形式で取得されるため、漢字部分を抽出する。
+    """
+    place_raw = row.get("place", "")
+    # 漢字場名を抽出（先頭/末尾の数字を剥がす）
+    place_kanji = re.sub(r"\d+", "", place_raw)
+    if place_kanji in JRA_PLACE_NAMES:
         return "jra"
-    if place == "大井":
+    if place_kanji == "大井":
         return "oi"
-    if place in NANKAN_PLACE_NAMES:
+    if place_kanji in NANKAN_PLACE_NAMES:
         return "nankan_other"
-    if place in OTHER_NAR_PLACES:
+    if place_kanji in OTHER_NAR_PLACES:
         return "nar_other"
-    if place:
+    if place_raw:
         return "overseas_or_unknown"
     return "unknown"
 

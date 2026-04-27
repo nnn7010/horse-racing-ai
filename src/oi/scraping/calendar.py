@@ -38,7 +38,7 @@ def fetch_oi_kaisai_dates(start_date: date, end_date: date) -> list[date]:
 
     for year, month in _months_between(start_date, end_date):
         url = f"https://nar.netkeiba.com/top/calendar.html?year={year}&month={month}"
-        html = fetch(url, encoding="utf-8")
+        html = fetch(url, encoding="euc-jp")
         soup = BeautifulSoup(html, "lxml")
 
         # カレンダーセル内の大井リンクを探す。リンクhrefにkaisai_dateが含まれ、
@@ -73,7 +73,8 @@ def fetch_race_ids_for_date(target_date: date) -> list[str]:
     場コード44(大井)のもののみフィルタ。
     """
     dt_str = target_date.strftime("%Y%m%d")
-    url = f"https://nar.netkeiba.com/top/race_list.html?kaisai_date={dt_str}"
+    # race_list.html はJavaScript描画でrace_idが含まれない。SSR版の sub を使う。
+    url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date={dt_str}"
     html = fetch(url, encoding="utf-8")
 
     race_ids: list[str] = []

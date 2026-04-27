@@ -32,10 +32,10 @@ def _cache_path(url: str) -> Path:
     return CACHE_DIR / f"{h}.html"
 
 
-def fetch(url: str, encoding: str = "utf-8", force: bool = False) -> str:
+def fetch(url: str, encoding: str = "euc-jp", force: bool = False) -> str:
     """URLを取得しキャッシュする。
 
-    nar.netkeiba は utf-8、db.netkeiba は euc-jp。
+    nar.netkeiba / db.netkeiba ともに EUC-JP（Content-Typeにcharsetを返さないため明示指定が必須）。
     """
     global _last_request_time
 

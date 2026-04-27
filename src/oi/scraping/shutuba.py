@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 def fetch_shutuba(race_id: str) -> dict:
     """指定レースの出馬表を取得する。"""
     url = f"https://nar.netkeiba.com/race/shutuba.html?race_id={race_id}"
-    html = fetch(url, encoding="utf-8")
+    html = fetch(url, encoding="euc-jp")
     soup = BeautifulSoup(html, "lxml")
 
     meta = parse_race_id(race_id)
@@ -49,10 +49,13 @@ def fetch_shutuba(race_id: str) -> dict:
         weather_m = re.search(r"天候\s*[:：]?\s*(晴|曇|雨|小雨|雪)", info_text)
         result["weather"] = weather_m.group(1) if weather_m else ""
 
-    # 出走馬テーブル
-    shutuba_table = soup.select_one("table.Shutuba_Table, table.RaceTable01")
+    # 出走馬テーブル: nar.netkeiba は class="RaceTable01 ShutubaTable" で tbody 無し
+    shutuba_table = soup.select_one("table.ShutubaTable, table.Shutuba_Table")
     if shutuba_table:
-        for tr in shutuba_table.select("tbody tr"):
+        rows = shutuba_table.select("tbody tr") or shutuba_table.select("tr")
+        for tr in rows:
+            if tr.select_one("th"):
+                continue  # ヘッダ行
             entry = _parse_shutuba_row(tr, race_id)
             if entry:
                 result["entries"].append(entry)
@@ -62,100 +65,70 @@ def fetch_shutuba(race_id: str) -> dict:
 
 
 def _parse_shutuba_row(tr, race_id: str) -> dict | None:
+    """nar.netkeiba 出馬表の1行をパース。
+
+    列: 0:枠 1:馬番 2:印 3:馬名 4:性齢 5:斤量 6:騎手 7:厩舎 8:馬体重(増減) 9:予想オッズ 10:人気
+    """
     tds = tr.select("td")
-    if len(tds) < 6:
+    if len(tds) < 9:
         return None
 
     def _txt(idx: int) -> str:
         return tds[idx].get_text(strip=True) if idx < len(tds) else ""
 
     entry: dict = {"race_id": race_id}
-
-    # 枠番・馬番
     entry["bracket"] = int(_txt(0)) if _txt(0).isdigit() else 0
     entry["number"] = int(_txt(1)) if _txt(1).isdigit() else 0
 
     horse_link = tr.select_one("a[href*='/horse/']")
     if horse_link:
         entry["horse_name"] = horse_link.get_text(strip=True)
-        href = horse_link.get("href", "")
-        hid = re.search(r"/horse/(\w+)", href)
+        hid = re.search(r"/horse/(\w+)", horse_link.get("href", ""))
         entry["horse_id"] = hid.group(1) if hid else ""
     else:
-        entry["horse_name"] = ""
+        entry["horse_name"] = _txt(3)
         entry["horse_id"] = ""
 
-    # 性齢
-    sex_age = ""
-    for td in tds:
-        t = td.get_text(strip=True)
-        if re.fullmatch(r"[牡牝セ]\d{1,2}", t):
-            sex_age = t
-            break
-    entry["sex_age"] = sex_age
+    entry["sex_age"] = _txt(4)
+    try:
+        entry["impost"] = float(_txt(5))
+    except ValueError:
+        entry["impost"] = 0.0
 
-    # 斤量
-    impost = 0.0
-    for td in tds:
-        t = td.get_text(strip=True)
-        m = re.fullmatch(r"\d{2}\.\d", t)
-        if m:
-            try:
-                v = float(t)
-                if 40 <= v <= 65:
-                    impost = v
-                    break
-            except ValueError:
-                pass
-    entry["impost"] = impost
-
-    # 騎手
     jockey_link = tr.select_one("a[href*='/jockey/']")
     if jockey_link:
         entry["jockey_name"] = jockey_link.get_text(strip=True)
-        href = jockey_link.get("href", "")
-        jid = re.search(r"/jockey/(?:result/)?(\w+)", href)
+        jid = re.search(r"/jockey/(?:result/)?(\w+)", jockey_link.get("href", ""))
         entry["jockey_id"] = jid.group(1) if jid else ""
     else:
-        entry["jockey_name"] = ""
+        entry["jockey_name"] = _txt(6)
         entry["jockey_id"] = ""
 
-    # 調教師
     trainer_link = tr.select_one("a[href*='/trainer/']")
     if trainer_link:
         entry["trainer_name"] = trainer_link.get_text(strip=True)
-        href = trainer_link.get("href", "")
-        tid = re.search(r"/trainer/(?:result/)?(\w+)", href)
+        tid = re.search(r"/trainer/(?:result/)?(\w+)", trainer_link.get("href", ""))
         entry["trainer_id"] = tid.group(1) if tid else ""
     else:
-        entry["trainer_name"] = ""
+        entry["trainer_name"] = _txt(7)
         entry["trainer_id"] = ""
 
-    # 馬体重・増減
-    horse_weight = 0
-    weight_change = 0
-    for td in tds:
-        t = td.get_text(strip=True)
-        m = re.search(r"(\d{3,4})\(([+-]?\d+)\)", t)
-        if m:
-            horse_weight = int(m.group(1))
-            weight_change = int(m.group(2))
-            break
-    entry["horse_weight"] = horse_weight
-    entry["weight_change"] = weight_change
+    weight_text = _txt(8)
+    wt_m = re.search(r"(\d{3,4})\s*\(\s*([+\-−]?\d+)\s*\)", weight_text)
+    if wt_m:
+        entry["horse_weight"] = int(wt_m.group(1))
+        entry["weight_change"] = int(wt_m.group(2).replace("−", "-"))
+    else:
+        entry["horse_weight"] = 0
+        entry["weight_change"] = 0
 
-    # 想定オッズ・人気（あれば）
-    odds = 0.0
-    pop = 0
-    for td in tds:
-        t = td.get_text(strip=True)
-        if not odds and re.fullmatch(r"\d{1,4}\.\d", t):
-            odds = float(t)
-        if not pop and re.fullmatch(r"\d{1,2}", t):
-            v = int(t)
-            if 1 <= v <= 18 and v != entry["number"] and v != entry["bracket"]:
-                pop = v
-    entry["win_odds"] = odds
-    entry["popularity"] = pop
+    odds_text = _txt(9)
+    try:
+        entry["win_odds"] = float(odds_text)
+    except ValueError:
+        entry["win_odds"] = 0.0
+
+    pop_text = _txt(10)
+    entry["popularity"] = int(pop_text) if pop_text.isdigit() else 0
 
     return entry
