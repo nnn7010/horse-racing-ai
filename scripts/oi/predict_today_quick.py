@@ -132,11 +132,26 @@ def format_race(p: dict) -> str:
     return "\n".join(out)
 
 
+def _find_prev_day_results(results_dir: Path, yyyymmdd: str) -> list[dict]:
+    """yyyymmdd より前で最も直近の大井開催日の結果を返す。"""
+    seen: dict[str, list[dict]] = {}
+    for fp in results_dir.glob("*.json"):
+        d = json.loads(fp.read_text())
+        dt = d.get("date", "")
+        if dt and dt < yyyymmdd and d.get("num_runners", 0) > 0:
+            seen.setdefault(dt, []).append(d)
+    if not seen:
+        return []
+    latest = max(seen.keys())
+    return seen[latest]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True, help="YYYY-MM-DD")
     ap.add_argument("--today-weight", type=float, default=0.0, help="当日バイアスを混ぜる重み (0で無効)")
     ap.add_argument("--save-both", action="store_true", help="バイアスなし版も {date}_no_bias.json として保存")
+    ap.add_argument("--save-all", action="store_true", help="no_bias / prev_bias / today_bias の3種を全て保存")
     args = ap.parse_args()
 
     target = datetime.strptime(args.date, "%Y-%m-%d").date()
@@ -201,6 +216,30 @@ def main() -> None:
         nb_path = out_dir / f"{args.date}_no_bias.json"
         nb_path.write_text(json.dumps(results_nb, ensure_ascii=False, indent=2))
         print(f"→ バイアスなし版も保存: {nb_path}")
+
+    # --save-all: no_bias / prev_bias / today_bias(=メイン) の3種を保存
+    if args.save_all:
+        weight = args.today_weight if args.today_weight > 0 else 0.3
+
+        # no_bias
+        results_nb = [predict_race(s, course_profile, abilities, jra_info, None, 0.0) for s in shutubas]
+        results_nb.sort(key=lambda x: x["race_no"])
+        nb_path = out_dir / f"{args.date}_no_bias.json"
+        nb_path.write_text(json.dumps(results_nb, ensure_ascii=False, indent=2))
+        print(f"→ no_bias 保存: {nb_path}")
+
+        # prev_bias: 前回開催日のバイアスを全レースに適用
+        prev_results = _find_prev_day_results(ROOT / "data/oi/raw/results", yyyymmdd)
+        if prev_results:
+            prev_bias = estimate_today_bias(prev_results)
+            prev_date = prev_results[0]["date"]
+            results_pb = [predict_race(s, course_profile, abilities, jra_info, prev_bias, weight) for s in shutubas]
+            results_pb.sort(key=lambda x: x["race_no"])
+            pb_path = out_dir / f"{args.date}_prev_bias.json"
+            pb_path.write_text(json.dumps(results_pb, ensure_ascii=False, indent=2))
+            print(f"→ prev_bias 保存: {pb_path}  (前回開催: {prev_date}, {len(prev_results)}R)")
+        else:
+            print("→ prev_bias: 前回開催データなし、スキップ")
 
     print(f"\n{'='*92}")
     print(f"  大井 {args.date} 予想  (コース能力ベクトル × 馬能力ベクトル, n_courses={len(course_profile)})")

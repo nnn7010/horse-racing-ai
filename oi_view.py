@@ -1,7 +1,5 @@
 """大井予想・評価ビューア (Streamlit)。
 
-予想と実結果評価をスマホ/PCブラウザで確認するための画面。
-
 実行:
   streamlit run oi_view.py
 """
@@ -9,7 +7,6 @@
 from __future__ import annotations
 
 import json
-from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -17,17 +14,23 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
 
-# 枠番カラー (背景色, 文字色)
 BRACKET_COLORS: dict[int, tuple[str, str]] = {
-    1: ("#FFFFFF", "#222222"),  # 白
-    2: ("#111111", "#FFFFFF"),  # 黒
-    3: ("#E8000D", "#FFFFFF"),  # 赤
-    4: ("#0057B7", "#FFFFFF"),  # 青
-    5: ("#F5D000", "#222222"),  # 黄
-    6: ("#00A94F", "#FFFFFF"),  # 緑
-    7: ("#F47920", "#FFFFFF"),  # 橙
-    8: ("#EF87C0", "#222222"),  # 桃
+    1: ("#FFFFFF", "#222222"),
+    2: ("#111111", "#FFFFFF"),
+    3: ("#E8000D", "#FFFFFF"),
+    4: ("#0057B7", "#FFFFFF"),
+    5: ("#F5D000", "#222222"),
+    6: ("#00A94F", "#FFFFFF"),
+    7: ("#F47920", "#FFFFFF"),
+    8: ("#EF87C0", "#222222"),
 }
+
+# バリアント定義: キー → (ファイルサフィックス, 表示ラベル)
+VARIANTS: list[tuple[str, str, str]] = [
+    ("today_bias",  "",            "当日バイアス"),
+    ("prev_bias",   "_prev_bias",  "前日バイアス"),
+    ("no_bias",     "_no_bias",    "バイアスなし"),
+]
 
 st.set_page_config(
     page_title="大井予想ビューア",
@@ -41,33 +44,32 @@ st.markdown(
     <style>
       .main .block-container { padding-top: 1rem; padding-bottom: 3rem; max-width: 1100px; }
       h1 { margin-top: 0; }
-      .small-table td, .small-table th { padding: 4px 6px; font-size: 0.86rem; }
-      .axis-row { background: rgba(255,210,0,0.18) !important; }
-      .top4-row { background: rgba(80,180,250,0.10) !important; }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 
+# ── ユーティリティ ──────────────────────────────────────────────────────────────
+
 def list_dates() -> list[str]:
     pred_dir = ROOT / "data/oi/predictions"
-    if not pred_dir.exists(): return []
-    return sorted([p.stem for p in pred_dir.glob("*.json")], reverse=True)
+    if not pred_dir.exists():
+        return []
+    stems = {p.stem.split("_")[0] for p in pred_dir.glob("*.json")}
+    return sorted(stems, reverse=True)
 
 
-def load_predictions(date_str: str, variant: str = "bias") -> list[dict]:
-    if variant == "no_bias":
-        fp = ROOT / "data/oi/predictions" / f"{date_str}_no_bias.json"
-        if not fp.exists():
-            fp = ROOT / "data/oi/predictions" / f"{date_str}.json"
-    else:
-        fp = ROOT / "data/oi/predictions" / f"{date_str}.json"
-    return json.loads(fp.read_text()) if fp.exists() else []
-
-
-def has_no_bias_file(date_str: str) -> bool:
-    return (ROOT / "data/oi/predictions" / f"{date_str}_no_bias.json").exists()
+def load_variant_map(date_str: str) -> dict[str, dict[int, dict]]:
+    """利用可能なバリアントを {key: {race_no: pred}} で返す。"""
+    pred_dir = ROOT / "data/oi/predictions"
+    result: dict[str, dict[int, dict]] = {}
+    for key, suffix, _ in VARIANTS:
+        fp = pred_dir / f"{date_str}{suffix}.json"
+        if fp.exists():
+            preds = json.loads(fp.read_text())
+            result[key] = {p["race_no"]: p for p in preds}
+    return result
 
 
 def load_evaluations(date_str: str) -> list[dict]:
@@ -76,16 +78,15 @@ def load_evaluations(date_str: str) -> list[dict]:
 
 
 def fmt_pct(x):
-    if x is None: return "-"
-    return f"{x*100:.1f}%"
+    return "-" if x is None else f"{x*100:.1f}%"
 
 
-def fmt_num(x, suffix=""):
-    if x is None: return "-"
-    return f"{x:+.2f}{suffix}" if isinstance(x, (int, float)) and (x < 0 or suffix == "") else f"{x:.2f}{suffix}"
+def variant_label(key: str) -> str:
+    return next((lbl for k, _, lbl in VARIANTS if k == key), key)
 
 
-# ───────── ヘッダ ─────────
+# ── ヘッダ ─────────────────────────────────────────────────────────────────────
+
 dates = list_dates()
 if not dates:
     st.error("予想ファイルがありません。`scripts/oi/predict_today_quick.py --date YYYY-MM-DD` を実行してください。")
@@ -97,31 +98,35 @@ with col_h1:
 with col_h2:
     sel_date = st.selectbox("日付", dates, index=0)
 
-# バイアス切り替え
-if has_no_bias_file(sel_date):
-    bias_mode = st.radio("予想バージョン", ["バイアスあり", "バイアスなし"], horizontal=True, label_visibility="collapsed")
-    pred_variant = "bias" if bias_mode == "バイアスあり" else "no_bias"
-else:
-    pred_variant = "bias"
-
-predictions = load_predictions(sel_date, pred_variant)
+variant_map = load_variant_map(sel_date)
 evaluations = load_evaluations(sel_date)
 eval_by_race = {e["race_no"]: e for e in evaluations}
 
-# ───────── 集計サマリ ─────────
+if not variant_map:
+    st.error("予想ファイルが見つかりません。")
+    st.stop()
+
+# 全レースのrace_noをメインファイル(today_bias優先)から取得
+base_key = next((k for k in ["today_bias", "prev_bias", "no_bias"] if k in variant_map), None)
+all_race_nos = sorted(variant_map[base_key].keys())
+available_keys = list(variant_map.keys())
+available_labels = [variant_label(k) for k in available_keys]
+
+# ── 集計サマリ ────────────────────────────────────────────────────────────────
+
 if evaluations:
     n = len(evaluations)
-    axis_win = sum(1 for e in evaluations if e["axis"]["actual_finish"] == 1)
+    axis_win  = sum(1 for e in evaluations if e["axis"]["actual_finish"] == 1)
     axis_top3 = sum(1 for e in evaluations if e["axis"]["in_top3"])
     ev_cost = sum(e["ev_summary"]["cost"] for e in evaluations)
-    ev_pay = sum(e["ev_summary"]["payout"] for e in evaluations)
+    ev_pay  = sum(e["ev_summary"]["payout"] for e in evaluations)
     tri_cost = sum(e["triple_summary"]["cost"] for e in evaluations)
-    tri_pay = sum(e["triple_summary"]["payout"] for e in evaluations)
+    tri_pay  = sum(e["triple_summary"]["payout"] for e in evaluations)
     tri_hits = sum(1 for e in evaluations if e["triple_summary"]["hit"])
     ev_n_bets = sum(e["ev_summary"]["n_bets"] for e in evaluations)
     ev_n_hits = sum(e["ev_summary"]["n_hits"] for e in evaluations)
 
-    st.subheader(f"📊 集計 ({n}/{len(predictions)} R 確定)")
+    st.subheader(f"📊 集計 ({n}/{len(all_race_nos)} R 確定)")
     cols = st.columns(4)
     cols[0].metric("軸馬 単勝", f"{axis_win}/{n}", f"{axis_win/n*100:.0f}%")
     cols[1].metric("軸馬 複勝", f"{axis_top3}/{n}", f"{axis_top3/n*100:.0f}%")
@@ -139,20 +144,43 @@ if evaluations:
 
 st.markdown("---")
 
-# ───────── レース選択（全レース or 個別） ─────────
-race_no_options = ["全レース"] + [f"{p['race_no']}R {p['race_name']}" for p in predictions]
+# ── レース選択 ────────────────────────────────────────────────────────────────
+
+base_preds = list(variant_map[base_key].values())
+base_preds.sort(key=lambda x: x["race_no"])
+race_no_options = ["全レース"] + [f"{p['race_no']}R {p['race_name']}" for p in base_preds]
 sel = st.radio("表示", race_no_options, horizontal=True, label_visibility="collapsed")
 
-if sel == "全レース":
-    target_preds = predictions
-else:
-    sel_no = int(sel.split("R")[0])
-    target_preds = [p for p in predictions if p["race_no"] == sel_no]
+target_race_nos = all_race_nos if sel == "全レース" else [int(sel.split("R")[0])]
 
-# ───────── 各レース表示 ─────────
-for p in target_preds:
-    rno = p["race_no"]
+# ── 各レース表示 ──────────────────────────────────────────────────────────────
+
+for rno in target_race_nos:
     eval_data = eval_by_race.get(rno)
+
+    # このレースで使えるバリアントを確認
+    race_available_keys   = [k for k in available_keys if rno in variant_map[k]]
+    race_available_labels = [variant_label(k) for k in race_available_keys]
+
+    # バリアント選択トグル (複数ある場合のみ表示)
+    if len(race_available_keys) > 1:
+        sk = f"v_{sel_date}_{rno}"
+        # デフォルト: セッションにない場合は最初のキー
+        if sk not in st.session_state:
+            st.session_state[sk] = race_available_labels[0]
+        sel_label = st.radio(
+            f"{rno}R バージョン",
+            race_available_labels,
+            key=sk,
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        sel_key = race_available_keys[race_available_labels.index(sel_label)]
+    else:
+        sel_key   = race_available_keys[0]
+        sel_label = race_available_labels[0]
+
+    p = variant_map[sel_key][rno]
 
     cap = p.get("course_capability", {})
     cap_str = (
@@ -161,26 +189,28 @@ for p in target_preds:
         f"bracket_bias={cap.get('bracket_bias',0):+.2f}"
     )
 
-    header = f"### {rno}R　{p['race_name']}　{p['distance']}m  {p['track']}　({p['n_runners']}頭)"
+    header = f"### {rno}R　{p['race_name']}　{p['distance']}m {p['track']}　({p['n_runners']}頭)"
     if eval_data:
-        ax = eval_data["axis"]
+        ax   = eval_data["axis"]
         mark = "✅" if ax["actual_finish"] == 1 else ("🟡" if ax["in_top3"] else "❌")
         header += f"　{mark} 軸{ax['number']}番→{ax['actual_finish']}着"
+    if len(race_available_keys) > 1:
+        header += f"　*{sel_label}*"
 
     st.markdown(header)
     st.caption(f"コース性質: {cap_str}")
 
     # データフレーム化
-    rows = []
-    podium_set = set()
-    actual_pos = {}
-    actual_odds_real = {}
+    actual_pos: dict[int, int] = {}
     if eval_data:
         for f, n_, name, pop, odds in eval_data["podium"]:
-            podium_set.add(n_)
             actual_pos[n_] = f
-            actual_odds_real[n_] = odds
 
+    axis_num = p["rows"][0]["number"]
+    partners_pool = sorted(p["rows"][1:], key=lambda x: -(x.get("prob_top3") or 0))[:4]
+    partner_nums  = {r["number"] for r in partners_pool}
+
+    rows = []
     for r in p["rows"]:
         n_ = r["number"]
         rows.append({
@@ -198,36 +228,27 @@ for p in target_preds:
             "末脚": r["finishing_skill"],
             "地力": r["power"],
             "枠選好": r["bracket_pref"],
-            "JRA(%)": (round(r["jra_top3"]*100) if r.get("jra_top3") is not None else None) if r.get("jra_n",0)>=3 else None,
+            "JRA(%)": (round(r["jra_top3"] * 100) if r.get("jra_top3") is not None else None) if r.get("jra_n", 0) >= 3 else None,
             "実着": actual_pos.get(n_, "-") if eval_data else "",
         })
     df = pd.DataFrame(rows)
 
-    # 強調: 軸馬(スコア1位) + 相手(複勝率上位4頭、軸除く)
-    axis_num = p["rows"][0]["number"]
-    partners_pool = sorted(p["rows"][1:], key=lambda x: -(x.get("prob_top3") or 0))[:4]
-    partner_nums = {r["number"] for r in partners_pool}
-
     def style_row(s):
-        n_val = s.get("番")
-        b_val = s.get("枠")
-        cols_list = list(s.index)
+        n_val    = s.get("番")
+        b_val    = s.get("枠")
+        cols_idx = list(s.index)
 
-        # 行ベースの背景
-        if n_val == axis_num:
-            base = "background-color: rgba(255,210,0,0.20)"
-        elif n_val in partner_nums:
-            base = "background-color: rgba(80,180,250,0.12)"
-        else:
-            base = ""
+        base = (
+            "background-color: rgba(255,210,0,0.20)" if n_val == axis_num else
+            "background-color: rgba(80,180,250,0.12)" if n_val in partner_nums else
+            ""
+        )
         styles = [base] * len(s)
 
-        # 枠セルだけ枠色で上書き
-        if b_val in BRACKET_COLORS and "枠" in cols_list:
+        if b_val in BRACKET_COLORS and "枠" in cols_idx:
             bg, fg = BRACKET_COLORS[b_val]
-            styles[cols_list.index("枠")] = f"background-color:{bg};color:{fg};font-weight:700;text-align:center"
+            styles[cols_idx.index("枠")] = f"background-color:{bg};color:{fg};font-weight:700;text-align:center"
 
-        # 実着1-3着は太字
         if eval_data and isinstance(s.get("実着"), int) and s["実着"] in (1, 2, 3):
             styles = [st_ + ";font-weight:800" for st_ in styles]
 
@@ -239,23 +260,23 @@ for p in target_preds:
           .format({
               "スコア": "{:.1f}",
               "想オ": "{:.1f}",
-              "EV": lambda v: f"{v:.2f}" if v is not None else "-",
-              "速力": lambda v: f"{v:+.2f}" if v is not None else "-",
-              "末脚": lambda v: f"{v:+.2f}" if v is not None else "-",
-              "地力": lambda v: f"{v:.2f}" if v is not None else "-",
+              "EV":     lambda v: f"{v:.2f}" if v is not None else "-",
+              "速力":   lambda v: f"{v:+.2f}" if v is not None else "-",
+              "末脚":   lambda v: f"{v:+.2f}" if v is not None else "-",
+              "地力":   lambda v: f"{v:.2f}"  if v is not None else "-",
               "枠選好": lambda v: f"{v:+.2f}" if v is not None else "-",
               "JRA(%)": lambda v: f"{v:.0f}%" if v is not None else "-",
           })
     )
     st.dataframe(sty, use_container_width=True, hide_index=True, height=min(40 * len(df) + 50, 600))
 
-    # 馬券候補: 軸=スコア1位、相手=複勝率上位4頭(軸を除く)
+    # 馬券候補
     ev_picks = [r for r in p["rows"] if r["ev"] and r["ev"] > 1.15]
-    axis = p["rows"][0]
+    axis     = p["rows"][0]
     partners = [r["number"] for r in partners_pool]
 
-    cols = st.columns(2)
-    with cols[0]:
+    cols2 = st.columns(2)
+    with cols2[0]:
         if ev_picks:
             st.markdown("**🎯 単勝EV>1.15:**")
             for r in ev_picks:
@@ -266,7 +287,7 @@ for p in target_preds:
                             hit = "✅" if ep["hit"] else "❌"
                             break
                 st.write(f"{hit} {r['number']}番 {r['horse_name']} EV={r['ev']:.2f} (想{r['win_odds_est']:.1f}倍)")
-    with cols[1]:
+    with cols2[1]:
         st.markdown(f"**🏁 3連単フォーメ:** 軸{axis['number']}番→相手{','.join(map(str,partners))}")
         st.caption(f"({len(partners)*(len(partners)-1)}通り = {len(partners)*(len(partners)-1)*100}円)")
         if eval_data:
@@ -278,11 +299,10 @@ for p in target_preds:
 
     if eval_data:
         st.markdown("**🏆 実着順:**")
-        pod_lines = []
-        for f, n_, name, pop, odds in eval_data["podium"]:
-            pod_lines.append(f"{f}着 {n_}番 {name} ({pop}人気, {odds:.1f}倍)")
+        pod_lines = [f"{f}着 {n_}番 {name} ({pop}人気, {odds:.1f}倍)"
+                     for f, n_, name, pop, odds in eval_data["podium"]]
         st.write(" / ".join(pod_lines))
 
     st.markdown("---")
 
-st.caption(f"データ: predictions={ROOT/'data/oi/predictions'/(sel_date+'.json')}  evaluations={ROOT/'data/oi/evaluations'/(sel_date+'.json')}")
+st.caption(f"predictions: {ROOT/'data/oi/predictions'}  |  evaluations: {ROOT/'data/oi/evaluations'}")
