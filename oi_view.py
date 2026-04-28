@@ -132,13 +132,13 @@ if evaluations:
     cols[1].metric("軸馬 複勝", f"{axis_top3}/{n}", f"{axis_top3/n*100:.0f}%")
     if ev_cost:
         cols[2].metric(
-            "単勝EV>1.15 ROI",
-            f"{(ev_pay-ev_cost)/ev_cost*100:+.1f}%",
+            "単勝EV>1.15 回収率",
+            f"{ev_pay/ev_cost*100:.1f}%",
             f"{ev_n_hits}/{ev_n_bets}命中 投{ev_cost:,}→{ev_pay:,}",
         )
     cols[3].metric(
-        "3連単フォーメ ROI",
-        f"{(tri_pay-tri_cost)/tri_cost*100:+.1f}%" if tri_cost else "-",
+        "3連単フォーメ 回収率",
+        f"{tri_pay/tri_cost*100:.1f}%" if tri_cost else "-",
         f"{tri_hits}/{n}的中 投{tri_cost:,}→{tri_pay:,}",
     )
 
@@ -191,9 +191,12 @@ for rno in target_race_nos:
 
     header = f"### {rno}R　{p['race_name']}　{p['distance']}m {p['track']}　({p['n_runners']}頭)"
     if eval_data:
-        ax   = eval_data["axis"]
-        mark = "✅" if ax["actual_finish"] == 1 else ("🟡" if ax["in_top3"] else "❌")
-        header += f"　{mark} 軸{ax['number']}番→{ax['actual_finish']}着"
+        current_axis = p["rows"][0]["number"]
+        finish_all   = {int(k): v for k, v in eval_data.get("finish_all", {}).items()}
+        actual_fin   = finish_all.get(current_axis, 99)
+        fin_str      = f"{actual_fin}着" if actual_fin < 99 else "着外"
+        mark = "✅" if actual_fin == 1 else ("🟡" if actual_fin <= 3 else "❌")
+        header += f"　{mark} 軸{current_axis}番→{fin_str}"
     if len(race_available_keys) > 1:
         header += f"　*{sel_label}*"
 
@@ -201,10 +204,15 @@ for rno in target_race_nos:
     st.caption(f"コース性質: {cap_str}")
 
     # データフレーム化
-    actual_pos: dict[int, int] = {}
+    actual_pos: dict[int, int | str] = {}
     if eval_data:
-        for f, n_, name, pop, odds in eval_data["podium"]:
-            actual_pos[n_] = f
+        finish_all_map = {int(k): v for k, v in eval_data.get("finish_all", {}).items()}
+        for num, fin in finish_all_map.items():
+            actual_pos[num] = fin if fin < 99 else "除"
+        # finish_all がない旧データは podium から補完
+        if not finish_all_map:
+            for f, n_, name, pop, odds in eval_data["podium"]:
+                actual_pos[n_] = f
 
     axis_num = p["rows"][0]["number"]
     partners_pool = sorted(p["rows"][1:], key=lambda x: -(x.get("prob_top3") or 0))[:4]

@@ -115,6 +115,7 @@ def evaluate_race(pred: dict, result: dict, ev_thresh: float = 1.15) -> dict:
         "race_no": pred["race_no"],
         "race_name": pred["race_name"],
         "podium": [(r["finish_position"], r["number"], r["horse_name"], r["popularity"], r["win_odds"]) for r in podium_sorted],
+        "finish_all": actual_finish,  # {馬番: 着順} 全馬分
         "axis": {
             "number": axis["number"],
             "name": axis["horse_name"],
@@ -136,12 +137,12 @@ def evaluate_race(pred: dict, result: dict, ev_thresh: float = 1.15) -> dict:
         "ev_summary": {
             "n_bets": ev_total, "n_hits": len(ev_hits),
             "cost": ev_cost, "payout": ev_payout,
-            "roi_pct": round((ev_payout - ev_cost) / ev_cost * 100, 1) if ev_cost else None,
+            "roi_pct": round(ev_payout / ev_cost * 100, 1) if ev_cost else None,
         },
         "triple_summary": {
             "n_combos": n_combos, "cost": triple_cost,
             "hit": bool(triple_hit), "payout": triple_payout,
-            "roi_pct": round((triple_payout - triple_cost) / triple_cost * 100, 1) if triple_cost else None,
+            "roi_pct": round(triple_payout / triple_cost * 100, 1) if triple_cost else None,
         },
     }
 
@@ -185,18 +186,20 @@ def main() -> None:
 
     for ev in evals:
         ax = ev["axis"]
+        def _fin_str(f): return "除" if f >= 99 else f"{f}着"
         symbol = "◎" if ax["actual_finish"] == 1 else ("○" if ax["in_top3"] else "✕")
-        line = f"{ev['race_no']:>2}R {symbol}  軸{ax['number']:>2}({ax['name'][:10]}) →{ax['actual_finish']}着  "
+        line = f"{ev['race_no']:>2}R {symbol}  軸{ax['number']:>2}({ax['name'][:10]}) →{_fin_str(ax['actual_finish'])}  "
         line += f"スコア上位3が複勝{ev['top3_score_in_podium']}/3  "
         # 三連単
         ts = ev["triple_summary"]
         line += f"3連単({ts['n_combos']}点) " + ("◎ROI" if ts["hit"] else "✕")
         if ts["hit"]:
-            line += f"+{ts['payout']:,}円(投{ts['cost']:,}=ROI{ts['roi_pct']:+.0f}%)"
+            line += f"+{ts['payout']:,}円(投{ts['cost']:,} 回収{ts['roi_pct']:.0f}%)"
         # 単勝EV
         es = ev["ev_summary"]
         if es["n_bets"]:
-            line += f"  EV単勝{es['n_bets']}点 命中{es['n_hits']} 払戻{es['payout']:,}(ROI{es['roi_pct']:+.0f}%)"
+            roi_str = f"回収{es['payout']/es['cost']*100:.0f}%" if es["cost"] else "-"
+            line += f"  EV単勝{es['n_bets']}点 命中{es['n_hits']} 払戻{es['payout']:,}({roi_str})"
         print(line)
 
         # 着順
@@ -206,7 +209,8 @@ def main() -> None:
         if es["n_bets"]:
             for p in ev["ev_picks"]:
                 hit_mark = "◎" if p["hit"] else "─"
-                print(f"      EV{p['ev_est']:>5.2f} {hit_mark} {p['number']:>2}番{p['name'][:10]:<10} 推オ{p['est_odds']:>5.1f} → 実{p['actual_odds'] if p['actual_odds'] is not None else '-':>5} 着{p['actual_finish']}")
+                fin = _fin_str(p["actual_finish"])
+                print(f"      EV{p['ev_est']:>5.2f} {hit_mark} {p['number']:>2}番{p['name'][:10]:<10} 推オ{p['est_odds']:>5.1f} → 実{p['actual_odds'] if p['actual_odds'] is not None else '-':>5} {fin}")
         print()
 
         # 集計
@@ -225,8 +229,10 @@ def main() -> None:
         print(f"  軸馬 複勝  : {axis_in_top3}/{n} ({axis_in_top3/n*100:.1f}%)")
         print(f"  スコア上位3が複勝に入った数: 平均 {top3_score_pod_total/n:.2f}/3")
         if ev_n_bets_total:
-            print(f"  単勝EV>1.15: {ev_n_hits_total}/{ev_n_bets_total} 命中  投{ev_cost_total:,} 払戻{ev_payout_total:,}円  ROI {(ev_payout_total-ev_cost_total)/ev_cost_total*100:+.1f}%")
-        print(f"  3連単フォーメーション: {tri_hits}/{n} 的中  投{tri_cost_total:,} 払戻{tri_payout_total:,}円  ROI {(tri_payout_total-tri_cost_total)/tri_cost_total*100:+.1f}%")
+            ev_roi = f"回収率 {ev_payout_total/ev_cost_total*100:.1f}%"
+            print(f"  単勝EV>1.15: {ev_n_hits_total}/{ev_n_bets_total} 命中  投{ev_cost_total:,} 払戻{ev_payout_total:,}円  {ev_roi}")
+        tri_roi = f"回収率 {tri_payout_total/tri_cost_total*100:.1f}%" if tri_cost_total else "-"
+        print(f"  3連単フォーメーション: {tri_hits}/{n} 的中  投{tri_cost_total:,} 払戻{tri_payout_total:,}円  {tri_roi}")
 
     print(f"\n→ 保存: {out_path}")
 
