@@ -105,9 +105,9 @@ def main() -> None:
     print(f"  枠別3着内率: {today_bias['bracket_top3_rate_today']}")
     print(f"  1番人気3着内率: {today_bias['fav_top3_rate_today']}")
 
-    # ── モデル構築: 当日結果を除外してデータリークを防ぐ ──────────────────
-    course_profile = build_course_profile(results_dir, exclude_date=yyyymmdd)
-    by_horse       = index_results_by_horse(results_dir, exclude_date=yyyymmdd)
+    # ── モデル構築: 当日確定済み結果を含めて残りレースを再予想 ──────────────
+    course_profile = build_course_profile(results_dir)
+    by_horse       = index_results_by_horse(results_dir)
 
     shutuba_dir = ROOT / "data/oi/raw/shutuba"
     shutubas: dict[int, dict] = {}
