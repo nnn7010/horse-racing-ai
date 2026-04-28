@@ -136,6 +136,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True, help="YYYY-MM-DD")
     ap.add_argument("--today-weight", type=float, default=0.0, help="当日バイアスを混ぜる重み (0で無効)")
+    ap.add_argument("--save-both", action="store_true", help="バイアスなし版も {date}_no_bias.json として保存")
     args = ap.parse_args()
 
     target = datetime.strptime(args.date, "%Y-%m-%d").date()
@@ -192,6 +193,14 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{args.date}.json"
     out_path.write_text(json.dumps(results, ensure_ascii=False, indent=2))
+
+    # --save-both: バイアスなし版も別ファイルに保存
+    if args.save_both and args.today_weight > 0:
+        results_nb = [predict_race(s, course_profile, abilities, jra_info, None, 0.0) for s in shutubas]
+        results_nb.sort(key=lambda x: x["race_no"])
+        nb_path = out_dir / f"{args.date}_no_bias.json"
+        nb_path.write_text(json.dumps(results_nb, ensure_ascii=False, indent=2))
+        print(f"→ バイアスなし版も保存: {nb_path}")
 
     print(f"\n{'='*92}")
     print(f"  大井 {args.date} 予想  (コース能力ベクトル × 馬能力ベクトル, n_courses={len(course_profile)})")

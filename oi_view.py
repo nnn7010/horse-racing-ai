@@ -1,4 +1,4 @@
-"""大井 4/27予想・評価ビューア (Streamlit)。
+"""大井予想・評価ビューア (Streamlit)。
 
 予想と実結果評価をスマホ/PCブラウザで確認するための画面。
 
@@ -16,6 +16,18 @@ import pandas as pd
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
+
+# 枠番カラー (背景色, 文字色)
+BRACKET_COLORS: dict[int, tuple[str, str]] = {
+    1: ("#FFFFFF", "#222222"),  # 白
+    2: ("#111111", "#FFFFFF"),  # 黒
+    3: ("#E8000D", "#FFFFFF"),  # 赤
+    4: ("#0057B7", "#FFFFFF"),  # 青
+    5: ("#F5D000", "#222222"),  # 黄
+    6: ("#00A94F", "#FFFFFF"),  # 緑
+    7: ("#F47920", "#FFFFFF"),  # 橙
+    8: ("#EF87C0", "#222222"),  # 桃
+}
 
 st.set_page_config(
     page_title="大井予想ビューア",
@@ -44,9 +56,18 @@ def list_dates() -> list[str]:
     return sorted([p.stem for p in pred_dir.glob("*.json")], reverse=True)
 
 
-def load_predictions(date_str: str) -> list[dict]:
-    fp = ROOT / "data/oi/predictions" / f"{date_str}.json"
+def load_predictions(date_str: str, variant: str = "bias") -> list[dict]:
+    if variant == "no_bias":
+        fp = ROOT / "data/oi/predictions" / f"{date_str}_no_bias.json"
+        if not fp.exists():
+            fp = ROOT / "data/oi/predictions" / f"{date_str}.json"
+    else:
+        fp = ROOT / "data/oi/predictions" / f"{date_str}.json"
     return json.loads(fp.read_text()) if fp.exists() else []
+
+
+def has_no_bias_file(date_str: str) -> bool:
+    return (ROOT / "data/oi/predictions" / f"{date_str}_no_bias.json").exists()
 
 
 def load_evaluations(date_str: str) -> list[dict]:
@@ -76,7 +97,14 @@ with col_h1:
 with col_h2:
     sel_date = st.selectbox("日付", dates, index=0)
 
-predictions = load_predictions(sel_date)
+# バイアス切り替え
+if has_no_bias_file(sel_date):
+    bias_mode = st.radio("予想バージョン", ["バイアスあり", "バイアスなし"], horizontal=True, label_visibility="collapsed")
+    pred_variant = "bias" if bias_mode == "バイアスあり" else "no_bias"
+else:
+    pred_variant = "bias"
+
+predictions = load_predictions(sel_date, pred_variant)
 evaluations = load_evaluations(sel_date)
 eval_by_race = {e["race_no"]: e for e in evaluations}
 
@@ -156,8 +184,8 @@ for p in target_preds:
     for r in p["rows"]:
         n_ = r["number"]
         rows.append({
-            "番": n_,
             "枠": r["bracket"],
+            "番": n_,
             "馬名": r["horse_name"],
             "騎手": r["jockey_name"],
             "スコア": r["score"],
@@ -181,15 +209,28 @@ for p in target_preds:
     partner_nums = {r["number"] for r in partners_pool}
 
     def style_row(s):
-        styles = [""] * len(s)
         n_val = s.get("番")
+        b_val = s.get("枠")
+        cols_list = list(s.index)
+
+        # 行ベースの背景
         if n_val == axis_num:
-            styles = ["background-color: rgba(255,210,0,0.20)"] * len(s)
+            base = "background-color: rgba(255,210,0,0.20)"
         elif n_val in partner_nums:
-            styles = ["background-color: rgba(80,180,250,0.12)"] * len(s)
-        if eval_data and isinstance(s.get("実着"), int):
-            if s["実着"] in (1, 2, 3):
-                styles = [st_ + "; font-weight: 800" for st_ in styles]
+            base = "background-color: rgba(80,180,250,0.12)"
+        else:
+            base = ""
+        styles = [base] * len(s)
+
+        # 枠セルだけ枠色で上書き
+        if b_val in BRACKET_COLORS and "枠" in cols_list:
+            bg, fg = BRACKET_COLORS[b_val]
+            styles[cols_list.index("枠")] = f"background-color:{bg};color:{fg};font-weight:700;text-align:center"
+
+        # 実着1-3着は太字
+        if eval_data and isinstance(s.get("実着"), int) and s["実着"] in (1, 2, 3):
+            styles = [st_ + ";font-weight:800" for st_ in styles]
+
         return styles
 
     sty = (
