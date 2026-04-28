@@ -1,0 +1,64 @@
+# 大井競馬予想AI設定ファイル
+
+# 競馬場
+place:
+  name: "大井"
+  nar_code: "44"  # nar.netkeiba 場コード
+
+# データ取得期間（1年分先行・後から拡張可）
+fetch_period:
+  start: "2025-04-27"
+  end: "2026-04-26"
+
+# 学習・検証分割（取得後に確定）
+split:
+  train_end: "2026-02-28"
+  valid_start: "2026-03-01"
+  valid_end: "2026-04-26"
+
+# スクレイピング設定
+scraping:
+  interval: 1.5
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  max_retries: 3
+  cache_dir: "data/oi/cache"
+  timeout: 30
+  base_url_nar: "https://nar.netkeiba.com"
+  base_url_db: "https://db.netkeiba.com"
+  base_url_nankan: "https://www.nankankeiba.com"
+
+# 除外条件（地方競馬には新馬戦相当として「2歳新馬」「サラ系C2新馬」等あり、要調整）
+exclude:
+  - "障害"
+
+# モデル設定
+model:
+  n_trials: 30
+  seed: 42
+  targets:
+    - "win"   # 1着確率
+    - "top3"  # 3着内率
+
+# 特徴量
+features:
+  recent_runs: 5
+  stats_period_days: 365
+  jra_lookback_days: 730  # JRA成績は2年遡る
+
+# 馬券EV閾値（単勝のみ。三連系はオッズに左右されるため別ロジック）
+betting:
+  win_ev_threshold: 1.15
+  top3_partner_count: 5  # 軸馬1着固定時に相手として候補に挙げる頭数
+
+# トラックバイアス事後推定
+bias:
+  min_races_per_day: 6   # この本数より少ない開催日はバイアス推定しない
+  smoothing: 0.3         # 推定値の平滑化係数
+
+# パス
+paths:
+  cache: "data/oi/cache"
+  raw: "data/oi/raw"
+  processed: "data/oi/processed"
+  models: "models/oi"
+  outputs: "outputs/oi"
