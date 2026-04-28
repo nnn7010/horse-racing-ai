@@ -226,5 +226,7 @@ data/oi/cache/
 data/oi/raw/
 data/oi/processed/
 data/oi/live/*.db
+data/oi/predictions/
+data/oi/evaluations/
 models/oi/*.txt
 models/oi/*.json

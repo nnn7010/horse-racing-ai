@@ -48,6 +48,8 @@ def fetch_shutuba(race_id: str) -> dict:
         result["track_condition"] = cond_m.group(1) if cond_m else ""
         weather_m = re.search(r"天候\s*[:：]?\s*(晴|曇|雨|小雨|雪)", info_text)
         result["weather"] = weather_m.group(1) if weather_m else ""
+        post_m = re.search(r"(\d{1,2}:\d{2})\s*発走", info_text)
+        result["post_time"] = post_m.group(1) if post_m else None
 
     # 出走馬テーブル: nar.netkeiba は class="RaceTable01 ShutubaTable" で tbody 無し
     shutuba_table = soup.select_one("table.ShutubaTable, table.Shutuba_Table")
