@@ -54,13 +54,15 @@ def _is_oi(place: str) -> bool:
     return place_kanji == "大井"
 
 
-def index_results_by_horse(results_dir: str | Path) -> dict[str, list[dict]]:
+def index_results_by_horse(results_dir: str | Path, exclude_date: str | None = None) -> dict[str, list[dict]]:
     """大井結果データを horse_id でインデックス化（メタ込み）。"""
     results_dir = Path(results_dir)
     by_horse: dict[str, list[dict]] = defaultdict(list)
     for fp in sorted(results_dir.glob("*.json")):
         d = json.loads(fp.read_text())
         if d.get("is_hurdle") or d.get("is_debut"):
+            continue
+        if exclude_date and d.get("date") == exclude_date:
             continue
         meta = {
             "race_id": d["race_id"],

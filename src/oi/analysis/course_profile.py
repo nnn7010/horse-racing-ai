@@ -42,13 +42,15 @@ def _wt_band(c: int) -> str:
     return ">=+6"
 
 
-def build_course_profile(results_dir: str | Path) -> dict:
+def build_course_profile(results_dir: str | Path, exclude_date: str | None = None) -> dict:
     results_dir = Path(results_dir)
     bucket: dict[tuple[int, str], list[dict]] = defaultdict(list)
 
     for fp in sorted(results_dir.glob("*.json")):
         d = json.loads(fp.read_text())
         if d.get("is_hurdle") or d.get("is_debut"):
+            continue
+        if exclude_date and d.get("date") == exclude_date:
             continue
         dist = d.get("distance", 0)
         track = d.get("track_condition", "") or "?"

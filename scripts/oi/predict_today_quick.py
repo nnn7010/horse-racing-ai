@@ -158,7 +158,8 @@ def main() -> None:
     yyyymmdd = target.strftime("%Y%m%d")
 
     # 常に再計算(コース特性は変わるので)
-    course_profile = build_course_profile(ROOT / "data/oi/raw/results")
+    # 当日結果をモデルから除外してデータリークを防ぐ
+    course_profile = build_course_profile(ROOT / "data/oi/raw/results", exclude_date=yyyymmdd)
     save_course_profile(course_profile, ROOT / "data/oi/processed/course_profile.json")
 
     shutuba_dir = ROOT / "data/oi/raw/shutuba"
@@ -172,7 +173,7 @@ def main() -> None:
 
     horse_ids = {e["horse_id"] for s in shutubas for e in s["entries"] if e["horse_id"]}
 
-    by_horse = index_results_by_horse(ROOT / "data/oi/raw/results")
+    by_horse = index_results_by_horse(ROOT / "data/oi/raw/results", exclude_date=yyyymmdd)
 
     horse_dir = ROOT / "data/oi/raw/horses"
     abilities: dict[str, dict] = {}
