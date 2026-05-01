@@ -110,7 +110,19 @@ def main():
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # 共通モデルをロード（フォールバック用）
     model, feature_cols, calibrator, win_model, win_calibrator = load_model(config["paths"]["models"])
+
+    # 芝・ダート別モデルを事前ロード（存在する場合）
+    surface_models = {}
+    for surf, label in [("芝", "turf"), ("ダート", "dirt")]:
+        turf_path = Path(config["paths"]["models"]) / f"lgbm_model_{label}.txt"
+        if turf_path.exists():
+            sm, sf, sc, swm, swc = load_model(config["paths"]["models"], surface=surf)
+            surface_models[surf] = (sm, sf, sc, swm, swc)
+            logger.info(f"Surface model loaded: {surf}")
+        else:
+            logger.info(f"No surface model for {surf}, will use common model")
 
     with open(raw_dir / "target_races.json", encoding="utf-8") as f:
         target_races = json.load(f)
@@ -338,12 +350,21 @@ def main():
             if col not in entry_df.columns:
                 entry_df[col] = 0.0
 
-        # 予測
+        # 予測: 芝ダート別モデルがあればそちらを使用、なければ共通モデル
+        race_surface = race.get("surface", "")
+        if race_surface in surface_models:
+            _m, _fc, _cal, _wm, _wc = surface_models[race_surface]
+            # surface別モデルの特徴量列で不足分を補完
+            for col in _fc:
+                if col not in entry_df.columns:
+                    entry_df[col] = 0.0
+        else:
+            _m, _fc, _cal, _wm, _wc = model, feature_cols, calibrator, win_model, win_calibrator
         entry_preds = predict_probabilities(
-            model, feature_cols, entry_df,
-            calibrator=calibrator,
-            win_model=win_model,
-            win_calibrator=win_calibrator,
+            _m, _fc, entry_df,
+            calibrator=_cal,
+            win_model=_wm,
+            win_calibrator=_wc,
         )
         probs = compute_race_probabilities(entry_preds)
 

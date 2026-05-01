@@ -30,15 +30,28 @@ def train_model(
     n_trials: int = 30,
     seed: int = 42,
     model_dir: str = "models",
+    surface: str | None = None,
 ) -> tuple[lgb.Booster, list[str]]:
-    """LightGBMモデルを学習する。"""
+    """LightGBMモデルを学習する。surface="芝"/"ダート"で芝ダート別モデルを学習。"""
     model_path = Path(model_dir)
     model_path.mkdir(parents=True, exist_ok=True)
+
+    suffix = ""
+    if surface == "芝":
+        suffix = "_turf"
+    elif surface == "ダート":
+        suffix = "_dirt"
 
     # 日付変換
     df = df.copy()
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
         df["date"] = pd.to_datetime(df["date"], format="%Y%m%d", errors="coerce")
+
+    # surface指定時は該当コースのみに絞る
+    if surface is not None:
+        before = len(df)
+        df = df[df["surface"] == surface].copy()
+        logger.info(f"Surface filter '{surface}': {before} → {len(df)} rows")
 
     # ターゲット: 3着以内
     df["target"] = (df["finish_position"].between(1, 3)).astype(int)
@@ -176,14 +189,14 @@ def train_model(
     logger.info(f"Top 10 features:\n{importance.head(10).to_string()}")
 
     # 保存
-    best_model.save_model(str(model_path / "lgbm_model.txt"))
-    with open(model_path / "feature_cols.pkl", "wb") as f:
+    best_model.save_model(str(model_path / f"lgbm_model{suffix}.txt"))
+    with open(model_path / f"feature_cols{suffix}.pkl", "wb") as f:
         pickle.dump(feature_cols, f)
-    with open(model_path / "calibrator.pkl", "wb") as f:
+    with open(model_path / f"calibrator{suffix}.pkl", "wb") as f:
         pickle.dump(calibrator, f)
-    importance.to_csv(model_path / "feature_importance.csv", index=False)
+    importance.to_csv(model_path / f"feature_importance{suffix}.csv", index=False)
 
-    logger.info(f"Model saved to {model_path}")
+    logger.info(f"Model saved to {model_path} (suffix='{suffix}')")
     return best_model, feature_cols
 
 
@@ -195,14 +208,27 @@ def train_win_model(
     n_trials: int = 20,
     seed: int = 42,
     model_dir: str = "models",
+    surface: str | None = None,
 ) -> tuple[lgb.Booster, list[str]]:
-    """1着予測モデルを学習する（単勝・馬単・三連単用）。"""
+    """1着予測モデルを学習する（単勝・馬単・三連単用）。surface="芝"/"ダート"で別モデル。"""
     model_path = Path(model_dir)
     model_path.mkdir(parents=True, exist_ok=True)
+
+    suffix = ""
+    if surface == "芝":
+        suffix = "_turf"
+    elif surface == "ダート":
+        suffix = "_dirt"
 
     df = df.copy()
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
         df["date"] = pd.to_datetime(df["date"], format="%Y%m%d", errors="coerce")
+
+    # surface指定時は該当コースのみに絞る
+    if surface is not None:
+        before = len(df)
+        df = df[df["surface"] == surface].copy()
+        logger.info(f"Win model surface filter '{surface}': {before} → {len(df)} rows")
 
     # ターゲット: 1着のみ
     df["target_win"] = (df["finish_position"] == 1).astype(int)
@@ -318,9 +344,9 @@ def train_win_model(
     logger.info(f"Win model calibrated LogLoss: {calib_logloss:.4f}")
 
     # 保存
-    best_model.save_model(str(model_path / "lgbm_win_model.txt"))
-    with open(model_path / "win_calibrator.pkl", "wb") as f:
+    best_model.save_model(str(model_path / f"lgbm_win_model{suffix}.txt"))
+    with open(model_path / f"win_calibrator{suffix}.pkl", "wb") as f:
         pickle.dump(win_calibrator, f)
 
-    logger.info(f"Win model saved to {model_path}")
+    logger.info(f"Win model saved to {model_path} (suffix='{suffix}')")
     return best_model, feature_cols

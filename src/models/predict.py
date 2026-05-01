@@ -13,35 +13,65 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def load_model(model_dir: str = "models") -> tuple[lgb.Booster, list[str], object | None, lgb.Booster | None, object | None]:
+def load_model(model_dir: str = "models", surface: str | None = None) -> tuple[lgb.Booster, list[str], object | None, lgb.Booster | None, object | None]:
     """学習済みモデルと特徴量列、キャリブレーターをロードする。
+
+    Args:
+        model_dir: モデルディレクトリ
+        surface: "芝" または "ダート" を指定すると芝ダート別モデルを優先ロード。
+                 該当モデルが存在しない場合は共通モデルにフォールバック。
 
     Returns:
         (top3_model, feature_cols, calibrator, win_model, win_calibrator)
     """
+    suffix = ""
+    if surface == "芝":
+        suffix = "_turf"
+    elif surface in ("ダート", "dirt"):
+        suffix = "_dirt"
+
     model_path = Path(model_dir)
-    model = lgb.Booster(model_file=str(model_path / "lgbm_model.txt"))
-    with open(model_path / "feature_cols.pkl", "rb") as f:
+
+    # top3モデル: surface別 → 共通の順でフォールバック
+    model_file = model_path / f"lgbm_model{suffix}.txt"
+    if suffix and not model_file.exists():
+        logger.info(f"Surface model not found ({model_file.name}), falling back to common model")
+        model_file = model_path / "lgbm_model.txt"
+        suffix = ""
+    model = lgb.Booster(model_file=str(model_file))
+    logger.info(f"Top3 model loaded: {model_file.name}")
+
+    feat_file = model_path / f"feature_cols{suffix}.pkl"
+    if not feat_file.exists():
+        feat_file = model_path / "feature_cols.pkl"
+    with open(feat_file, "rb") as f:
         feature_cols = pickle.load(f)
+
     calibrator = None
-    calib_path = model_path / "calibrator.pkl"
+    calib_path = model_path / f"calibrator{suffix}.pkl"
+    if not calib_path.exists():
+        calib_path = model_path / "calibrator.pkl"
     if calib_path.exists():
         with open(calib_path, "rb") as f:
             calibrator = pickle.load(f)
-        logger.info("Top3 calibrator loaded")
+        logger.info(f"Top3 calibrator loaded: {calib_path.name}")
     else:
         logger.warning("No top3 calibrator found — using raw probabilities")
 
     win_model = None
     win_calibrator = None
-    win_model_path = model_path / "lgbm_win_model.txt"
-    if win_model_path.exists():
-        win_model = lgb.Booster(model_file=str(win_model_path))
-        win_calib_path = model_path / "win_calibrator.pkl"
+    win_model_file = model_path / f"lgbm_win_model{suffix}.txt"
+    if not win_model_file.exists():
+        win_model_file = model_path / "lgbm_win_model.txt"
+    if win_model_file.exists():
+        win_model = lgb.Booster(model_file=str(win_model_file))
+        win_calib_path = model_path / f"win_calibrator{suffix}.pkl"
+        if not win_calib_path.exists():
+            win_calib_path = model_path / "win_calibrator.pkl"
         if win_calib_path.exists():
             with open(win_calib_path, "rb") as f:
                 win_calibrator = pickle.load(f)
-        logger.info("Win model loaded")
+        logger.info(f"Win model loaded: {win_model_file.name}")
     else:
         logger.info("No win model found — win prob derived from top3 model")
 
