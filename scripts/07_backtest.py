@@ -5,19 +5,21 @@
 2. 実際のオッズ（単勝列から取得）で買い目候補を生成
 3. optimizer で最適な買い目を選定
 4. 実際の着順と照合して回収を計算
+
+モデル比較: 共通モデル vs ハイブリッド（芝専用+ダート専用）を並列評価する。
 """
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import yaml
+from sklearn.metrics import log_loss, roc_auc_score
 
 from src.models.predict import load_model, predict_probabilities
 from src.probability.plackett_luce import compute_race_probabilities
@@ -25,6 +27,86 @@ from src.evaluation.backtest import run_backtest
 from src.utils.logger import get_logger
 
 logger = get_logger("07_backtest")
+
+
+def _make_predictions(model_set, valid_df):
+    """(model, feature_cols, calibrator, win_model, win_calibrator) のタプルで予測する。"""
+    m, fc, cal, wm, wc = model_set
+    return predict_probabilities(m, fc, valid_df, calibrator=cal, win_model=wm, win_calibrator=wc)
+
+
+def _make_hybrid_predictions(surface_models, valid_df):
+    """芝/ダートそれぞれ専用モデルで予測し、結合して返す。"""
+    parts = []
+    for surface, model_set in surface_models.items():
+        sub = valid_df[valid_df["surface"] == surface].copy()
+        if sub.empty:
+            continue
+        preds = _make_predictions(model_set, sub)
+        parts.append(preds)
+    if not parts:
+        return pd.DataFrame()
+    return pd.concat(parts).sort_index()
+
+
+def _accuracy_table(preds_df):
+    """surface 別 AUC / LogLoss を計算して DataFrame で返す。"""
+    rows = []
+    preds_df = preds_df[preds_df["finish_position"] > 0].copy()
+    y_top3 = (preds_df["finish_position"] <= 3).astype(int)
+
+    surfaces = {"全体": preds_df.index}
+    if "surface" in preds_df.columns:
+        for surf in preds_df["surface"].dropna().unique():
+            surfaces[surf] = preds_df[preds_df["surface"] == surf].index
+
+    for label, idx in surfaces.items():
+        sub = preds_df.loc[idx]
+        yt = y_top3.loc[idx]
+        if len(sub) == 0 or yt.nunique() < 2:
+            continue
+        prob_col = "pred_top3_prob_raw" if "pred_top3_prob_raw" in sub.columns else "pred_top3_prob"
+        p = sub[prob_col].clip(1e-6, 1 - 1e-6)
+        rows.append({
+            "surface": label,
+            "n_races": sub["race_id"].nunique() if "race_id" in sub.columns else len(sub),
+            "n_rows": len(sub),
+            "top3_rate": float(yt.mean()),
+            "auc": roc_auc_score(yt, p),
+            "logloss": log_loss(yt, p),
+        })
+    return pd.DataFrame(rows).set_index("surface")
+
+
+def _print_comparison(common_preds, hybrid_preds):
+    """共通モデル vs ハイブリッドの精度比較をログ出力する。"""
+    common_tbl = _accuracy_table(common_preds)
+    hybrid_tbl = _accuracy_table(hybrid_preds)
+
+    logger.info("\n" + "=" * 60)
+    logger.info("  モデル精度比較: 共通モデル vs ハイブリッド")
+    logger.info("=" * 60)
+    header = f"{'surface':<8} {'レース数':>6}  {'共通AUC':>8} {'HybridAUC':>10}  {'共通LL':>8} {'HybridLL':>9}  {'AUC改善':>8}"
+    logger.info(header)
+    logger.info("-" * 60)
+
+    for surf in common_tbl.index:
+        if surf not in hybrid_tbl.index:
+            continue
+        cr = common_tbl.loc[surf]
+        hr = hybrid_tbl.loc[surf]
+        auc_diff = hr["auc"] - cr["auc"]
+        ll_diff = hr["logloss"] - cr["logloss"]  # 負が改善
+        auc_mark = "▲" if auc_diff > 0.001 else ("▼" if auc_diff < -0.001 else " ")
+        logger.info(
+            f"{surf:<8} {int(cr['n_races']):>6}  "
+            f"{cr['auc']:>8.4f} {hr['auc']:>10.4f}  "
+            f"{cr['logloss']:>8.4f} {hr['logloss']:>9.4f}  "
+            f"{auc_mark}{auc_diff:>+7.4f}"
+        )
+    logger.info("=" * 60)
+    logger.info("▲=ハイブリッド優位  ▼=共通モデル優位  (AUC差 ±0.001 未満は誤差範囲)")
+
 
 
 def simulate_race(race_df, race_result, payouts):
@@ -192,7 +274,16 @@ def main():
     if args.model_dir:
         logger.info(f"[TEST] モデル読み込み元: {model_dir}")
 
-    model, feature_cols, calibrator, win_model, win_calibrator = load_model(model_dir)
+    # 共通モデルをロード
+    common_model_set = load_model(model_dir)
+    model, feature_cols, calibrator, win_model, win_calibrator = common_model_set
+
+    # 芝・ダート専用モデルをロード（存在すればハイブリッド比較を実施）
+    surface_models = {}
+    for surf, label in [("芝", "turf"), ("ダート", "dirt")]:
+        if (Path(model_dir) / f"lgbm_model_{label}.txt").exists():
+            surface_models[surf] = load_model(model_dir, surface=surf)
+    has_hybrid = len(surface_models) == 2
 
     df = pd.read_parquet(processed_dir / "features.parquet")
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
@@ -208,24 +299,38 @@ def main():
         logger.error("No validation data")
         sys.exit(1)
 
-    valid_preds = predict_probabilities(
-        model, feature_cols, valid_df,
-        calibrator=calibrator,
-        win_model=win_model,
-        win_calibrator=win_calibrator,
-    )
+    # パターンA: 共通モデルで全レース予測
+    logger.info("=== パターンA: 共通モデル ===")
+    common_preds = _make_predictions(common_model_set, valid_df)
 
-    # win_prob: winモデルがあればpred_win_prob、なければpred_strengthから導出
-    if "pred_win_prob" in valid_preds.columns:
-        valid_preds["win_prob"] = valid_preds["pred_win_prob"]
+    # パターンB: ハイブリッド（芝専用 + ダート専用）
+    hybrid_preds = None
+    if has_hybrid:
+        logger.info("=== パターンB: ハイブリッドモデル ===")
+        hybrid_preds = _make_hybrid_predictions(surface_models, valid_df)
+
+        # 精度比較レポート
+        _print_comparison(common_preds, hybrid_preds)
     else:
-        for race_id, race_df in valid_preds.groupby("race_id"):
-            strengths = race_df["pred_strength"].values if "pred_strength" in race_df.columns else race_df["pred_top3_prob"].values
-            total = strengths.sum()
-            if total > 0:
-                valid_preds.loc[race_df.index, "win_prob"] = strengths / total
-            else:
-                valid_preds.loc[race_df.index, "win_prob"] = 1.0 / len(race_df)
+        logger.info("芝/ダート専用モデルが未生成のため、ハイブリッド比較はスキップ")
+        logger.info("（05_train.py を実行して芝・ダート別モデルを生成してください）")
+
+    # バックテスト本体は共通モデルとハイブリッドの両方で実施
+    pred_sets = [("共通モデル", common_preds)]
+    if hybrid_preds is not None and not hybrid_preds.empty:
+        pred_sets.append(("ハイブリッド", hybrid_preds))
+
+    def _set_win_prob(preds):
+        if "pred_win_prob" in preds.columns:
+            preds["win_prob"] = preds["pred_win_prob"]
+        else:
+            for rid, rdf in preds.groupby("race_id"):
+                strengths = rdf["pred_strength"].values if "pred_strength" in rdf.columns else rdf["pred_top3_prob"].values
+                total = strengths.sum()
+                preds.loc[rdf.index, "win_prob"] = strengths / total if total > 0 else 1.0 / len(rdf)
+        return preds
+
+    valid_preds = _set_win_prob(common_preds)
 
     # レース結果（着順）を取得
     history_file = raw_dir / "historical_results.json"
@@ -264,56 +369,60 @@ def main():
                         p["trifecta"] = payouts["trifecta"][0].get("amount", 0)
                     race_payouts[rid] = p
 
-    # 各レースでシミュレーション
-    all_bets = []
-    for race_id, race_df in valid_preds.groupby("race_id"):
-        if race_id not in race_results:
+    # 両パターンでシミュレーション実行
+    all_results = {}  # model_label -> bets_df
+
+    for model_label, preds in pred_sets:
+        preds = _set_win_prob(preds)
+        all_bets = []
+        for race_id, race_df in preds.groupby("race_id"):
+            if race_id not in race_results:
+                continue
+            result = race_results[race_id]
+            payouts = race_payouts.get(race_id, {})
+            date = race_df["date"].iloc[0]
+            bets = simulate_race(race_df, result, payouts)
+            for b in bets:
+                b["race_id"] = race_id
+                b["date"] = date
+            all_bets.extend(bets)
+
+        if not all_bets:
+            logger.warning(f"{model_label}: 買い目なし")
             continue
 
-        result = race_results[race_id]
-        payouts = race_payouts.get(race_id, {})
-        date = race_df["date"].iloc[0]
+        bets_df = pd.DataFrame(all_bets)
+        all_results[model_label] = bets_df
+        fname = "backtest_optimizer.csv" if model_label == "共通モデル" else "backtest_hybrid.csv"
+        bets_df.to_csv(output_dir / fname, index=False, encoding="utf-8-sig")
 
-        bets = simulate_race(race_df, result, payouts)
-        for b in bets:
-            b["race_id"] = race_id
-            b["date"] = date
-        all_bets.extend(bets)
+    # 結果サマリー出力
+    logger.info("\n" + "=" * 60)
+    logger.info("  バックテスト結果比較")
+    logger.info("=" * 60)
 
-    logger.info(f"Total bets: {len(all_bets)}")
-
-    if not all_bets:
-        logger.warning("No bets generated")
-        return
-
-    bets_df = pd.DataFrame(all_bets)
-    bets_df.to_csv(output_dir / "backtest_optimizer.csv", index=False, encoding="utf-8-sig")
-
-    # パターン別集計
-    for pattern in ["B", "C"]:
-        p_df = bets_df[bets_df["pattern"] == pattern]
-        if p_df.empty:
-            continue
-
-        total_inv = p_df["amount"].sum()
-        total_ret = p_df["payout"].sum()
-        hits = (p_df["hit"] == 1).sum()
-        roi = total_ret / total_inv * 100 if total_inv > 0 else 0
-
-        logger.info(f"\n=== パターン{pattern} ===")
-        logger.info(f"  総賭数: {len(p_df)}")
-        logger.info(f"  総投資: {total_inv:,.0f}円")
-        logger.info(f"  総回収: {total_ret:,.0f}円")
-        logger.info(f"  回収率: {roi:.1f}%")
-        logger.info(f"  的中数: {hits}")
-        logger.info(f"  的中率: {hits/len(p_df)*100:.1f}%")
-
-        # 券種別
-        for bt, bt_df in p_df.groupby("bet_type"):
-            inv = bt_df["amount"].sum()
-            ret = bt_df["payout"].sum()
-            h = (bt_df["hit"] == 1).sum()
-            logger.info(f"    [{bt}] 賭:{len(bt_df)} 的中:{h} 投資:{inv:,.0f} 回収:{ret:,.0f} 回収率:{ret/inv*100:.1f}%")
+    for model_label, bets_df in all_results.items():
+        logger.info(f"\n【{model_label}】 総賭数: {len(bets_df)}")
+        for pattern in ["B", "C"]:
+            p_df = bets_df[bets_df["pattern"] == pattern]
+            if p_df.empty:
+                continue
+            total_inv = p_df["amount"].sum()
+            total_ret = p_df["payout"].sum()
+            hits = (p_df["hit"] == 1).sum()
+            roi = total_ret / total_inv * 100 if total_inv > 0 else 0
+            logger.info(
+                f"  パターン{pattern}: 投資{total_inv:,.0f}円 回収{total_ret:,.0f}円 "
+                f"回収率{roi:.1f}% 的中{hits}/{len(p_df)}"
+            )
+            for bt, bt_df in p_df.groupby("bet_type"):
+                inv = bt_df["amount"].sum()
+                ret = bt_df["payout"].sum()
+                h = (bt_df["hit"] == 1).sum()
+                logger.info(
+                    f"    [{bt}] 賭:{len(bt_df)} 的中:{h} "
+                    f"投資:{inv:,.0f} 回収:{ret:,.0f} 回収率:{ret/inv*100:.1f}%"
+                )
 
     logger.info("\nBacktest complete!")
 
