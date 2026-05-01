@@ -33,6 +33,9 @@ def build_features(
         if available:
             df = df.merge(horses_df[available], on="horse_id", how="left")
 
+    # === レース条件特徴量（馬の特徴量より先に実行してtrack_condition_numを生成）===
+    df = _add_race_condition_features(df)
+
     # === 馬の特徴量 ===
     df = _add_horse_features(df)
 
@@ -41,9 +44,6 @@ def build_features(
 
     # === 血統特徴量 ===
     df = _add_pedigree_features(df, horses_df)
-
-    # === レース条件特徴量 ===
-    df = _add_race_condition_features(df)
 
     # === コース適性ギャップ特徴量 ===
     df = _add_course_ability_features(df)
@@ -70,6 +70,11 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         for i in range(1, 6):
             new_col = f"prev{i}_{col}"
             df[new_col] = df.groupby("horse_id")[col].shift(i)
+
+    # 過去走の馬場状態（track_condition_numは_add_race_condition_featuresで生成済み）
+    if "track_condition_num" in df.columns:
+        for i in range(1, 4):
+            df[f"prev{i}_track_condition_num"] = df.groupby("horse_id")["track_condition_num"].shift(i)
 
     # 近5走平均着順
     prev_finish_cols = [f"prev{i}_finish_position" for i in range(1, 6) if f"prev{i}_finish_position" in df.columns]
@@ -201,6 +206,86 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         df["class_num"] = df["class"].map(class_order).fillna(3)
         df["prev_class_num"] = df.groupby("horse_id")["class_num"].shift(1)
         df["class_change"] = df["class_num"] - df["prev_class_num"]
+
+    # === 馬場状態別複勝率（コース種別×馬場状態と結びつけた過去成績） ===
+    if all(c in df.columns for c in ["track_condition", "finish_position"]):
+        _top3 = (df["finish_position"] <= 3).astype(float)
+
+        # 重/不良馬場での複勝率
+        df["_is_heavy"] = df["track_condition"].isin(["重", "不良"]).astype(float)
+        df["_heavy_top3"] = df["_is_heavy"] * _top3
+        _heavy_runs = df.groupby("horse_id")["_is_heavy"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        _raw_heavy = df.groupby("horse_id")["_heavy_top3"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        df["horse_heavy_top3_rate"] = (_raw_heavy + 0.21 * 3) / (_heavy_runs + 3)
+
+        # 良/稍重馬場での複勝率
+        df["_is_good"] = (~df["track_condition"].isin(["重", "不良"])).astype(float)
+        df["_good_top3"] = df["_is_good"] * _top3
+        _good_runs = df.groupby("horse_id")["_is_good"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        _raw_good = df.groupby("horse_id")["_good_top3"].transform(
+            lambda x: x.expanding().sum().shift(1)
+        )
+        df["horse_good_top3_rate"] = (_raw_good + 0.21 * 3) / (_good_runs + 3)
+
+        df.drop(["_is_heavy", "_heavy_top3", "_is_good", "_good_top3"], axis=1, inplace=True)
+
+    # コース種別（芝/ダート）×馬場状態の4分類での複勝率
+    if all(c in df.columns for c in ["surface", "track_condition", "finish_position"]):
+        _cond_heavy = df["track_condition"].isin(["重", "不良"])
+        _is_turf = df["surface"] == "芝"
+        _top3 = (df["finish_position"] <= 3).astype(float)
+
+        for _surf_label, _surf_mask in [("turf", _is_turf), ("dirt", ~_is_turf)]:
+            for _cond_label, _cond_mask in [("heavy", _cond_heavy), ("good", ~_cond_heavy)]:
+                col_name = f"horse_{_surf_label}_{_cond_label}_top3_rate"
+                _flag = (_surf_mask & _cond_mask).astype(float)
+                _flag_top3 = _flag * _top3
+                _runs = df.groupby("horse_id")[_flag.name if hasattr(_flag, "name") else "__tmp"].transform(
+                    lambda x: x.expanding().sum().shift(1)
+                ) if False else None
+
+                # Series に一時列を使って計算
+                df["__flag"] = _flag
+                df["__flag_t3"] = _flag_top3
+                _runs = df.groupby("horse_id")["__flag"].transform(
+                    lambda x: x.expanding().sum().shift(1)
+                )
+                _raw = df.groupby("horse_id")["__flag_t3"].transform(
+                    lambda x: x.expanding().sum().shift(1)
+                )
+                df[col_name] = (_raw + 0.21 * 3) / (_runs + 3)
+                df.drop(["__flag", "__flag_t3"], axis=1, inplace=True)
+
+    # === 芝ダート×馬場状態補正タイム指数 ===
+    # surface×distance×track_condition グループ内の相対タイム偏差
+    # これにより「同じ条件でどれだけ速く走ったか」を surface/馬場をまたいで比較可能にする
+    if all(c in df.columns for c in ["time", "distance", "surface", "track_condition"]):
+        _grp_key = (
+            df["surface"].astype(str) + "_"
+            + df["distance"].astype(str) + "_"
+            + df["track_condition"].fillna("良").astype(str)
+        )
+        df["__grp"] = _grp_key
+        _grp = df.groupby("__grp")["time"]
+        df["__grp_med"] = _grp.transform("median")
+        df["__grp_std"] = _grp.transform("std").clip(lower=0.5)
+        # 偏差: 負=速い（好走）, 正=遅い（不振）
+        df["__time_dev"] = (df["time"] - df["__grp_med"]) / df["__grp_std"]
+
+        # 過去走の補正タイム偏差
+        df["prev1_time_deviation"] = df.groupby("horse_id")["__time_dev"].shift(1)
+        df["prev2_time_deviation"] = df.groupby("horse_id")["__time_dev"].shift(2)
+        # 近3走の平均補正タイム偏差（値が小さいほど速いレースを走っている）
+        df["avg_time_deviation_3"] = df.groupby("horse_id")["__time_dev"].transform(
+            lambda x: x.shift(1).rolling(3, min_periods=1).mean()
+        )
+        df.drop(["__grp", "__grp_med", "__grp_std", "__time_dev"], axis=1, inplace=True)
 
     return df
 
