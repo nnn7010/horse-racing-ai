@@ -1028,5 +1028,55 @@
     "3rd_name": "ウィンターダフネ",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020311": {
+    "1st": 16,
+    "1st_name": "ワールズエンド",
+    "2nd": 6,
+    "2nd_name": "セフィロ",
+    "3rd": 14,
+    "3rd_name": "マイネルチケット",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020312": {
+    "1st": 5,
+    "1st_name": "ルヴァレドクール",
+    "2nd": 2,
+    "2nd_name": "ヘリオトロープ",
+    "3rd": 7,
+    "3rd_name": "ライフゲート",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030311": {
+    "1st": 4,
+    "1st_name": "シルバーレシオ",
+    "2nd": 11,
+    "2nd_name": "メルカントゥール",
+    "3rd": 2,
+    "3rd_name": "ケイアイアギト",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030312": {
+    "1st": 4,
+    "1st_name": "ミッキースターダム",
+    "2nd": 5,
+    "2nd_name": "ヤエギリ",
+    "3rd": 1,
+    "3rd_name": "ムーンライトラガー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010112": {
+    "1st": 8,
+    "1st_name": "レジーナローズ",
+    "2nd": 16,
+    "2nd_name": "ベルタソ",
+    "3rd": 15,
+    "3rd_name": "ウインマスカレード",
+    "payouts": {},
+    "status": "confirmed"
   }
 }
