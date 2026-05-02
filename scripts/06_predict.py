@@ -675,6 +675,9 @@ def main():
     if all_predictions:
         pred_df = pd.DataFrame(all_predictions)
         pred_df = _assign_win_rank_tier(pred_df)
+        pred_df["field_rel_form"] = pred_df.groupby("race_id")["pred_top3_prob"].transform(
+            lambda x: x - x.mean()
+        ).round(3)
         out_name = f"predictions{args.out_suffix}.csv"
         pred_df.to_csv(output_dir / out_name, index=False, encoding="utf-8-sig")
         logger.info(f"\nSaved {len(all_predictions)} predictions to {output_dir / out_name}")

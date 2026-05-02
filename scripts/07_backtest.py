@@ -47,6 +47,7 @@ def simulate_race(race_df, race_result, payouts):
             all_odds["place"][str(num).zfill(2)] = max(odds ** 0.5 * 0.6, 1.1)
 
     # 馬連・ワイド等のオッズは不明なので、単勝から推定（バックテスト用）
+    import itertools as _itertools
     nums = sorted(race_df["number"].astype(int).values)
     for i, j in [(a, b) for a in nums for b in nums if a < b]:
         oi = all_odds["win"].get(str(i).zfill(2), 0)
@@ -56,6 +57,16 @@ def simulate_race(race_df, race_result, payouts):
             all_odds["wide"][f"{i:02d}-{j:02d}"] = max((oi * oj) ** 0.5 * 0.3, 1.1)
             all_odds["exacta"][f"{i:02d}→{j:02d}"] = max(oi * oj * 0.5, 5.0)
             all_odds["exacta"][f"{j:02d}→{i:02d}"] = max(oj * oi * 0.5, 5.0)
+
+    # 三連複オッズ推定: 単勝オッズの幾何平均ベース
+    for i, j, k in _itertools.combinations(nums, 3):
+        oi = all_odds["win"].get(str(i).zfill(2), 0)
+        oj = all_odds["win"].get(str(j).zfill(2), 0)
+        ok = all_odds["win"].get(str(k).zfill(2), 0)
+        if oi > 0 and oj > 0 and ok > 0:
+            # 実際の三連複はおよそ単勝積の1/3程度（馬券取り込みで割引）
+            est = max((oi * oj * ok) ** (1 / 2) * 0.4, 5.0)
+            all_odds["trio"][f"{i:02d}-{j:02d}-{k:02d}"] = est
 
     # 新エンジンで買い目生成
     results = []
@@ -314,6 +325,42 @@ def main():
             ret = bt_df["payout"].sum()
             h = (bt_df["hit"] == 1).sum()
             logger.info(f"    [{bt}] 賭:{len(bt_df)} 的中:{h} 投資:{inv:,.0f} 回収:{ret:,.0f} 回収率:{ret/inv*100:.1f}%")
+
+    # === 予測精度指標 ===
+    # rank-1 的中率
+    n_races = valid_preds["race_id"].nunique()
+    rank1_hits = (
+        valid_preds.sort_values("win_prob", ascending=False)
+        .groupby("race_id")
+        .first()["finish_position"] == 1
+    ).sum()
+    logger.info(f"\n=== 予測精度 ===")
+    logger.info(f"  Rank-1 hit rate: {rank1_hits}/{n_races} = {rank1_hits/n_races:.1%}")
+
+    # top-3 precision@3 (pred_top3_prob を使用 — 3着以内専用モデル)
+    total_pred, total_hit = 0, 0
+    top3_col = "pred_top3_prob" if "pred_top3_prob" in valid_preds.columns else "win_prob"
+    for _, g in valid_preds.groupby("race_id"):
+        pred_top3 = set(g.nlargest(3, top3_col)["number"])
+        actual_top3 = set(g[g["finish_position"].between(1, 3)]["number"])
+        total_hit += len(pred_top3 & actual_top3)
+        total_pred += 3
+    p3 = total_hit / total_pred if total_pred > 0 else 0
+    logger.info(f"  Top-3 precision@3: {total_hit}/{total_pred} = {p3:.1%} (using {top3_col})")
+
+    # win キャリブレーション表
+    bins = [0.0, 0.05, 0.10, 0.15, 0.20, 0.30, 1.01]
+    labels = ["<5%", "5-10%", "10-15%", "15-20%", "20-30%", "30%+"]
+    vp = valid_preds.copy()
+    vp["win_band"] = pd.cut(vp["win_prob"], bins=bins, labels=labels, right=False)
+    calib = vp.groupby("win_band", observed=False).agg(
+        n=("finish_position", "count"),
+        actual_win_rate=("finish_position", lambda x: (x == 1).mean()),
+        avg_pred=("win_prob", "mean"),
+    ).reset_index()
+    calib["error"] = (calib["actual_win_rate"] - calib["avg_pred"]).round(4)
+    calib.to_csv(output_dir / "win_calibration.csv", index=False, encoding="utf-8-sig")
+    logger.info(f"  Win calibration:\n{calib.to_string(index=False)}")
 
     logger.info("\nBacktest complete!")
 

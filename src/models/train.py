@@ -192,20 +192,22 @@ def train_win_model(
     train_end: str = "2026-02-28",
     valid_start: str = "2026-03-01",
     valid_end: str = "2026-04-17",
-    n_trials: int = 20,
+    n_trials: int = 25,
     seed: int = 42,
     model_dir: str = "models",
 ) -> tuple[lgb.Booster, list[str]]:
-    """1着予測モデルを学習する（単勝・馬単・三連単用）。"""
+    """1着予測ランキングモデルを学習する（LambdaRank）。
+
+    ラベル: 1着=2, 2-3着=1, それ以外=0（3段階 relevance score）
+    目的関数: lambdarank（レース内の順位を直接最適化）
+    Optuna 評価指標: rank-1 的中率（最高スコア馬が実際に1着に入る率）
+    """
     model_path = Path(model_dir)
     model_path.mkdir(parents=True, exist_ok=True)
 
     df = df.copy()
     if not pd.api.types.is_datetime64_any_dtype(df["date"]):
         df["date"] = pd.to_datetime(df["date"], format="%Y%m%d", errors="coerce")
-
-    # ターゲット: 1着のみ
-    df["target_win"] = (df["finish_position"] == 1).astype(int)
 
     df = df[df["finish_position"] > 0].copy()
     if "exclude_from_train" in df.columns:
@@ -215,37 +217,57 @@ def train_win_model(
     valid_start_dt = pd.Timestamp(valid_start)
     valid_end_dt = pd.Timestamp(valid_end)
 
-    train_df = df[df["date"] <= train_end_dt].copy()
-    valid_df = df[(df["date"] >= valid_start_dt) & (df["date"] <= valid_end_dt)].copy()
+    # LambdaRank は race_id でソートしてグループを渡す必要がある
+    train_df = df[df["date"] <= train_end_dt].sort_values("race_id").reset_index(drop=True)
+    valid_df = df[(df["date"] >= valid_start_dt) & (df["date"] <= valid_end_dt)].sort_values("race_id").reset_index(drop=True)
 
-    logger.info(f"Win model - Train: {len(train_df)} rows, Valid: {len(valid_df)} rows")
-    logger.info(f"Win rate - Train: {train_df['target_win'].mean():.3f}, Valid: {valid_df['target_win'].mean():.3f}")
+    logger.info(f"Win model (LambdaRank) - Train: {len(train_df)} rows, Valid: {len(valid_df)} rows")
 
-    # target_win はラベル列なので feature_cols から除外してから取得
-    feature_cols = [c for c in get_feature_columns(df) if c != "target_win"]
+    feature_cols = get_feature_columns(df)
 
     X_train = train_df[feature_cols].astype(float).fillna(-999).values
-    y_train = train_df["target_win"].values
     X_valid = valid_df[feature_cols].astype(float).fillna(-999).values
-    y_valid = valid_df["target_win"].values
 
-    # 1着は不均衡データ: is_unbalance=True で LightGBM に内部処理させる
-    # scale_pos_weight を使うと過学習が極端になり1本の木で早期停止するため使わない
-    n_pos = y_train.sum()
-    logger.info(f"Win rate: {n_pos/len(y_train):.3f} ({int(n_pos)}/{len(y_train)})")
+    # 3段階 relevance ラベル
+    def _rank_label(pos):
+        if pos == 1:
+            return 2
+        if pos <= 3:
+            return 1
+        return 0
+
+    y_train = train_df["finish_position"].apply(_rank_label).values
+    y_valid = valid_df["finish_position"].apply(_rank_label).values
+
+    train_groups = train_df.groupby("race_id").size().values
+    valid_groups = valid_df.groupby("race_id").size().values
+
+    n_valid_races = valid_df["race_id"].nunique()
+    logger.info(f"Train groups: {len(train_groups)} races, Valid groups: {len(valid_groups)} races")
+
+    def _rank1_hit_rate(model, X, df_ref):
+        scores = model.predict(X)
+        tmp = df_ref.copy()
+        tmp["_score"] = scores
+        hits = tmp.groupby("race_id").apply(
+            lambda g: g.nlargest(1, "_score").iloc[0]["finish_position"] == 1
+        ).sum()
+        return hits / df_ref["race_id"].nunique()
 
     def objective(trial):
+        gain2 = trial.suggest_int("gain2", 2, 10)
         params = {
-            "objective": "binary",
-            "metric": "auc",
+            "objective": "lambdarank",
+            "metric": "ndcg",
+            "ndcg_eval_at": [1],
+            "label_gain": [0, 1, gain2],
             "boosting_type": "gbdt",
-            "is_unbalance": True,
             "seed": seed,
             "verbose": -1,
             "n_jobs": 1,
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2, log=True),
             "num_leaves": trial.suggest_int("num_leaves", 16, 128),
-            "max_depth": trial.suggest_int("max_depth", 3, 10),
+            "max_depth": trial.suggest_int("max_depth", 3, 8),
             "min_child_samples": trial.suggest_int("min_child_samples", 10, 100),
             "subsample": trial.suggest_float("subsample", 0.5, 1.0),
             "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
@@ -253,11 +275,11 @@ def train_win_model(
             "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 10.0, log=True),
         }
 
-        dtrain = lgb.Dataset(X_train.copy(), label=y_train.copy(), free_raw_data=False)
-        dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), reference=dtrain, free_raw_data=False)
+        dtrain = lgb.Dataset(X_train.copy(), label=y_train.copy(), group=train_groups, free_raw_data=False)
+        dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), group=valid_groups, reference=dtrain, free_raw_data=False)
 
         callbacks = [
-            lgb.early_stopping(50, verbose=False, first_metric_only=True),
+            lgb.early_stopping(50, verbose=False),
             lgb.log_evaluation(0),
         ]
 
@@ -269,30 +291,34 @@ def train_win_model(
             callbacks=callbacks,
         )
 
-        preds = model.predict(X_valid)
-        return roc_auc_score(y_valid, preds)
+        return _rank1_hit_rate(model, X_valid, valid_df)
 
     study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=seed))
     study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
 
-    logger.info(f"Win model best trial: {study.best_trial.number}, auc={study.best_value:.4f}")
+    best_rank1 = study.best_value
+    logger.info(f"Win model best trial: {study.best_trial.number}, rank1_hit={best_rank1:.4f}")
+    logger.info(f"Best params: {study.best_params}")
 
+    # 最良パラメータで再学習
+    gain2 = study.best_params.pop("gain2")
     best_params = {
-        "objective": "binary",
-        "metric": "auc",
+        "objective": "lambdarank",
+        "metric": "ndcg",
+        "ndcg_eval_at": [1],
+        "label_gain": [0, 1, gain2],
         "boosting_type": "gbdt",
-        "is_unbalance": True,
         "seed": seed,
         "verbose": -1,
         "n_jobs": 1,
         **study.best_params,
     }
 
-    dtrain = lgb.Dataset(X_train.copy(), label=y_train.copy(), free_raw_data=False)
-    dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), reference=dtrain, free_raw_data=False)
+    dtrain = lgb.Dataset(X_train.copy(), label=y_train.copy(), group=train_groups, free_raw_data=False)
+    dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), group=valid_groups, reference=dtrain, free_raw_data=False)
 
     callbacks = [
-        lgb.early_stopping(50, verbose=False, first_metric_only=True),
+        lgb.early_stopping(50, verbose=False),
         lgb.log_evaluation(100),
     ]
 
@@ -304,16 +330,23 @@ def train_win_model(
         callbacks=callbacks,
     )
 
-    valid_preds = best_model.predict(X_valid)
-    auc = roc_auc_score(y_valid, valid_preds)
-    logloss = log_loss(y_valid, valid_preds)
-    logger.info(f"Win model - AUC: {auc:.4f}, LogLoss: {logloss:.4f}, Trees: {best_model.num_trees()}")
+    final_rank1 = _rank1_hit_rate(best_model, X_valid, valid_df)
+    logger.info(f"Win model (LambdaRank) - Rank-1 hit rate: {final_rank1:.4f}, Trees: {best_model.num_trees()}")
 
-    # キャリブレーション
+    # キャリブレーション: exp-softmax スコア → 確率 → IsotonicRegression
+    raw_scores = best_model.predict(X_valid)
+    # レース内 exp-softmax で確率化
+    valid_df_tmp = valid_df.copy()
+    valid_df_tmp["_score"] = raw_scores
+    valid_df_tmp["_win_prob"] = valid_df_tmp.groupby("race_id")["_score"].transform(
+        lambda x: np.exp(x - x.max()) / np.exp(x - x.max()).sum()
+    )
+    win_probs = valid_df_tmp["_win_prob"].values
+    y_valid_win = (valid_df["finish_position"] == 1).astype(int).values
     win_calibrator = IsotonicRegression(out_of_bounds="clip")
-    win_calibrator.fit(valid_preds, y_valid)
-    calibrated_preds = win_calibrator.predict(valid_preds)
-    calib_logloss = log_loss(y_valid, calibrated_preds)
+    win_calibrator.fit(win_probs, y_valid_win)
+    calibrated = win_calibrator.predict(win_probs)
+    calib_logloss = log_loss(y_valid_win, np.clip(calibrated, 1e-7, 1 - 1e-7))
     logger.info(f"Win model calibrated LogLoss: {calib_logloss:.4f}")
 
     # 保存

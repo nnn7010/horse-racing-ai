@@ -99,44 +99,36 @@ def predict_probabilities(
     # 単勝確率: 専用winモデルがあればそれを使用、なければpred_strengthから導出
     if win_model is not None:
         X_win = df[feature_cols].astype(float).fillna(-999)
-        win_probs_raw = win_model.predict(X_win)
-        if win_calibrator is not None:
-            win_probs_cal = win_calibrator.predict(win_probs_raw)
-        else:
-            win_probs_cal = win_probs_raw
+        win_scores_raw = win_model.predict(X_win)
 
-        # Isotonic calibrationのステップ関数による同値化を防ぐため3段階ブレンド:
-        # 90% calibrated + 5% win_raw + 5% top3_raw（別モデルでタイブレーク）
-        top3_raw = probs_raw  # top3モデルの生スコア（既に計算済み）
-        win_probs_blended = 0.90 * win_probs_cal + 0.05 * win_probs_raw + 0.05 * top3_raw
-        df["pred_win_prob_raw"] = win_probs_blended
-
-        # レース内で正規化（合計=1: 1頭のみ1着になる）
+        # LambdaRank は生スコアを返す（確率ではない）
+        # exp-softmax でレース内正規化 → 確率に変換
+        df["_win_score"] = win_scores_raw
         if "race_id" in df.columns:
-            df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob_raw"].transform(
-                lambda x: x / x.sum() if x.sum() > 0 else x
+            df["pred_win_prob"] = df.groupby("race_id")["_win_score"].transform(
+                lambda x: np.exp(x - x.max()) / np.exp(x - x.max()).sum()
             )
         else:
-            total = win_probs_blended.sum()
-            df["pred_win_prob"] = win_probs_blended / total if total > 0 else win_probs_blended
+            exp_s = np.exp(win_scores_raw - win_scores_raw.max())
+            df["pred_win_prob"] = exp_s / exp_s.sum()
+        df.drop("_win_score", axis=1, inplace=True)
+
+        # キャリブレーション（IsotonicRegression は exp-softmax 確率に対して学習済み）
+        if win_calibrator is not None:
+            cal_probs = win_calibrator.predict(df["pred_win_prob"].values)
+            df["pred_win_prob"] = cal_probs
+            # キャリブレーション後に再正規化
+            if "race_id" in df.columns:
+                df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob"].transform(
+                    lambda x: x / x.sum() if x.sum() > 0 else x
+                )
 
         df["pred_win_prob"] = df["pred_win_prob"].clip(0.001, 0.99)
 
-        # 同値が残る場合、馬番の逆順で微小差をつけてタイブレーク
-        # (馬番小さい馬をわずかに優遇: 枠順の有利さを反映)
-        if "number" in df.columns and "race_id" in df.columns:
-            n_horses = df.groupby("race_id")["number"].transform("count")
-            rank_in_race = df.groupby("race_id")["pred_win_prob"].rank(method="first", ascending=False)
-            tiebreak = (1.0 - (rank_in_race - 1) / n_horses) * 1e-5
-            df["pred_win_prob"] = df["pred_win_prob"] + tiebreak
-            df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob"].transform(
-                lambda x: x / x.sum()
-            )
-            df["pred_win_prob"] = df["pred_win_prob"].clip(0.001, 0.99)
-
-        # pred_strengthもwinモデルのodds比で更新（PL組み合わせ計算用）
-        win_strength = win_probs_raw / np.maximum(1.0 - win_probs_raw, 1e-6)
-        df["pred_strength"] = win_strength
+        # pred_strength を LambdaRank スコアから更新（PL 組み合わせ計算用）
+        # exp-softmax 後の確率を odds 比に変換
+        win_probs_for_strength = df["pred_win_prob"].values
+        df["pred_strength"] = win_probs_for_strength / np.maximum(1.0 - win_probs_for_strength, 1e-6)
     else:
         # winモデルなし: pred_strengthの正規化値を単勝確率として使用
         if "race_id" in df.columns:

@@ -48,6 +48,9 @@ def build_features(
     # === コース適性ギャップ特徴量 ===
     df = _add_course_ability_features(df)
 
+    # === フィールド内相対特徴量（出走メンバー内での相対評価）===
+    df = _add_within_field_features(df)
+
     # 不要な文字列列を除外
     feature_cols = [c for c in df.columns if df[c].dtype in [np.float64, np.int64, np.float32, np.int32, "float64", "int64", "float32", "int32"]]
     meta_cols = ["race_id", "horse_id", "date", "finish_position", "number", "horse_name", "jockey_name", "trainer_name", "jockey_id", "trainer_id"]
@@ -262,14 +265,26 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
                 df[col_name] = (_raw + 0.21 * 3) / (_runs + 3)
                 df.drop(["__flag", "__flag_t3"], axis=1, inplace=True)
 
-    # === 芝ダート×馬場状態補正タイム指数 ===
-    # surface×distance×track_condition グループ内の相対タイム偏差
+    # === 競馬場×芝ダート×距離×馬場状態 補正タイム指数 ===
+    # place_code_num × surface × distance × track_condition でグループ化（より正確な基準タイム）
+    # サンプルが少ない (< 80) グループは surface × distance × track_condition にフォールバック
     if all(c in df.columns for c in ["time", "distance", "surface", "track_condition"]):
-        _grp_key = (
+        _grp_fallback = (
             df["surface"].astype(str) + "_"
             + df["distance"].astype(str) + "_"
             + df["track_condition"].fillna("良").astype(str)
         )
+        if "place_code_num" in df.columns:
+            _grp_full = (
+                df["place_code_num"].astype(str) + "_"
+                + df["surface"].astype(str) + "_"
+                + df["distance"].astype(str) + "_"
+                + df["track_condition"].fillna("良").astype(str)
+            )
+            _grp_counts = df.groupby(_grp_full)["time"].transform("count")
+            _grp_key = np.where(_grp_counts >= 80, _grp_full, _grp_fallback)
+        else:
+            _grp_key = _grp_fallback
         df["__grp"] = _grp_key
         _grp = df.groupby("__grp")["time"]
         df["__grp_med"] = _grp.transform("median")
@@ -650,6 +665,29 @@ def _add_course_ability_features(df: pd.DataFrame) -> pd.DataFrame:
     df.drop([c for c in drop_cols if c in df.columns], axis=1, inplace=True)
 
     logger.info(f"Added course ability features: {[f'course_{a}_gap' for a in AXES]} + course_fit_score")
+    return df
+
+
+def _add_within_field_features(df: pd.DataFrame) -> pd.DataFrame:
+    """各馬の特徴量を同レース内で相対化する（フィールド内比較特徴量）。
+
+    過去統計値をレース内の平均で差し引くことで「今日の出走メンバーの中でどうか」を表現する。
+    過去の実績値から派生するためデータリークは発生しない。
+    """
+    df = df.copy()
+    rel_targets = {
+        "prev1_time_deviation": "rel_td_1",
+        "avg_time_deviation_3": "rel_avg_td_3",
+        "avg_rel_finish_3": "rel_avg_rf_3",
+        "jockey_win_rate": "rel_jockey_wr",
+        "horse_top3_rate": "rel_horse_t3r",
+    }
+    for src, dst in rel_targets.items():
+        if src in df.columns:
+            df[dst] = df.groupby("race_id")[src].transform(
+                lambda x: x - x.mean()
+            )
+    logger.info(f"Added within-field relative features: {list(rel_targets.values())}")
     return df
 
 
