@@ -89,7 +89,6 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
     for sire_col, key in [("sire", "sire"), ("dam_sire", "dam_sire")]:
         win_col = f"{sire_col}_win_rate" if sire_col == "sire" else "dam_sire_win_rate"
         t3_col = f"{sire_col}_top3_rate" if sire_col == "sire" else "dam_sire_top3_rate"
-        course_col = "sire_course_top3_rate" if sire_col == "sire" else "damsire_course_top3_rate"
         if sire_col in hist_df.columns and win_col in hist_df.columns:
             for sname, g in hist_df[hist_df[sire_col].notna()].groupby(sire_col):
                 last = g.iloc[-1]
@@ -101,7 +100,28 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
     return lookup
 
 
+def _assign_win_rank_tier(pred_df: pd.DataFrame) -> pd.DataFrame:
+    pred_df = pred_df.copy()
+    pred_df["win_rank"] = (
+        pred_df.groupby("race_id")["win_prob"]
+        .rank(method="first", ascending=False)
+        .astype(int)
+    )
+    bins = [0.0, 0.05, 0.10, 0.20, 0.30, 1.01]
+    labels = ["D", "C", "B", "A", "S"]
+    pred_df["win_tier"] = pd.cut(
+        pred_df["win_prob"], bins=bins, labels=labels, right=False
+    ).astype(str)
+    return pred_df
+
+
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-dir", default=None, help="モデルディレクトリ（省略時はconfig値）")
+    parser.add_argument("--out-suffix", default="", help="出力ファイルのサフィックス（例: _wet_test）")
+    args = parser.parse_args()
+
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
 
@@ -110,7 +130,11 @@ def main():
     output_dir = Path(config["paths"]["outputs"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    model, feature_cols, calibrator, win_model, win_calibrator = load_model(config["paths"]["models"])
+    model_dir = args.model_dir or config["paths"]["models"]
+    if args.model_dir:
+        logger.info(f"[TEST] モデル読み込み元: {model_dir}")
+
+    model, feature_cols, calibrator, win_model, win_calibrator = load_model(model_dir)
 
     with open(raw_dir / "target_races.json", encoding="utf-8") as f:
         target_races = json.load(f)
@@ -210,6 +234,17 @@ def main():
         # オッズ取得
         race_win_odds = _get_win_odds_for_race(race_id)
 
+        # 馬場状態をraw_conditionsからパース（track_conditionが未設定の場合）
+        _tc_str = race.get("track_condition", "") or ""
+        if not _tc_str:
+            _raw = race.get("raw_conditions", "") or ""
+            for _c in ["不良", "重", "稍重", "良"]:
+                if f"馬場:{_c}" in _raw or f"馬場： {_c}" in _raw or f"馬場:{_c}" in _raw.replace(" ", ""):
+                    _tc_str = _c
+                    break
+        _cond_map = {"良": 0, "稍重": 1, "重": 2, "不良": 3}
+        _tc_num = _cond_map.get(_tc_str, 0)
+
         rows = []
         for entry in entries:
             row = {
@@ -223,7 +258,7 @@ def main():
                 "num_runners": len(entries),
                 "is_turf": 1 if race.get("surface") == "芝" else 0,
                 "place_code_num": int(race.get("place_code", "0")),
-                "track_condition_num": 0,
+                "track_condition_num": _tc_num,
                 "horse_weight": 0,
                 "weight_change": 0,
                 "has_history": 0,
@@ -639,8 +674,10 @@ def main():
 
     if all_predictions:
         pred_df = pd.DataFrame(all_predictions)
-        pred_df.to_csv(output_dir / "predictions.csv", index=False, encoding="utf-8-sig")
-        logger.info(f"\nSaved {len(all_predictions)} predictions to {output_dir / 'predictions.csv'}")
+        pred_df = _assign_win_rank_tier(pred_df)
+        out_name = f"predictions{args.out_suffix}.csv"
+        pred_df.to_csv(output_dir / out_name, index=False, encoding="utf-8-sig")
+        logger.info(f"\nSaved {len(all_predictions)} predictions to {output_dir / out_name}")
 
     if today_races:
         import datetime

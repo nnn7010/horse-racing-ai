@@ -229,21 +229,20 @@ def train_win_model(
     X_valid = valid_df[feature_cols].astype(float).fillna(-999).values
     y_valid = valid_df["target_win"].values
 
-    # 1着は不均衡データ: pos_weight で補正
+    # 1着は不均衡データ: is_unbalance=True で LightGBM に内部処理させる
+    # scale_pos_weight を使うと過学習が極端になり1本の木で早期停止するため使わない
     n_pos = y_train.sum()
-    n_neg = len(y_train) - n_pos
-    scale_pos_weight = n_neg / n_pos if n_pos > 0 else 1.0
-    logger.info(f"scale_pos_weight: {scale_pos_weight:.2f}")
+    logger.info(f"Win rate: {n_pos/len(y_train):.3f} ({int(n_pos)}/{len(y_train)})")
 
     def objective(trial):
         params = {
             "objective": "binary",
-            "metric": "binary_logloss",
+            "metric": "auc",
             "boosting_type": "gbdt",
+            "is_unbalance": True,
             "seed": seed,
             "verbose": -1,
             "n_jobs": 1,
-            "scale_pos_weight": scale_pos_weight,
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
             "num_leaves": trial.suggest_int("num_leaves", 16, 128),
             "max_depth": trial.suggest_int("max_depth", 3, 10),
@@ -258,7 +257,7 @@ def train_win_model(
         dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), reference=dtrain, free_raw_data=False)
 
         callbacks = [
-            lgb.early_stopping(50, verbose=False),
+            lgb.early_stopping(50, verbose=False, first_metric_only=True),
             lgb.log_evaluation(0),
         ]
 
@@ -271,21 +270,21 @@ def train_win_model(
         )
 
         preds = model.predict(X_valid)
-        return log_loss(y_valid, preds)
+        return roc_auc_score(y_valid, preds)
 
-    study = optuna.create_study(direction="minimize", sampler=optuna.samplers.TPESampler(seed=seed))
+    study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=seed))
     study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
 
-    logger.info(f"Win model best trial: {study.best_trial.number}, logloss={study.best_value:.4f}")
+    logger.info(f"Win model best trial: {study.best_trial.number}, auc={study.best_value:.4f}")
 
     best_params = {
         "objective": "binary",
-        "metric": "binary_logloss",
+        "metric": "auc",
         "boosting_type": "gbdt",
+        "is_unbalance": True,
         "seed": seed,
         "verbose": -1,
         "n_jobs": 1,
-        "scale_pos_weight": scale_pos_weight,
         **study.best_params,
     }
 
@@ -293,7 +292,7 @@ def train_win_model(
     dvalid = lgb.Dataset(X_valid.copy(), label=y_valid.copy(), reference=dtrain, free_raw_data=False)
 
     callbacks = [
-        lgb.early_stopping(50, verbose=False),
+        lgb.early_stopping(50, verbose=False, first_metric_only=True),
         lgb.log_evaluation(100),
     ]
 
@@ -308,7 +307,7 @@ def train_win_model(
     valid_preds = best_model.predict(X_valid)
     auc = roc_auc_score(y_valid, valid_preds)
     logloss = log_loss(y_valid, valid_preds)
-    logger.info(f"Win model - AUC: {auc:.4f}, LogLoss: {logloss:.4f}")
+    logger.info(f"Win model - AUC: {auc:.4f}, LogLoss: {logloss:.4f}, Trees: {best_model.num_trees()}")
 
     # キャリブレーション
     win_calibrator = IsotonicRegression(out_of_bounds="clip")
