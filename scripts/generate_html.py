@@ -108,19 +108,20 @@ def render_calibration_section():
         hdr = "<tr><th>予測帯</th><th>頭数</th><th>予測平均</th><th>実際</th><th>乖離</th></tr>"
         body = ""
         for r in rows:
-            dev = r.get("deviation","0")
+            dev = r.get("deviation") or r.get("error", "0")
             dc  = _dev_color(dev)
             pp  = f"{float(r.get(pred_col,'0'))*100:.1f}%"
             ap  = f"{float(r.get(actual_col,'0'))*100:.1f}%"
             try: dp = f"{float(dev)*100:+.1f}%"
             except: dp = dev
+            cnt = r.get('count') or r.get('n', '')
             body += (f"<tr><td class='cal-band'>{r.get(band_col,'')}</td>"
-                     f"<td>{r.get('count','')}</td><td>{pp}</td>"
+                     f"<td>{cnt}</td><td>{pp}</td>"
                      f"<td style='font-weight:bold;color:#fff'>{ap}</td>"
                      f"<td style='color:{dc};font-weight:bold'>{dp}</td></tr>")
         return f"<table class='cal-tbl'><thead>{hdr}</thead><tbody>{body}</tbody></table>"
 
-    win_tbl  = _tbl(win_rows,  "avg_win_prob",  "actual_win_rate", "band")
+    win_tbl  = _tbl(win_rows,  "avg_pred",  "actual_win_rate", "win_band")
     top3_tbl = _tbl(top3_rows, "pred_avg",       "actual",          "band3")
 
     return f"""<div class="cal-section">
