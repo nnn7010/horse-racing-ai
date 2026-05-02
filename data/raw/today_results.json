@@ -718,5 +718,235 @@
     "3rd_name": "レジェンダリーデイ",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020301": {
+    "1st": 14,
+    "1st_name": "ミヤエスケープ",
+    "2nd": 1,
+    "2nd_name": "ミエスタ",
+    "3rd": 10,
+    "3rd_name": "コウユーニポポニコ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020302": {
+    "1st": 3,
+    "1st_name": "プレースメント",
+    "2nd": 5,
+    "2nd_name": "ウインビギニング",
+    "3rd": 14,
+    "3rd_name": "ツインドライヴ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020303": {
+    "1st": 3,
+    "1st_name": "リオンサーガ",
+    "2nd": 8,
+    "2nd_name": "クアッドフォルツァ",
+    "3rd": 9,
+    "3rd_name": "ブルーフレア",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020304": {
+    "1st": 6,
+    "1st_name": "スワーヴマルス",
+    "2nd": 10,
+    "2nd_name": "タイドグラフ",
+    "3rd": 5,
+    "3rd_name": "エバーシャンティ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020305": {
+    "1st": 3,
+    "1st_name": "フェルミアーク",
+    "2nd": 8,
+    "2nd_name": "スミッコディスコ",
+    "3rd": 9,
+    "3rd_name": "イヌボウノウタゴエ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020306": {
+    "1st": 6,
+    "1st_name": "ノクターン",
+    "2nd": 7,
+    "2nd_name": "リポサンテ",
+    "3rd": 3,
+    "3rd_name": "ポッポノフェスタ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020307": {
+    "1st": 12,
+    "1st_name": "キョウエイスレーヴ",
+    "2nd": 13,
+    "2nd_name": "ショウナンタハティ",
+    "3rd": 9,
+    "3rd_name": "グルーヴィーオン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030301": {
+    "1st": 5,
+    "1st_name": "スターフュージョン",
+    "2nd": 11,
+    "2nd_name": "グレイトソン",
+    "3rd": 3,
+    "3rd_name": "クリコファルコン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030302": {
+    "1st": 8,
+    "1st_name": "ケンフィールド",
+    "2nd": 10,
+    "2nd_name": "ピコオーバル",
+    "3rd": 4,
+    "3rd_name": "メイショウヒタカミ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030303": {
+    "1st": 16,
+    "1st_name": "カモメガトンダ",
+    "2nd": 1,
+    "2nd_name": "セコンドトゥベスト",
+    "3rd": 6,
+    "3rd_name": "ペプチドブッドレア",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030304": {
+    "1st": 6,
+    "1st_name": "リアンマヒナ",
+    "2nd": 5,
+    "2nd_name": "タナブイハチターボ",
+    "3rd": 11,
+    "3rd_name": "アラビアンジョイ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030305": {
+    "1st": 6,
+    "1st_name": "ロードスタニング",
+    "2nd": 1,
+    "2nd_name": "ダノンワンダー",
+    "3rd": 10,
+    "3rd_name": "ソルトハッピー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030306": {
+    "1st": 7,
+    "1st_name": "シュドゥン",
+    "2nd": 11,
+    "2nd_name": "アロマフェリス",
+    "3rd": 1,
+    "3rd_name": "デルマサクラサク",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030307": {
+    "1st": 5,
+    "1st_name": "ファムマルキーズ",
+    "2nd": 4,
+    "2nd_name": "スウィッチインラヴ",
+    "3rd": 12,
+    "3rd_name": "ファニーバニー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030308": {
+    "1st": 12,
+    "1st_name": "リアルスター",
+    "2nd": 11,
+    "2nd_name": "セルズパワー",
+    "3rd": 4,
+    "3rd_name": "ウォーターパラディ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010101": {
+    "1st": 7,
+    "1st_name": "サトノエピック",
+    "2nd": 8,
+    "2nd_name": "ノーブルクライ",
+    "3rd": 11,
+    "3rd_name": "ビジューブリランテ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010102": {
+    "1st": 5,
+    "1st_name": "ミアルーチェ",
+    "2nd": 4,
+    "2nd_name": "スマートコーラル",
+    "3rd": 6,
+    "3rd_name": "スマイルガーデン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010103": {
+    "1st": 8,
+    "1st_name": "アンバサダネージュ",
+    "2nd": 4,
+    "2nd_name": "ジュディーイメル",
+    "3rd": 3,
+    "3rd_name": "スノーランス",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010104": {
+    "1st": 2,
+    "1st_name": "パープルアドミラル",
+    "2nd": 3,
+    "2nd_name": "ハイウェイスター",
+    "3rd": 11,
+    "3rd_name": "ウォーターリーダー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010105": {
+    "1st": 13,
+    "1st_name": "アイアムアヒーロー",
+    "2nd": 10,
+    "2nd_name": "スカイピア",
+    "3rd": 16,
+    "3rd_name": "マリノリュミエール",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010106": {
+    "1st": 5,
+    "1st_name": "プレイザリード",
+    "2nd": 8,
+    "2nd_name": "タケルフォーカス",
+    "3rd": 6,
+    "3rd_name": "ディアアズール",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010107": {
+    "1st": 1,
+    "1st_name": "レッドイステル",
+    "2nd": 2,
+    "2nd_name": "ソングコレクター",
+    "3rd": 14,
+    "3rd_name": "サトノシャムロック",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010108": {
+    "1st": 1,
+    "1st_name": "ダノンブランニュー",
+    "2nd": 10,
+    "2nd_name": "メイショウビストロ",
+    "3rd": 12,
+    "3rd_name": "オーバースタンド",
+    "payouts": {},
+    "status": "confirmed"
   }
 }

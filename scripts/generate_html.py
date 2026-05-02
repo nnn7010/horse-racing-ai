@@ -1,16 +1,114 @@
 #!/usr/bin/env python3
 """Generate static HTML from today_predictions.json for GitHub Pages."""
 
+import csv
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
-PRED_FILE = ROOT / "data/raw/today_predictions.json"
+PRED_FILE   = ROOT / "data/raw/today_predictions.json"
 TRENDS_FILE = ROOT / "data/raw/today_trends.json"
-RESULTS_FILE = ROOT / "data/raw/today_results.json"
-OUT_FILE = ROOT / "docs/index.html"
+RESULTS_FILE= ROOT / "data/raw/today_results.json"
+OUT_FILE    = ROOT / "docs/index.html"
+
+WIN_CAL_FILE  = ROOT / "outputs/win_calibration.csv"
+TOP3_CAL_FILE = ROOT / "outputs/top3_calibration.csv"
+
+MODEL_INFO = {
+    "name": "LightGBM 共通モデル",
+    "features": 88,
+    "train_end": "2026-02-28",
+    "valid_period": "2026-03-01 〜 2026-04-24",
+    "valid_races": 420,
+    "auc_valid": 0.7945,
+    "auc_oos": 0.7235,
+    "rank1_win_rate": 0.283,
+}
+
+TIER_COLOR = {"S": "#e53935", "A": "#fb8c00", "B": "#fdd835", "C": "#66bb6a", "D": "#78909c"}
 
 
+def _win_tier(wp):
+    if wp >= 0.30: return "S"
+    if wp >= 0.20: return "A"
+    if wp >= 0.10: return "B"
+    if wp >= 0.05: return "C"
+    return "D"
+
+
+def _load_csv(path):
+    if not path.exists():
+        return []
+    with open(path, encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+
+def render_model_info():
+    m = MODEL_INFO
+    auc_color = "#81c784" if m["auc_oos"] >= 0.75 else "#ffb74d"
+    return f"""<div class="model-info">
+  <div class="mi-title">📐 採用モデル: {m["name"]} ({m["features"]}特徴量)</div>
+  <div class="mi-body">
+    <div class="mi-row"><span class="mi-label">学習〜</span><span class="mi-val">{m["train_end"]}</span></div>
+    <div class="mi-row"><span class="mi-label">検証期間</span><span class="mi-val">{m["valid_period"]} ({m["valid_races"]}R)</span></div>
+    <div class="mi-row"><span class="mi-label">検証AUC</span><span class="mi-val mi-good">{m["auc_valid"]:.4f}</span></div>
+    <div class="mi-row"><span class="mi-label">直近OOS AUC</span><span class="mi-val" style="color:{auc_color}">{m["auc_oos"]:.4f} <small>(4/25-26)</small></span></div>
+    <div class="mi-row"><span class="mi-label">本命的中率</span><span class="mi-val mi-good">{m["rank1_win_rate"]:.1%} <small>(win_rank=1)</small></span></div>
+  </div>
+  <div class="mi-tier-legend">
+    <span class="mi-tier-title">Tier:</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥30%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 20-30%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 10-20%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 5-10%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;5%</span>
+  </div>
+</div>"""
+
+
+def render_calibration_section():
+    win_rows  = _load_csv(WIN_CAL_FILE)
+    top3_rows = _load_csv(TOP3_CAL_FILE)
+
+    def _dev_color(dev_str):
+        try:
+            d = float(dev_str)
+            if d > 0.03:  return "#81c784"
+            if d < -0.03: return "#ef5350"
+            return "#aaa"
+        except: return "#aaa"
+
+    def _tbl(rows, pred_col, actual_col, band_col):
+        if not rows:
+            return "<p style='color:#666;font-size:.8em'>データなし</p>"
+        hdr = "<tr><th>予測帯</th><th>頭数</th><th>予測平均</th><th>実際</th><th>乖離</th></tr>"
+        body = ""
+        for r in rows:
+            dev = r.get("deviation","0")
+            dc  = _dev_color(dev)
+            pp  = f"{float(r.get(pred_col,'0'))*100:.1f}%"
+            ap  = f"{float(r.get(actual_col,'0'))*100:.1f}%"
+            try: dp = f"{float(dev)*100:+.1f}%"
+            except: dp = dev
+            body += (f"<tr><td class='cal-band'>{r.get(band_col,'')}</td>"
+                     f"<td>{r.get('count','')}</td><td>{pp}</td>"
+                     f"<td style='font-weight:bold;color:#fff'>{ap}</td>"
+                     f"<td style='color:{dc};font-weight:bold'>{dp}</td></tr>")
+        return f"<table class='cal-tbl'><thead>{hdr}</thead><tbody>{body}</tbody></table>"
+
+    win_tbl  = _tbl(win_rows,  "avg_win_prob",  "actual_win_rate", "band")
+    top3_tbl = _tbl(top3_rows, "pred_avg",       "actual",          "band3")
+
+    return f"""<div class="cal-section">
+  <div class="cal-title">📊 モデル精度キャリブレーション</div>
+  <div class="cal-note">乖離 緑=モデルが控えめ（実際はより高い） 赤=過大評価 ／ 検証期間 2026-03-01〜04-24（420レース）</div>
+  <div class="cal-tabs">
+    <button class="cal-tab active" onclick="switchCal(this,'win')">単勝確率</button>
+    <button class="cal-tab" onclick="switchCal(this,'top3')">3着以内確率</button>
+  </div>
+  <div class="cal-pane" id="cal-win">{win_tbl}</div>
+  <div class="cal-pane" id="cal-top3" style="display:none">{top3_tbl}</div>
+</div>"""
 
 
 STYLE_BADGE = {
@@ -109,16 +207,24 @@ def render_race(race, race_num):
 
     rows = ""
     for i, h in enumerate(horses_sorted):
-        win_pct = h["win_prob"] * 100
+        win_pct   = h["win_prob"] * 100
         place_pct = h["place_prob"] * 100
-        odds = h.get("win_odds", 0)
-        odds_str = f"{odds:.1f}" if odds > 0 else "-"
-        style = h.get("running_style", "")
-        badge = STYLE_BADGE.get(style, "")
-        comment = h.get("comment", "")
+        odds      = h.get("win_odds", 0)
+        odds_str  = f"{odds:.1f}" if odds > 0 else "-"
+        style     = h.get("running_style", "")
+        badge     = STYLE_BADGE.get(style, "")
+        comment   = h.get("comment", "")
+        tier      = _win_tier(h["win_prob"])
+        tc        = TIER_COLOR[tier]
+        txt_color = "#000" if tier in ("B", "C") else "#fff"
+        tier_html = f'<span class="tier-badge-sm" style="background:{tc};color:{txt_color}">{tier}</span><span class="win-rank">#{i+1}</span>'
         cls = ' class="top"' if i < 3 else ""
-        comment_row = f'<tr class="comment-row"><td></td><td colspan="5" class="comment">{comment}</td></tr>' if comment else ""
-        rows += f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td><td>{h["jockey_name"]}</td><td class="odds-cell" data-rid="{race["race_id"]}" data-num="{h["number"]}">{odds_str}</td><td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>{comment_row}'
+        comment_row = f'<tr class="comment-row"><td></td><td colspan="6" class="comment">{comment}</td></tr>' if comment else ""
+        rows += (f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td>'
+                 f'<td>{h["jockey_name"]}</td>'
+                 f'<td class="odds-cell" data-rid="{race["race_id"]}" data-num="{h["number"]}">{odds_str}</td>'
+                 f'<td>{tier_html}</td>'
+                 f'<td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>{comment_row}')
 
     ability_section = ""
 
@@ -166,7 +272,7 @@ def render_race(race, race_num):
         f'<button class="btn-update-odds" data-rid="{race["race_id"]}" onclick="updateRaceOdds(this)">🔄 オッズ更新</button>'
         f'<span class="race-odds-status" data-rid="{race["race_id"]}"></span>'
         f'</div>'
-        f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>1着%</th><th>3着%</th></tr></thead>'
+        f'<table><thead><tr><th>馬番</th><th>馬名</th><th>騎手</th><th>単勝</th><th>Tier/#</th><th>1着%</th><th>3着%</th></tr></thead>'
         f'<tbody>{rows}</tbody></table>'
         f'{ability_section}'
         f'</div></details>'
@@ -381,6 +487,9 @@ def generate():
 
     sections = tabs_html + sections
 
+    model_info_html = render_model_info()
+    calibration_html = render_calibration_section()
+
     updated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
     html = f"""<!DOCTYPE html>
@@ -483,10 +592,34 @@ td:nth-child(6){{color:#4caf50}}
 .race-odds-status{{color:#888;font-size:.92em}}
 .race-odds-status.ok{{color:#81c784}}
 .race-odds-status.err{{color:#ef5350}}
+.tier-badge{{display:inline-block;padding:2px 7px;border-radius:4px;font-weight:bold;font-size:.78em;color:#fff;margin:0 2px}}
+.tier-badge-sm{{display:inline-block;padding:1px 5px;border-radius:3px;font-weight:bold;font-size:.75em;vertical-align:middle;margin-right:3px}}
+.win-rank{{color:#aaa;font-size:.72em;vertical-align:middle}}
+.model-info{{background:#1a2030;border:1px solid #334;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:.83em}}
+.mi-title{{color:#90caf9;font-weight:bold;margin-bottom:7px}}
+.mi-body{{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px 16px;margin-bottom:8px}}
+.mi-row{{display:flex;gap:6px;align-items:center}}
+.mi-label{{color:#888;min-width:80px;flex-shrink:0}}
+.mi-val{{color:#e0e0e0;font-weight:bold}}
+.mi-good{{color:#81c784}}
+.mi-tier-legend{{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #333}}
+.mi-tier-title{{color:#888;font-size:.85em;margin-right:4px}}
+.cal-section{{background:#1a2a1a;border:1px solid #2a4a2a;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:.83em}}
+.cal-title{{color:#a5d6a7;font-weight:bold;margin-bottom:5px}}
+.cal-note{{color:#777;font-size:.78em;margin-bottom:8px}}
+.cal-tabs{{display:flex;gap:6px;margin-bottom:8px}}
+.cal-tab{{background:#1e2e1e;color:#aaa;border:1px solid #334;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:.85em}}
+.cal-tab.active{{background:#2e5a2e;color:#fff;border-color:#4a8a4a}}
+.cal-tbl{{width:100%;border-collapse:collapse;font-size:.82em}}
+.cal-tbl th,.cal-tbl td{{padding:4px 8px;text-align:right;border-bottom:1px solid #222}}
+.cal-tbl th{{background:#1e2e1e;color:#aaa;text-align:right}}
+.cal-band{{text-align:left!important;color:#ccc;font-weight:bold}}
 </style>
 </head>
 <body>
 <h1>🏇 競馬予想 {date} <span id="odds-status" class="odds-status">⏳</span></h1>
+{model_info_html}
+{calibration_html}
 {sections}
 <p class="upd">更新: {updated} / オッズ: <span id="odds-updated">-</span></p>
 <script>
@@ -522,6 +655,15 @@ async function refreshOdds() {{
 }}
 refreshOdds();
 setInterval(refreshOdds, 30000);
+
+// キャリブレーションタブ切替
+function switchCal(btn, pane) {{
+  document.querySelectorAll('.cal-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.cal-pane').forEach(p => p.style.display = 'none');
+  var el = document.getElementById('cal-' + pane);
+  if (el) el.style.display = '';
+}}
 
 // 日付タブ切替
 function switchDate(btn) {{
