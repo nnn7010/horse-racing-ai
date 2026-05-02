@@ -948,5 +948,85 @@
     "3rd_name": "オーバースタンド",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020308": {
+    "1st": 5,
+    "1st_name": "リトルジャイアンツ",
+    "2nd": 6,
+    "2nd_name": "ノラリクラリ",
+    "3rd": 3,
+    "3rd_name": "アルマデオロ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020309": {
+    "1st": 12,
+    "1st_name": "リアライズカミオン",
+    "2nd": 2,
+    "2nd_name": "ギュルヴィ",
+    "3rd": 14,
+    "3rd_name": "アカデミア",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020310": {
+    "1st": 11,
+    "1st_name": "カナルサンマルタン",
+    "2nd": 6,
+    "2nd_name": "モートンアイランド",
+    "3rd": 2,
+    "3rd_name": "ドナルンバ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030309": {
+    "1st": 7,
+    "1st_name": "トリニティ",
+    "2nd": 9,
+    "2nd_name": "レイクラシック",
+    "3rd": 5,
+    "3rd_name": "クリスレジーナ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030310": {
+    "1st": 5,
+    "1st_name": "クアトロジャック",
+    "2nd": 8,
+    "2nd_name": "タイセイディアマン",
+    "3rd": 10,
+    "3rd_name": "セルヴァンス",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010109": {
+    "1st": 11,
+    "1st_name": "タガノエルー",
+    "2nd": 6,
+    "2nd_name": "ジェイエルモーダル",
+    "3rd": 12,
+    "3rd_name": "ユアフェリシティ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010110": {
+    "1st": 4,
+    "1st_name": "マイネルフルムーン",
+    "2nd": 15,
+    "2nd_name": "コンフォルツァ",
+    "3rd": 8,
+    "3rd_name": "コスモイシュタル",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010111": {
+    "1st": 5,
+    "1st_name": "クインズショコラ",
+    "2nd": 12,
+    "2nd_name": "エルフストラック",
+    "3rd": 13,
+    "3rd_name": "ウィンターダフネ",
+    "payouts": {},
+    "status": "confirmed"
   }
 }
