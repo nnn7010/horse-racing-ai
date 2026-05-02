@@ -413,6 +413,32 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         df["same_ctx_time_dev"] = np.where(same_ctx, df["prev1_time_deviation"], np.nan)
         df.drop(["__dist_band2", "__ctx_key", "__td_val", "__prev_ctx_key"], axis=1, inplace=True)
 
+    # コーナー通過順位（4コーナー基準の先行/差し特徴量）
+    # passing フォーマット: '5-4-5' or '1-1-1-1' (最後の値 = 最終コーナー通過順位)
+    if "passing" in df.columns and "num_runners" in df.columns:
+        def _last_corner(s):
+            if pd.isna(s) or str(s).strip() == "":
+                return np.nan
+            parts = str(s).split("-")
+            try:
+                return float(parts[-1])
+            except (ValueError, IndexError):
+                return np.nan
+
+        df["_last_cp"] = df["passing"].map(_last_corner)
+        df["_corner_rel"] = df["_last_cp"] / df["num_runners"].clip(lower=1)
+
+        for i in range(1, 4):
+            df[f"prev{i}_corner_pos"] = df.groupby("horse_id")["_corner_rel"].shift(i)
+
+        df["avg_corner_pos_3"] = df.groupby("horse_id")["_corner_rel"].transform(
+            lambda x: x.shift(1).rolling(3, min_periods=1).mean()
+        )
+        df["corner_pos_std_3"] = df.groupby("horse_id")["_corner_rel"].transform(
+            lambda x: x.shift(1).rolling(3, min_periods=2).std()
+        )
+        df.drop(["_last_cp", "_corner_rel"], axis=1, inplace=True)
+
     return df
 
 
@@ -687,6 +713,26 @@ def _add_within_field_features(df: pd.DataFrame) -> pd.DataFrame:
             df[dst] = df.groupby("race_id")[src].transform(
                 lambda x: x - x.mean()
             )
+
+    # 展開予測特徴量（コーナー通過順位ベース）
+    if "avg_corner_pos_3" in df.columns:
+        # フィールド内相対コーナー位置（負=フィールド内で前、正=後ろ）
+        df["rel_corner_pos"] = df.groupby("race_id")["avg_corner_pos_3"].transform(
+            lambda x: x - x.mean()
+        )
+        # フィールド内先行馬比率（avg_corner_pos_3 < 0.3 の割合）
+        df["_is_front"] = (df["avg_corner_pos_3"] < 0.3).astype(float)
+        df["field_leader_ratio"] = df.groupby("race_id")["_is_front"].transform("mean")
+        df.drop("_is_front", axis=1, inplace=True)
+
+        # 展開フィット指数: (1 - 2*cp) * (1 - 2*lr)
+        # 先行系×先行少ない / 差し系×先行多い → 正（有利）
+        # 先行系×先行多い / 差し系×先行少ない → 負（不利）
+        df["corner_style_fit"] = (
+            (1.0 - 2.0 * df["avg_corner_pos_3"].fillna(0.5)) *
+            (1.0 - 2.0 * df["field_leader_ratio"].fillna(0.33))
+        )
+
     logger.info(f"Added within-field relative features: {list(rel_targets.values())}")
     return df
 

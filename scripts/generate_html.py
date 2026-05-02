@@ -22,18 +22,42 @@ MODEL_INFO = {
     "valid_races": 420,
     "auc_valid": 0.7945,
     "auc_oos": 0.7235,
-    "rank1_win_rate": 0.283,
+    "rank1_win_rate": 0.305,
 }
 
 TIER_COLOR = {"S": "#e53935", "A": "#fb8c00", "B": "#fdd835", "C": "#66bb6a", "D": "#78909c"}
 
+# キャリブレーション実績（バックテスト2026/3-4 + 実走5/2、287レース）
+TIER_CALIB = {
+    "S":  "実績40%+勝",
+    "A":  "実績33%勝",
+    "B":  "実績18-25%勝",
+    "C":  "実績7-12%勝",
+    "D":  "実績2.5%勝",
+}
+
 
 def _win_tier(wp):
-    if wp >= 0.30: return "S"
-    if wp >= 0.20: return "A"
-    if wp >= 0.10: return "B"
+    if wp >= 0.35: return "S"
+    if wp >= 0.25: return "A"
+    if wp >= 0.15: return "B"
     if wp >= 0.05: return "C"
     return "D"
+
+
+def _race_confidence(horses):
+    """トップ馬win_probからレース全体の信頼度ラベルを返す (label, color, ref_text)。"""
+    if not horses:
+        return "混戦", "#546e7a", ""
+    top_wp = max(h["win_prob"] for h in horses)
+    if top_wp >= 0.35:
+        return "確信", "#c62828", "実績62%的中"
+    elif top_wp >= 0.25:
+        return "本命", "#e65100", "実績33%的中"
+    elif top_wp >= 0.15:
+        return "注目", "#f9a825", "実績25%的中"
+    else:
+        return "混戦", "#546e7a", ""
 
 
 def _load_csv(path):
@@ -57,11 +81,11 @@ def render_model_info():
   </div>
   <div class="mi-tier-legend">
     <span class="mi-tier-title">Tier:</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥30%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 20-30%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 10-20%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 5-10%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;5%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥35%</span><span class="mi-calib">{TIER_CALIB['S']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 25-35%</span><span class="mi-calib">{TIER_CALIB['A']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 15-25%</span><span class="mi-calib">{TIER_CALIB['B']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 5-15%</span><span class="mi-calib">{TIER_CALIB['C']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;5%</span><span class="mi-calib">{TIER_CALIB['D']}</span>
   </div>
 </div>"""
 
@@ -260,9 +284,17 @@ def render_race(race, race_num):
     # サマリー: 推奨買い目があるレースに🎯マーク
     rec_indicator = '<span class="rec-indicator">🎯</span>' if recs else ''
 
+    # 信頼度バッジ
+    conf_label, conf_color, conf_ref = _race_confidence(race["horses"])
+    conf_ref_html = f'<span class="conf-ref">{conf_ref}</span>' if conf_ref else ''
+    conf_badge = (
+        f'<span class="conf-badge" style="background:{conf_color}">{conf_label}</span>'
+        f'{conf_ref_html}'
+    )
+
     return (
         f'<details><summary>'
-        f'<b>{race_num}R</b> {race["race_name"]}{rec_indicator}'
+        f'<b>{race_num}R</b> {race["race_name"]}{rec_indicator} {conf_badge}'
         f'<small> {meta}{" " + time_str if time_str else ""}</small>'
         f'</summary>'
         f'<div class="d">'
@@ -595,6 +627,9 @@ td:nth-child(6){{color:#4caf50}}
 .tier-badge{{display:inline-block;padding:2px 7px;border-radius:4px;font-weight:bold;font-size:.78em;color:#fff;margin:0 2px}}
 .tier-badge-sm{{display:inline-block;padding:1px 5px;border-radius:3px;font-weight:bold;font-size:.75em;vertical-align:middle;margin-right:3px}}
 .win-rank{{color:#aaa;font-size:.72em;vertical-align:middle}}
+.conf-badge{{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.72em;font-weight:bold;color:#fff;vertical-align:middle;margin-left:4px}}
+.conf-ref{{font-size:.65em;color:#bbb;margin-left:4px;vertical-align:middle}}
+.mi-calib{{font-size:.72em;color:#888;margin-right:8px;vertical-align:middle}}
 .model-info{{background:#1a2030;border:1px solid #334;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:.83em}}
 .mi-title{{color:#90caf9;font-weight:bold;margin-bottom:7px}}
 .mi-body{{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px 16px;margin-bottom:8px}}
@@ -602,7 +637,7 @@ td:nth-child(6){{color:#4caf50}}
 .mi-label{{color:#888;min-width:80px;flex-shrink:0}}
 .mi-val{{color:#e0e0e0;font-weight:bold}}
 .mi-good{{color:#81c784}}
-.mi-tier-legend{{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #333}}
+.mi-tier-legend{{display:flex;flex-wrap:wrap;gap:2px 6px;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #333}}
 .mi-tier-title{{color:#888;font-size:.85em;margin-right:4px}}
 .cal-section{{background:#1a2a1a;border:1px solid #2a4a2a;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:.83em}}
 .cal-title{{color:#a5d6a7;font-weight:bold;margin-bottom:5px}}

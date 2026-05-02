@@ -107,7 +107,7 @@ def _assign_win_rank_tier(pred_df: pd.DataFrame) -> pd.DataFrame:
         .rank(method="first", ascending=False)
         .astype(int)
     )
-    bins = [0.0, 0.05, 0.10, 0.20, 0.30, 1.01]
+    bins = [0.0, 0.05, 0.15, 0.25, 0.35, 1.01]
     labels = ["D", "C", "B", "A", "S"]
     pred_df["win_tier"] = pd.cut(
         pred_df["win_prob"], bins=bins, labels=labels, right=False
