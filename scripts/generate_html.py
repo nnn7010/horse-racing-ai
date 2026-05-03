@@ -48,11 +48,11 @@ def _win_tier(wp):
 
 def _top3_tier(tp):
     """3着以内確率Tier。境界はtop3_calibration.csvの帯に一致。"""
-    if tp >= 0.60: return "S"   # 60-70%+ 帯
-    if tp >= 0.40: return "A"   # 40-60%帯（40-50% + 50-60%を統合）
-    if tp >= 0.30: return "B"   # 30-40%帯
-    if tp >= 0.20: return "C"   # 20-30%帯
-    return "D"                   # <20%帯
+    if tp >= 0.70: return "S"   # 70%+ 帯（実績85%）
+    if tp >= 0.60: return "A"   # 60-70%帯（実績71%）
+    if tp >= 0.40: return "B"   # 40-60%帯（実績52-59%）
+    if tp >= 0.20: return "C"   # 20-40%帯（実績26-32%）
+    return "D"                   # <20%帯（実績9%）
 
 
 def _race_confidence(horses):
@@ -98,10 +98,10 @@ def render_model_info():
     <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 5-10%</span><span class="mi-calib">{TIER_CALIB['C']}</span>
     <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;5%</span><span class="mi-calib">{TIER_CALIB['D']}</span>
     <br><span class="mi-tier-title">3着Tier:</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥60%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 40-60%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 30-40%</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 20-30%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥70%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 60-70%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 40-60%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 20-40%</span>
     <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;20%</span>
   </div>
 </div>"""
