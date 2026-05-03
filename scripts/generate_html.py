@@ -45,6 +45,15 @@ def _win_tier(wp):
     return "D"
 
 
+def _top3_tier(tp):
+    """3着以内確率のTier（win_probの約3倍スケール）。"""
+    if tp >= 0.60: return "S"
+    if tp >= 0.45: return "A"
+    if tp >= 0.30: return "B"
+    if tp >= 0.15: return "C"
+    return "D"
+
+
 def _race_confidence(horses):
     """トップ馬win_probからレース全体の信頼度ラベルを返す (label, color, ref_text)。"""
     if not horses:
@@ -243,13 +252,17 @@ def render_race(race, race_num):
         tc        = TIER_COLOR[tier]
         txt_color = "#000" if tier in ("B", "C") else "#fff"
         tier_html = f'<span class="tier-badge-sm" style="background:{tc};color:{txt_color}">{tier}</span><span class="win-rank">#{i+1}</span>'
+        t3tier     = _top3_tier(h["place_prob"])
+        t3tc       = TIER_COLOR[t3tier]
+        t3txt      = "#000" if t3tier in ("B", "C") else "#fff"
+        t3tier_html = f'<span class="tier-badge-sm" style="background:{t3tc};color:{t3txt}">{t3tier}</span>'
         cls = ' class="top"' if i < 3 else ""
         comment_row = f'<tr class="comment-row"><td></td><td colspan="6" class="comment">{comment}</td></tr>' if comment else ""
         rows += (f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td>'
                  f'<td>{h["jockey_name"]}</td>'
                  f'<td class="odds-cell" data-rid="{race["race_id"]}" data-num="{h["number"]}">{odds_str}</td>'
                  f'<td>{tier_html}</td>'
-                 f'<td>{win_pct:.1f}%</td><td>{place_pct:.1f}%</td></tr>{comment_row}')
+                 f'<td>{win_pct:.1f}%</td><td>{t3tier_html}{place_pct:.1f}%</td></tr>{comment_row}')
 
     ability_section = ""
 
