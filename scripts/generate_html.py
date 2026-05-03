@@ -27,31 +27,32 @@ MODEL_INFO = {
 
 TIER_COLOR = {"S": "#e53935", "A": "#fb8c00", "B": "#fdd835", "C": "#66bb6a", "D": "#78909c"}
 
-# キャリブレーション実績（バックテスト2026/3-4 + 実走5/2、287レース）
+# キャリブレーション実績（win_calibration.csv / top3_calibration.csv 帯に合わせた境界）
 TIER_CALIB = {
-    "S":  "実績40%+勝",
-    "A":  "実績33%勝",
-    "B":  "実績18-25%勝",
-    "C":  "実績7-12%勝",
-    "D":  "実績2.5%勝",
+    "S":  "実績39%勝",
+    "A":  "実績27%勝",
+    "B":  "実績12-17%勝",
+    "C":  "実績8%勝",
+    "D":  "実績2%勝",
 }
 
 
 def _win_tier(wp):
-    if wp >= 0.35: return "S"
-    if wp >= 0.25: return "A"
-    if wp >= 0.15: return "B"
-    if wp >= 0.05: return "C"
-    return "D"
+    """単勝確率Tier。境界はwin_calibration.csvの帯に一致。"""
+    if wp >= 0.30: return "S"   # 30%+帯
+    if wp >= 0.20: return "A"   # 20-30%帯
+    if wp >= 0.10: return "B"   # 10-20%帯（10-15% + 15-20%を統合）
+    if wp >= 0.05: return "C"   # 5-10%帯
+    return "D"                   # <5%帯
 
 
 def _top3_tier(tp):
-    """3着以内確率のTier（win_probの約3倍スケール）。"""
-    if tp >= 0.60: return "S"
-    if tp >= 0.45: return "A"
-    if tp >= 0.30: return "B"
-    if tp >= 0.15: return "C"
-    return "D"
+    """3着以内確率Tier。境界はtop3_calibration.csvの帯に一致。"""
+    if tp >= 0.60: return "S"   # 60-70%+ 帯
+    if tp >= 0.40: return "A"   # 40-60%帯（40-50% + 50-60%を統合）
+    if tp >= 0.30: return "B"   # 30-40%帯
+    if tp >= 0.20: return "C"   # 20-30%帯
+    return "D"                   # <20%帯
 
 
 def _race_confidence(horses):
@@ -90,11 +91,18 @@ def render_model_info():
   </div>
   <div class="mi-tier-legend">
     <span class="mi-tier-title">Tier:</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥35%</span><span class="mi-calib">{TIER_CALIB['S']}</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 25-35%</span><span class="mi-calib">{TIER_CALIB['A']}</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 15-25%</span><span class="mi-calib">{TIER_CALIB['B']}</span>
-    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 5-15%</span><span class="mi-calib">{TIER_CALIB['C']}</span>
+    <span class="mi-tier-title">単勝Tier:</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥30%</span><span class="mi-calib">{TIER_CALIB['S']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 20-30%</span><span class="mi-calib">{TIER_CALIB['A']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 10-20%</span><span class="mi-calib">{TIER_CALIB['B']}</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 5-10%</span><span class="mi-calib">{TIER_CALIB['C']}</span>
     <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;5%</span><span class="mi-calib">{TIER_CALIB['D']}</span>
+    <br><span class="mi-tier-title">3着Tier:</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['S']}">S ≥60%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['A']}">A 40-60%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['B']};color:#000">B 30-40%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['C']};color:#000">C 20-30%</span>
+    <span class="tier-badge" style="background:{TIER_COLOR['D']}">D &lt;20%</span>
   </div>
 </div>"""
 
