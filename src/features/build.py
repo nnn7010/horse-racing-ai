@@ -439,6 +439,7 @@ def _add_horse_features(df: pd.DataFrame) -> pd.DataFrame:
         )
         df.drop(["_last_cp", "_corner_rel"], axis=1, inplace=True)
 
+
     return df
 
 

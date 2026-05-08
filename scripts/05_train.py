@@ -62,6 +62,32 @@ def main():
     )
     logger.info("Win model training complete.")
 
+    # 芝・ダート別モデル（共通モデルより精度改善が期待される）
+    for surface in ["芝", "ダート"]:
+        label = "turf" if surface == "芝" else "dirt"
+        logger.info(f"=== {surface}モデル学習開始 ===")
+        train_model(
+            df,
+            train_end=config["split"]["train_end"],
+            valid_start=config["split"]["valid_start"],
+            valid_end=config["split"]["valid_end"],
+            n_trials=config["model"]["n_trials"],
+            seed=config["model"]["seed"],
+            model_dir=model_dir,
+            surface=surface,
+        )
+        train_win_model(
+            df,
+            train_end=config["split"]["train_end"],
+            valid_start=config["split"]["valid_start"],
+            valid_end=config["split"]["valid_end"],
+            n_trials=20,
+            seed=config["model"]["seed"],
+            model_dir=model_dir,
+            surface=surface,
+        )
+        logger.info(f"{surface}モデル学習完了")
+
 
 if __name__ == "__main__":
     main()
