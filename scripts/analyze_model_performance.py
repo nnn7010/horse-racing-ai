@@ -30,29 +30,54 @@ PLACE_CODES = {
 }
 
 
-def load_data(pred_path: str, result_path: str) -> pd.DataFrame:
+def _build_date_map(target_path: Path) -> dict[str, str]:
+    """target_races.json から race_id → 実カレンダー日付 のマップを返す。"""
+    date_map: dict[str, str] = {}
+    if target_path.exists():
+        with open(target_path, encoding="utf-8") as f:
+            for r in json.load(f):
+                if r.get("race_id") and r.get("date"):
+                    date_map[r["race_id"]] = str(r["date"])
+    return date_map
+
+
+def load_data(pred_path: str, result_path: str,
+              extra_pred_json: str | None = None,
+              extra_date_map: dict[str, str] | None = None) -> pd.DataFrame:
+    """予測と結果を突合してDataFrameを返す。
+
+    extra_pred_json: 追加の予測JSONテキスト（例: git履歴から取得した過去分）
+    extra_date_map: 追加予測分の race_id → 実日付 マップ
+    """
     pred_path = Path(pred_path)
     with open(pred_path, encoding="utf-8") as f:
         pred_data = json.load(f)
     with open(result_path, encoding="utf-8") as f:
         result_data = json.load(f)
 
-    # target_races.json から race_id → 実カレンダー日付 のマップを構築
     # race_id の先頭8文字は YYYYVVHH (場コード+開催番号) であり日付ではない
-    date_map: dict[str, str] = {}
-    target_path = pred_path.parent / "target_races.json"
-    if target_path.exists():
-        with open(target_path, encoding="utf-8") as f:
-            for r in json.load(f):
-                if r.get("race_id") and r.get("date"):
-                    date_map[r["race_id"]] = str(r["date"])
-    # フォールバック: predictions のトップレベル date フィールド ("2026/05/02" → "20260502")
+    # target_races.json から実カレンダー日付を取得する
+    date_map = _build_date_map(pred_path.parent / "target_races.json")
+    if extra_date_map:
+        date_map.update(extra_date_map)
     fallback_date = pred_data.get("date", "").replace("/", "")
+
+    # 通常の予測データ + 追加予測データ をまとめる
+    all_races = list(pred_data["races"])
+    if extra_pred_json:
+        extra_data = json.loads(extra_pred_json)
+        all_races.extend(extra_data.get("races", []))
+        if not fallback_date:
+            fallback_date = extra_data.get("date", "").replace("/", "")
 
     rows = []
     skipped = 0
-    for race in pred_data["races"]:
+    seen_race_ids: set[str] = set()
+    for race in all_races:
         rid = race["race_id"]
+        if rid in seen_race_ids:
+            continue
+        seen_race_ids.add(rid)
         if rid not in result_data:
             skipped += 1
             continue
@@ -311,6 +336,16 @@ def analyze(df: pd.DataFrame):
     return df
 
 
+def _git_show(git_ref: str, filepath: str) -> str | None:
+    """git show でファイル内容を取得する。失敗時は None を返す。"""
+    import subprocess
+    result = subprocess.run(
+        ["git", "show", f"{git_ref}:{filepath}"],
+        capture_output=True, text=True, encoding="utf-8",
+    )
+    return result.stdout if result.returncode == 0 else None
+
+
 def main():
     base = Path(__file__).resolve().parents[1]
     pred_path = base / "data/raw/today_predictions.json"
@@ -323,8 +358,36 @@ def main():
         logger.error(f"結果ファイルが見つかりません: {result_path}")
         return
 
+    # ── 過去の予測データを git 履歴から取得 ──
+    # 4/25-26 予測: commit 6e4d49f の today_predictions.json
+    # 4/25-26 日付マップ: commit 717e159 の target_races.json
+    PAST_SNAPSHOTS = [
+        {"pred_ref": "6e4d49f", "target_ref": "717e159", "label": "4/25-26"},
+    ]
+
+    extra_pred_json = None
+    extra_date_map: dict[str, str] = {}
+
+    for snap in PAST_SNAPSHOTS:
+        pred_json = _git_show(snap["pred_ref"], "data/raw/today_predictions.json")
+        target_json = _git_show(snap["target_ref"], "data/raw/target_races.json")
+        if pred_json:
+            extra_pred_json = pred_json
+            logger.info(f"過去予測読み込み: {snap['label']} ({snap['pred_ref']})")
+        else:
+            logger.warning(f"git show 失敗: {snap['pred_ref']}")
+        if target_json:
+            for r in json.loads(target_json):
+                if r.get("race_id") and r.get("date"):
+                    extra_date_map[r["race_id"]] = str(r["date"])
+            logger.info(f"過去日付マップ読み込み: {snap['label']} ({snap['target_ref']}, {len(extra_date_map)}件)")
+        else:
+            logger.warning(f"git show 失敗: {snap['target_ref']}")
+
     logger.info("データ読み込み中...")
-    df = load_data(str(pred_path), str(result_path))
+    df = load_data(str(pred_path), str(result_path),
+                   extra_pred_json=extra_pred_json,
+                   extra_date_map=extra_date_map)
     if df.empty:
         logger.error("マッチするデータがありません")
         return
