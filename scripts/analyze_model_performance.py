@@ -31,10 +31,23 @@ PLACE_CODES = {
 
 
 def load_data(pred_path: str, result_path: str) -> pd.DataFrame:
+    pred_path = Path(pred_path)
     with open(pred_path, encoding="utf-8") as f:
         pred_data = json.load(f)
     with open(result_path, encoding="utf-8") as f:
         result_data = json.load(f)
+
+    # target_races.json から race_id → 実カレンダー日付 のマップを構築
+    # race_id の先頭8文字は YYYYVVHH (場コード+開催番号) であり日付ではない
+    date_map: dict[str, str] = {}
+    target_path = pred_path.parent / "target_races.json"
+    if target_path.exists():
+        with open(target_path, encoding="utf-8") as f:
+            for r in json.load(f):
+                if r.get("race_id") and r.get("date"):
+                    date_map[r["race_id"]] = str(r["date"])
+    # フォールバック: predictions のトップレベル date フィールド ("2026/05/02" → "20260502")
+    fallback_date = pred_data.get("date", "").replace("/", "")
 
     rows = []
     skipped = 0
@@ -53,7 +66,7 @@ def load_data(pred_path: str, result_path: str) -> pd.DataFrame:
         actual_3rd = res.get("3rd", -1)
         actual_top3 = {actual_1st, actual_2nd, actual_3rd} - {-1, 0, None}
 
-        date_str = rid[:8]
+        date_str = date_map.get(rid, fallback_date)
         place_code = rid[4:6]
         place_name = PLACE_CODES.get(place_code, "?")
 
