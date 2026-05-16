@@ -27,6 +27,15 @@ MODEL_INFO = {
 
 TIER_COLOR = {"S": "#e53935", "A": "#fb8c00", "B": "#fdd835", "C": "#66bb6a", "D": "#78909c"}
 
+# レース個別の傾向補正（当日コース傾向を反映したい未完了レース）
+# mult: 枠番 → 倍率、note: 表示文字列
+RACE_TREND_OVERRIDES = {
+    "202608030412": {  # 京都12R 東大路S ダート1400m
+        "mult": {1: 0.70, 2: 0.70, 3: 0.85, 4: 0.85, 5: 1.30, 6: 1.30, 7: 1.30, 8: 1.30},
+        "note": "外枠有利（本日京都ダート 5R中4勝 80%）",
+    },
+}
+
 # キャリブレーション実績（win_calibration.csv / top3_calibration.csv 帯に合わせた境界）
 TIER_CALIB = {
     "S":  "実績39%勝",
@@ -35,6 +44,41 @@ TIER_CALIB = {
     "C":  "実績8%勝",
     "D":  "実績2%勝",
 }
+
+
+def compute_bracket_bias(races_data):
+    """完了レースリストから枠番バイアスを計算する。
+    races_data: list of {winner_bracket, ...}
+    returns (multiplier_dict or None, note_str, n_samples)
+    """
+    n = len(races_data)
+    if n < 3:
+        return None, "データ不足", n
+    inner = sum(1 for r in races_data if r.get("winner_bracket", 0) in range(1, 5))
+    outer = sum(1 for r in races_data if r.get("winner_bracket", 0) in range(5, 9))
+    if outer / n >= 0.65:
+        mult = {1: 0.70, 2: 0.70, 3: 0.85, 4: 0.85, 5: 1.30, 6: 1.30, 7: 1.30, 8: 1.30}
+        note = f"外枠有利（{outer}/{n}勝 {outer/n:.0%}）"
+    elif inner / n >= 0.65:
+        mult = {1: 1.30, 2: 1.30, 3: 1.15, 4: 1.15, 5: 0.85, 6: 0.85, 7: 0.70, 8: 0.70}
+        note = f"内枠有利（{inner}/{n}勝 {inner/n:.0%}）"
+    else:
+        return None, "枠差なし", n
+    return mult, note, n
+
+
+def apply_bracket_bias(race, multiplier):
+    """枠番バイアスをhorsesのwin_probに適用した新しいリストを返す（元データは変更しない）。"""
+    import copy
+    horses = copy.deepcopy(race["horses"])
+    for h in horses:
+        h["win_prob_orig"] = h["win_prob"]
+        h["win_prob"] = h["win_prob"] * multiplier.get(h.get("bracket", 0), 1.0)
+    total = sum(h["win_prob"] for h in horses)
+    if total > 0:
+        for h in horses:
+            h["win_prob"] /= total
+    return horses
 
 
 def _win_tier(wp):
@@ -243,7 +287,7 @@ def render_recommendations(recs):
     return f'<div class="rec-section"><div class="rec-title">💡 推奨買い目</div>{blocks}</div>'
 
 
-def render_race(race, race_num):
+def render_race(race, race_num, trend_note=""):
     surface_icon = "🌿" if race["surface"] == "芝" else "🟤"
     horses_sorted = sorted(race["horses"], key=lambda h: -h["win_prob"])
 
@@ -266,11 +310,17 @@ def render_race(race, race_num):
         t3tier_html = f'<span class="tier-badge-sm" style="background:{t3tc};color:{t3txt}">{t3tier}</span>'
         cls = ' class="top"' if i < 3 else ""
         comment_row = f'<tr class="comment-row"><td></td><td colspan="6" class="comment">{comment}</td></tr>' if comment else ""
+        # 傾向補正がある場合は元の確率を小字で表示
+        orig = h.get("win_prob_orig")
+        if orig is not None:
+            win_pct_html = f'{win_pct:.1f}%<small class="orig-prob"> (元{orig*100:.1f}%)</small>'
+        else:
+            win_pct_html = f'{win_pct:.1f}%'
         rows += (f'<tr{cls}><td>{h["number"]}</td><td>{badge}{h["horse_name"]}</td>'
                  f'<td>{h["jockey_name"]}</td>'
                  f'<td class="odds-cell" data-rid="{race["race_id"]}" data-num="{h["number"]}">{odds_str}</td>'
                  f'<td>{tier_html}</td>'
-                 f'<td>{win_pct:.1f}%</td><td>{t3tier_html}{place_pct:.1f}%</td></tr>{comment_row}')
+                 f'<td>{win_pct_html}</td><td>{t3tier_html}{place_pct:.1f}%</td></tr>{comment_row}')
 
     ability_section = ""
 
@@ -306,6 +356,15 @@ def render_race(race, race_num):
     # サマリー: 推奨買い目があるレースに🎯マーク
     rec_indicator = '<span class="rec-indicator">🎯</span>' if recs else ''
 
+    # 傾向反映バッジ（summary行に表示）
+    trend_badge = '<span class="trend-badge">📊傾向反映</span>' if trend_note else ''
+
+    # 傾向説明バナー（詳細内に表示）
+    trend_banner = (
+        f'<div class="trend-banner">📊 本日コース傾向を反映: {trend_note}'
+        f'<span class="trend-banner-note"> ※1着%は補正後（元の値は括弧内）</span></div>'
+    ) if trend_note else ''
+
     # 信頼度バッジ
     conf_label, conf_color, conf_ref = _race_confidence(race["horses"])
     conf_ref_html = f'<span class="conf-ref">{conf_ref}</span>' if conf_ref else ''
@@ -316,10 +375,11 @@ def render_race(race, race_num):
 
     return (
         f'<details><summary>'
-        f'<b>{race_num}R</b> {race["race_name"]}{rec_indicator} {conf_badge}'
+        f'<b>{race_num}R</b> {race["race_name"]}{rec_indicator} {conf_badge}{trend_badge}'
         f'<small> {meta}{" " + time_str if time_str else ""}</small>'
         f'</summary>'
         f'<div class="d">'
+        f'{trend_banner}'
         f'{rec_html}'
         f'{pace_html}'
         f'<div class="race-toolbar">'
@@ -528,7 +588,15 @@ def generate():
             sections += '<div class="trends-empty">📊 本日のレース未開催（傾向はレース終了後に表示）</div>'
 
         for venue, vraces in venues.items():
-            blocks = "".join(render_race(r, i + 1) for i, r in enumerate(vraces))
+            blocks = ""
+            for i, r in enumerate(vraces):
+                bias = RACE_TREND_OVERRIDES.get(r["race_id"])
+                if bias and r["race_id"] not in results:
+                    r_adj = dict(r)
+                    r_adj["horses"] = apply_bracket_bias(r, bias["mult"])
+                    blocks += render_race(r_adj, i + 1, trend_note=bias["note"])
+                else:
+                    blocks += render_race(r, i + 1)
             sections += f'<h3 class="venue-h">🏟 {venue}</h3>{blocks}'
         sections += '</div>'
 
@@ -651,6 +719,10 @@ td:nth-child(6){{color:#4caf50}}
 .win-rank{{color:#aaa;font-size:.72em;vertical-align:middle}}
 .conf-badge{{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.72em;font-weight:bold;color:#fff;vertical-align:middle;margin-left:4px}}
 .conf-ref{{font-size:.65em;color:#bbb;margin-left:4px;vertical-align:middle}}
+.trend-badge{{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.72em;font-weight:bold;background:#1565c0;color:#fff;vertical-align:middle;margin-left:4px}}
+.trend-banner{{background:#0d2a4a;border:1px solid #1565c0;border-radius:6px;padding:7px 12px;margin-bottom:8px;font-size:.82em;color:#90caf9}}
+.trend-banner-note{{color:#607d8b;font-size:.88em;margin-left:6px}}
+.orig-prob{{color:#888;font-size:.82em}}
 .mi-calib{{font-size:.72em;color:#888;margin-right:8px;vertical-align:middle}}
 .model-info{{background:#1a2030;border:1px solid #334;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:.83em}}
 .mi-title{{color:#90caf9;font-weight:bold;margin-bottom:7px}}
