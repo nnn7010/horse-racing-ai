@@ -1788,5 +1788,15 @@
     "3rd_name": "フクノブルーレイク",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202604010512": {
+    "1st": 10,
+    "1st_name": "サンタアニタ",
+    "2nd": 11,
+    "2nd_name": "ワンコールアウェイ",
+    "3rd": 13,
+    "3rd_name": "シュードタキライト",
+    "payouts": {},
+    "status": "confirmed"
   }
 }

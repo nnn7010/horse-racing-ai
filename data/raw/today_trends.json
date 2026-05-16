@@ -12,7 +12,7 @@
         "other": 1
       },
       "fav_trust": "中",
-      "avg_winner_odds": 24.6,
+      "avg_winner_odds": 24.5,
       "races": [
         {
           "race_id": "202605020701",
@@ -90,7 +90,7 @@
           "winner_num": 8,
           "winner_name": "メリディアンスター",
           "winner_bracket": 6,
-          "winner_odds": 3.0,
+          "winner_odds": 2.9,
           "winner_pop": 1,
           "n_horses": 12,
           "surface": "ダート",
@@ -104,7 +104,7 @@
           "winner_num": 4,
           "winner_name": "チギリ",
           "winner_bracket": 3,
-          "winner_odds": 4.0,
+          "winner_odds": 3.8,
           "winner_pop": 2,
           "n_horses": 14,
           "surface": "ダート",
@@ -126,7 +126,7 @@
         "other": 2
       },
       "fav_trust": "低",
-      "avg_winner_odds": 21.3,
+      "avg_winner_odds": 22.0,
       "races": [
         {
           "race_id": "202605020704",
@@ -190,8 +190,8 @@
           "winner_num": 7,
           "winner_name": "キングスコール",
           "winner_bracket": 4,
-          "winner_odds": 11.4,
-          "winner_pop": 4,
+          "winner_odds": 14.9,
+          "winner_pop": 5,
           "n_horses": 15,
           "surface": "芝",
           "distance": 2400,
@@ -212,7 +212,7 @@
         "other": 2
       },
       "fav_trust": "高",
-      "avg_winner_odds": 8.7,
+      "avg_winner_odds": 8.6,
       "races": [
         {
           "race_id": "202608030701",
@@ -262,7 +262,7 @@
           "winner_num": 13,
           "winner_name": "ヒルノハンブルク",
           "winner_bracket": 7,
-          "winner_odds": 8.0,
+          "winner_odds": 7.8,
           "winner_pop": 4,
           "n_horses": 15,
           "surface": "ダート",
@@ -276,7 +276,7 @@
           "winner_num": 10,
           "winner_name": "ライトニングゼウス",
           "winner_bracket": 6,
-          "winner_odds": 2.7,
+          "winner_odds": 2.3,
           "winner_pop": 1,
           "n_horses": 15,
           "surface": "ダート",
@@ -390,7 +390,7 @@
           "winner_num": 12,
           "winner_name": "フリッカージャブ",
           "winner_bracket": 6,
-          "winner_odds": 2.1,
+          "winner_odds": 1.8,
           "winner_pop": 1,
           "n_horses": 16,
           "surface": "芝",
@@ -490,7 +490,7 @@
           "winner_num": 1,
           "winner_name": "アークドール",
           "winner_bracket": 1,
-          "winner_odds": 4.7,
+          "winner_odds": 5.1,
           "winner_pop": 2,
           "n_horses": 9,
           "surface": "ダート",
@@ -501,18 +501,18 @@
       ]
     },
     "新潟 芝": {
-      "completed": 5,
-      "bracket_bias": "内枠有利",
+      "completed": 6,
+      "bracket_bias": "枠差なし",
       "inner_wins": 3,
-      "outer_wins": 2,
+      "outer_wins": 3,
       "pop_wins": {
         "1": 2,
         "2": 0,
-        "3": 1,
+        "3": 2,
         "other": 2
       },
-      "fav_trust": "高",
-      "avg_winner_odds": 17.2,
+      "fav_trust": "中",
+      "avg_winner_odds": 15.4,
       "races": [
         {
           "race_id": "202604010503",
@@ -576,13 +576,27 @@
           "winner_num": 3,
           "winner_name": "グランディア",
           "winner_bracket": 2,
-          "winner_odds": 13.9,
+          "winner_odds": 15.3,
           "winner_pop": 7,
           "n_horses": 15,
           "surface": "芝",
           "distance": 2000,
           "2nd": 11,
           "3rd": 9
+        },
+        {
+          "race_id": "202604010512",
+          "race_name": "4歳以上1勝クラス",
+          "winner_num": 10,
+          "winner_name": "サンタアニタ",
+          "winner_bracket": 5,
+          "winner_odds": 5.0,
+          "winner_pop": 3,
+          "n_horses": 16,
+          "surface": "芝",
+          "distance": 1400,
+          "2nd": 11,
+          "3rd": 13
         }
       ]
     }
