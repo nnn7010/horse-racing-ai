@@ -1438,5 +1438,355 @@
     "3rd_name": "バルジール",
     "payouts": {},
     "status": "confirmed"
+  },
+  "202605020701": {
+    "1st": 1,
+    "1st_name": "オーシャンステラ",
+    "2nd": 10,
+    "2nd_name": "カーボフリオ",
+    "3rd": 3,
+    "3rd_name": "メリティス",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020702": {
+    "1st": 13,
+    "1st_name": "ターフクリスタル",
+    "2nd": 5,
+    "2nd_name": "アオイミズホ",
+    "3rd": 14,
+    "3rd_name": "エターナルホープ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020703": {
+    "1st": 10,
+    "1st_name": "アヴァランチ",
+    "2nd": 12,
+    "2nd_name": "ヴィスクレス",
+    "3rd": 16,
+    "3rd_name": "レイズレガシー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020704": {
+    "1st": 8,
+    "1st_name": "カンティーナ",
+    "2nd": 4,
+    "2nd_name": "ヒシナスキロ",
+    "3rd": 12,
+    "3rd_name": "ブライトエアリー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020705": {
+    "1st": 10,
+    "1st_name": "エラルディーク",
+    "2nd": 12,
+    "2nd_name": "レヴェランジェ",
+    "3rd": 2,
+    "3rd_name": "ハニージョー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020706": {
+    "1st": 3,
+    "1st_name": "マジョレルブルー",
+    "2nd": 4,
+    "2nd_name": "イブキ",
+    "3rd": 8,
+    "3rd_name": "ブラウンバナナ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020707": {
+    "1st": 9,
+    "1st_name": "ショーリバース",
+    "2nd": 13,
+    "2nd_name": "ムテキシャチョウ",
+    "3rd": 4,
+    "3rd_name": "エアサロメ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020708": {
+    "1st": 1,
+    "1st_name": "ノアヴィヴァーチェ",
+    "2nd": 14,
+    "2nd_name": "コッレヴェッキオ",
+    "3rd": 15,
+    "3rd_name": "ハクシンブライアン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020709": {
+    "1st": 7,
+    "1st_name": "ヴォンフレ",
+    "2nd": 3,
+    "2nd_name": "シャンソンドール",
+    "3rd": 5,
+    "3rd_name": "ミーントゥビー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020710": {
+    "1st": 8,
+    "1st_name": "メリディアンスター",
+    "2nd": 6,
+    "2nd_name": "ベラジオワールド",
+    "3rd": 12,
+    "3rd_name": "レーティッシュ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020711": {
+    "1st": 7,
+    "1st_name": "キングスコール",
+    "2nd": 8,
+    "2nd_name": "スピードリッチ",
+    "3rd": 4,
+    "3rd_name": "ハーツコンチェルト",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202605020712": {
+    "1st": 4,
+    "1st_name": "チギリ",
+    "2nd": 9,
+    "2nd_name": "ケープウィッカム",
+    "3rd": 11,
+    "3rd_name": "プルーヴンウィナー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030701": {
+    "1st": 5,
+    "1st_name": "ルージュバロン",
+    "2nd": 8,
+    "2nd_name": "プリンセスアツコ",
+    "3rd": 4,
+    "3rd_name": "エイユーサクラ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030702": {
+    "1st": 1,
+    "1st_name": "ゴールドコット",
+    "2nd": 9,
+    "2nd_name": "レッドフロイデ",
+    "3rd": 6,
+    "3rd_name": "ダイメイクマモト",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030703": {
+    "1st": 13,
+    "1st_name": "キシャール",
+    "2nd": 18,
+    "2nd_name": "タナブイハチターボ",
+    "3rd": 2,
+    "3rd_name": "ジョービスコッティ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030704": {
+    "1st": 9,
+    "1st_name": "サトノビダーヤ",
+    "2nd": 2,
+    "2nd_name": "シャンドラファール",
+    "3rd": 6,
+    "3rd_name": "ドンテスタマスター",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030705": {
+    "1st": 5,
+    "1st_name": "ロサルゴサ",
+    "2nd": 14,
+    "2nd_name": "メイショウプレマ",
+    "3rd": 2,
+    "3rd_name": "ウイルソン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030706": {
+    "1st": 5,
+    "1st_name": "ニホンピロカラット",
+    "2nd": 7,
+    "2nd_name": "グランデスフィーダ",
+    "3rd": 14,
+    "3rd_name": "ダイアナクイーン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030707": {
+    "1st": 6,
+    "1st_name": "コルドンブルー",
+    "2nd": 5,
+    "2nd_name": "パスコード",
+    "3rd": 3,
+    "3rd_name": "ビップディラン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030708": {
+    "1st": 5,
+    "1st_name": "シホノスペランツァ",
+    "2nd": 6,
+    "2nd_name": "ゴールデンスロープ",
+    "3rd": 3,
+    "3rd_name": "メイショウアツイタ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030709": {
+    "1st": 2,
+    "1st_name": "レッドラージャ",
+    "2nd": 1,
+    "2nd_name": "ミッキージャンプ",
+    "3rd": 8,
+    "3rd_name": "ワンダフルデイズ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030710": {
+    "1st": 13,
+    "1st_name": "ヒルノハンブルク",
+    "2nd": 1,
+    "2nd_name": "ペンナヴェローチェ",
+    "3rd": 14,
+    "3rd_name": "タイセイアディクト",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030711": {
+    "1st": 12,
+    "1st_name": "フリッカージャブ",
+    "2nd": 6,
+    "2nd_name": "アンクルクロス",
+    "3rd": 3,
+    "3rd_name": "ディアナザール",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202608030712": {
+    "1st": 10,
+    "1st_name": "ライトニングゼウス",
+    "2nd": 13,
+    "2nd_name": "フェデラー",
+    "3rd": 15,
+    "3rd_name": "メイショウドライブ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010501": {
+    "1st": 4,
+    "1st_name": "ハイロード",
+    "2nd": 7,
+    "2nd_name": "クリムゾンリーフ",
+    "3rd": 8,
+    "3rd_name": "ストロングボーイ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010502": {
+    "1st": 14,
+    "1st_name": "シュヴァルツシルト",
+    "2nd": 12,
+    "2nd_name": "ナムラロダン",
+    "3rd": 3,
+    "3rd_name": "フィールマイプラン",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010503": {
+    "1st": 14,
+    "1st_name": "ミラキュラスアース",
+    "2nd": 9,
+    "2nd_name": "バンオンタイム",
+    "3rd": 11,
+    "3rd_name": "ドラリズム",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010504": {
+    "1st": 11,
+    "1st_name": "ボールドタワー",
+    "2nd": 8,
+    "2nd_name": "テリコス",
+    "3rd": 10,
+    "3rd_name": "ワンダーブリッツ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010505": {
+    "1st": 1,
+    "1st_name": "アナザーフェイス",
+    "2nd": 9,
+    "2nd_name": "トリニタリオ",
+    "3rd": 11,
+    "3rd_name": "コーディアリー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010506": {
+    "1st": 1,
+    "1st_name": "アカウフリューゲル",
+    "2nd": 16,
+    "2nd_name": "リュウセイコウテイ",
+    "3rd": 15,
+    "3rd_name": "ミルトメロディー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010507": {
+    "1st": 9,
+    "1st_name": "シャンハイナイト",
+    "2nd": 12,
+    "2nd_name": "オースミライト",
+    "3rd": 13,
+    "3rd_name": "アルバニー",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010508": {
+    "1st": 9,
+    "1st_name": "ファルコンミノル",
+    "2nd": 7,
+    "2nd_name": "ザラタン",
+    "3rd": 5,
+    "3rd_name": "ダノンヴェステル",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010509": {
+    "1st": 12,
+    "1st_name": "ルールーリマ",
+    "2nd": 6,
+    "2nd_name": "シェーンシュティア",
+    "3rd": 14,
+    "3rd_name": "キアラメンテ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010510": {
+    "1st": 1,
+    "1st_name": "アークドール",
+    "2nd": 8,
+    "2nd_name": "ディアウス",
+    "3rd": 2,
+    "3rd_name": "ブレトワルダ",
+    "payouts": {},
+    "status": "confirmed"
+  },
+  "202604010511": {
+    "1st": 3,
+    "1st_name": "グランディア",
+    "2nd": 11,
+    "2nd_name": "バレエマスター",
+    "3rd": 9,
+    "3rd_name": "フクノブルーレイク",
+    "payouts": {},
+    "status": "confirmed"
   }
 }
