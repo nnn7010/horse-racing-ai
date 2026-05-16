@@ -1,0 +1,64 @@
+name: Generate Race Predictions
+
+on:
+  schedule:
+    # 土曜 07:30 JST (22:30 UTC 前日金曜) に自動実行
+    - cron: '30 22 * * 5'
+    # 日曜 07:30 JST (22:30 UTC 前日土曜) に自動実行
+    - cron: '30 22 * * 6'
+  workflow_dispatch:
+    inputs:
+      date1:
+        description: '予想日1 (YYYY-MM-DD)'
+        required: false
+        default: ''
+      date2:
+        description: '予想日2 (YYYY-MM-DD、空欄で翌日)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: predict
+  cancel-in-progress: false
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 lxml numpy
+
+      - name: Generate predictions
+        run: |
+          if [ -n "${{ github.event.inputs.date1 }}" ]; then
+            DATE_ARGS="--date ${{ github.event.inputs.date1 }}"
+            if [ -n "${{ github.event.inputs.date2 }}" ]; then
+              DATE_ARGS="$DATE_ARGS --date ${{ github.event.inputs.date2 }}"
+            fi
+            python3 scripts/predict_today.py $DATE_ARGS
+          else
+            python3 scripts/predict_today.py
+          fi
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/raw/today_predictions.json docs/index.html
+          if git diff --cached --quiet; then
+            echo "変更なし"
+          else
+            git commit -m "feat: $(date '+%Y-%m-%d') レース予想を生成"
+            git push
+          fi
