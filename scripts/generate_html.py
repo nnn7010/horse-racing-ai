@@ -10,6 +10,7 @@ PRED_FILE   = ROOT / "data/raw/today_predictions.json"
 TRENDS_FILE = ROOT / "data/raw/today_trends.json"
 RESULTS_FILE= ROOT / "data/raw/today_results.json"
 OUT_FILE    = ROOT / "docs/index.html"
+WIN5_TARGETS_FILE = ROOT / "data/raw/win5_targets.json"
 
 WIN_CAL_FILE  = ROOT / "outputs/win_calibration.csv"
 TOP3_CAL_FILE = ROOT / "outputs/top3_calibration.csv"
@@ -447,6 +448,96 @@ def render_trends(trends: dict, results: dict) -> str:
     return f'<div class="trends"><h2>📊 本日の傾向</h2>{cards}</div>'
 
 
+def _win5_recommend_n(probs: list[float]) -> int:
+    """WIN5用の推奨点数（単勝確率の形だけで簡易判断）。"""
+    if not probs:
+        return 4
+    ps = sorted([float(x) for x in probs], reverse=True)
+    top1 = ps[0]
+    top2 = ps[1] if len(ps) > 1 else 0.0
+    top3 = sum(ps[:3]) if len(ps) >= 3 else sum(ps)
+    gap12 = top1 - top2
+    if top1 >= 0.38 and gap12 >= 0.12:
+        return 1
+    if top1 >= 0.28 and gap12 >= 0.06:
+        return 2
+    if top3 >= 0.56:
+        return 3
+    return 4
+
+
+def render_win5_section(races: list[dict], target_date: str | None = None) -> str:
+    """WIN5対象レースをページ上部に専用表示する（オッズ→確率ベース）。"""
+    if not WIN5_TARGETS_FILE.exists():
+        return ""
+    try:
+        payload = json.loads(WIN5_TARGETS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+
+    dt = str(payload.get("date", ""))
+    ids = payload.get("race_ids", []) or []
+    if target_date and dt and dt != target_date:
+        return ""
+    if not ids:
+        return ""
+
+    by_id = {r.get("race_id"): r for r in races}
+    ids = [x for x in ids if isinstance(x, str) and len(x) == 12]
+    ids = ids[:5]
+    if len(ids) != 5:
+        return ""
+
+    blocks = ""
+    for i, rid in enumerate(ids, 1):
+        r = by_id.get(rid)
+        if not r:
+            continue
+        horses = r.get("horses", [])
+        probs = [float(h.get("win_prob", 0) or 0) for h in horses]
+        n_pick = min(_win5_recommend_n(probs), max(1, len(horses)))
+
+        sorted_h = sorted(horses, key=lambda h: float(h.get("win_prob", 0) or 0), reverse=True)
+        picks = sorted_h[: max(4, n_pick)]
+        pick_html = ""
+        for rank, h in enumerate(picks, 1):
+            num = h.get("number", "")
+            name = h.get("horse_name", "")
+            p = float(h.get("win_prob", 0) or 0)
+            mark = "◎" if rank == 1 else "○" if rank == 2 else "▲" if rank == 3 else "△"
+            pick_html += f'<span class="rec-cand"><b>{mark}{num}</b> <small>{name} {p*100:.1f}%</small></span>'
+
+        course = f'{r.get("surface","")}{r.get("distance","")}m'
+        note = f'推奨: <b>{n_pick}点</b>（集中度から自動）'
+        blocks += f"""
+<div class="rec-section">
+  <div class="rec-title">🎯 WIN{i} <span class="rec-indicator">{note}</span></div>
+  <div class="rec-card">
+    <div class="rec-head"><span class="rec-tag rec-tag-win">単勝</span>
+      <span class="rec-axis"><span class="rec-axis-num">{r.get("place_name","")}</span><span class="rec-axis-name">{r.get("race_name","")}</span>
+      <span class="rec-axis-meta">{course}</span></span>
+      <span class="rec-tickets">{rid}</span>
+    </div>
+    <div class="rec-cands"><span class="rec-label">候補</span>{pick_html}</div>
+  </div>
+</div>
+"""
+
+    if not blocks:
+        return ""
+
+    return f"""
+<div class="model-info" style="border-color:#2e5a2e">
+  <div class="mi-title">🎯 WIN5（精度重視: 市場オッズ→確率）</div>
+  <div style="color:#bbb;font-size:.80em;line-height:1.6;margin-bottom:8px">
+    WIN5は「当てる」ことが最優先なので、市場オッズ由来の勝率を本線として使います。<br/>
+    推奨点数は勝率の集中度（1強/2強/混戦）から機械的に決めています。
+  </div>
+  {blocks}
+</div>
+"""
+
+
 def generate():
     with open(PRED_FILE, encoding="utf-8") as f:
         data = json.load(f)
@@ -608,6 +699,8 @@ def generate():
         sections += '</div>'
 
     sections = tabs_html + sections
+    # WIN5セクション（本日分）
+    sections = render_win5_section(races, target_date=today_str) + sections
 
     model_info_html = render_model_info()
     calibration_html = render_calibration_section()

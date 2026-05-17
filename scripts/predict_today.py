@@ -45,6 +45,8 @@ COURSE_CODES = {
 INTERVAL = 1.2
 _last_req = 0.0
 
+WIN5_TARGETS_FILE = ROOT / "data/raw/win5_targets.json"
+
 
 def get(url: str, encoding: str = "utf-8", retries: int = 3) -> str | None:
     global _last_req
@@ -119,6 +121,42 @@ def fetch_race_list(dt_str: str) -> list[dict]:
             "place_name": COURSE_CODES[place_code],
         })
     return races
+
+
+def fetch_win5_targets(dt_str: str) -> list[str]:
+    """WIN5対象レース(race_id)を取得する。
+
+    netkeibaのWIN5対象ページから race_id を抽出する。
+    """
+    urls = [
+        f"https://race.netkeiba.com/top/win5.html?date={dt_str}",
+        f"https://race.sp.netkeiba.com/?pid=win5&date={dt_str}",
+        f"https://race.sp.netkeiba.com/?pid=win5&idx=0&date={dt_str}",
+        f"https://race.sp.netkeiba.com/?pid=win5&idx=1&date={dt_str}",
+    ]
+    for url in urls:
+        html = get(url, encoding="utf-8")
+        if not html:
+            continue
+        race_ids = []
+        seen = set()
+        for m in re.finditer(r"race_id=(\d{12})", html):
+            rid = m.group(1)
+            if rid in seen:
+                continue
+            seen.add(rid)
+            race_ids.append(rid)
+        if race_ids:
+            return race_ids
+    return []
+
+
+def save_win5_targets(dt_str: str) -> None:
+    targets = fetch_win5_targets(dt_str)
+    payload = {"date": dt_str, "race_ids": targets}
+    WIN5_TARGETS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    WIN5_TARGETS_FILE.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"✓ win5_targets.json 保存 ({len(targets)} レース)")
 
 
 def fetch_race_detail(race_id: str) -> dict:
@@ -530,6 +568,13 @@ def main():
     with open(pred_file, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
     print(f"\n✓ today_predictions.json 保存 ({len(all_races_json)} レース)")
+
+    # WIN5対象レースを保存（ページ側で専用表示に使用）
+    try:
+        # 複数日指定の場合は先頭日のみ（WIN5は日単位）
+        save_win5_targets(first_date)
+    except Exception as e:
+        print(f"[warn] WIN5対象レース取得に失敗: {e}")
 
     print("HTML生成中...")
     result = subprocess.run(
