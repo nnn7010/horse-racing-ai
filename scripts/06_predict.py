@@ -30,6 +30,15 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
 
     hist_df = hist_df.sort_values("date")
 
+    # ID列を文字列に揃える（target_races.json 側は文字列のため）
+    hist_df = hist_df.copy()
+    if "horse_id" in hist_df.columns:
+        hist_df["horse_id"] = hist_df["horse_id"].astype(str)
+    if "jockey_id" in hist_df.columns:
+        hist_df["jockey_id"] = hist_df["jockey_id"].astype(str)
+    if "trainer_id" in hist_df.columns:
+        hist_df["trainer_id"] = hist_df["trainer_id"].astype(str)
+
     # 馬ごとの最新統計（全特徴量列の最終行）
     for hid, g in hist_df.groupby("horse_id"):
         last = g.iloc[-1]
@@ -55,13 +64,13 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
         stats["_last_race_date"] = last.get("date")
         stats["_last_race_distance"] = last.get("distance")
         stats["_last_race_horse_weight"] = last.get("horse_weight")
-        lookup["horse"][hid] = stats
+        lookup["horse"][str(hid)] = stats
 
     # 騎手ごとの最新統計
     if "jockey_id" in hist_df.columns:
         for jid, g in hist_df.groupby("jockey_id"):
             last = g.iloc[-1]
-            lookup["jockey"][jid] = {
+            lookup["jockey"][str(jid)] = {
                 "jockey_win_rate": last.get("jockey_win_rate", 0.0) if pd.notna(last.get("jockey_win_rate")) else 0.0,
                 "jockey_top3_rate": last.get("jockey_top3_rate", 0.0) if pd.notna(last.get("jockey_top3_rate")) else 0.0,
                 "jockey_rides": last.get("jockey_rides", 0) if pd.notna(last.get("jockey_rides")) else 0,
@@ -71,7 +80,7 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
     if "trainer_id" in hist_df.columns:
         for tid, g in hist_df.groupby("trainer_id"):
             last = g.iloc[-1]
-            lookup["trainer"][tid] = {
+            lookup["trainer"][str(tid)] = {
                 "trainer_win_rate": last.get("trainer_win_rate", 0.0) if pd.notna(last.get("trainer_win_rate")) else 0.0,
                 "trainer_top3_rate": last.get("trainer_top3_rate", 0.0) if pd.notna(last.get("trainer_top3_rate")) else 0.0,
             }
@@ -80,7 +89,7 @@ def build_stats_lookup(hist_df: pd.DataFrame) -> dict:
     if "jockey_id" in hist_df.columns:
         for (jid, hid), g in hist_df.groupby(["jockey_id", "horse_id"]):
             last = g.iloc[-1]
-            lookup["combo"][(jid, hid)] = {
+            lookup["combo"][(str(jid), str(hid))] = {
                 "combo_top3_rate": last.get("combo_top3_rate", 0.0) if pd.notna(last.get("combo_top3_rate")) else 0.0,
                 "combo_rides": last.get("combo_rides", 0) if pd.notna(last.get("combo_rides")) else 0,
             }
@@ -120,6 +129,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", default=None, help="モデルディレクトリ（省略時はconfig値）")
     parser.add_argument("--out-suffix", default="", help="出力ファイルのサフィックス（例: _wet_test）")
+    parser.add_argument("--date", action="append", default=[], help="対象日(YYYYMMDD)。複数指定可。未指定ならtarget_races.json内の全日付。")
+    parser.add_argument("--skip-odds", action="store_true", help="オッズ取得をスキップ（ネットワーク不要。win_odds=0扱い）")
     args = parser.parse_args()
 
     with open("configs/config.yaml") as f:
@@ -157,10 +168,16 @@ def main():
         d = r.get("date", "")
         if d:
             target_date_strs.add(d)
-    # 日付指定がない場合は今日のみ
-    if not target_date_strs:
-        today_str = datetime.date.today().strftime("%Y%m%d")
-        target_races = [r for r in target_races if r.get("date", "") == today_str]
+    if args.date:
+        wanted = set([d.replace("-", "") for d in args.date])
+        target_races = [r for r in target_races if str(r.get("date", "")).replace("-", "") in wanted]
+        target_date_strs = set([r.get("date", "") for r in target_races if r.get("date", "")])
+    else:
+        # 日付情報がなければ今日のみ
+        if not target_date_strs:
+            today_str = datetime.date.today().strftime("%Y%m%d")
+            target_races = [r for r in target_races if r.get("date", "") == today_str]
+            target_date_strs = {today_str}
     logger.info(f"Target dates: {sorted(target_date_strs)}, {len(target_races)} races")
 
     # 過去特徴量から統計を構築
@@ -213,6 +230,8 @@ def main():
     }
 
     def _get_win_odds_for_race(race_id):
+        if args.skip_odds:
+            return {}
         url = f"https://race.netkeiba.com/api/api_get_jra_odds.html?race_id={race_id}&type=1&action=update"
         cache_path = Path(f"data/cache/{_hl.md5(url.encode()).hexdigest()}.html")
         cache_path.parent.mkdir(parents=True, exist_ok=True)

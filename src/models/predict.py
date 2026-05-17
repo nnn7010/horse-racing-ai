@@ -145,15 +145,25 @@ def predict_probabilities(
 
         # キャリブレーション（IsotonicRegression は exp-softmax 確率に対して学習済み）
         if win_calibrator is not None:
-            cal_probs = win_calibrator.predict(df["pred_win_prob"].values)
-            df["pred_win_prob"] = cal_probs
-            # キャリブレーション後に再正規化
-            if "race_id" in df.columns:
-                df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob"].transform(
-                    lambda x: x / x.sum() if x.sum() > 0 else x
-                )
+            base_probs = df["pred_win_prob"].values.copy()
+            cal_probs = win_calibrator.predict(base_probs)
+            # キャリブレーターが潰れる（全ゼロ等）ケースはフォールバック
+            if np.allclose(cal_probs, 0.0) or not np.isfinite(cal_probs).all():
+                logger.warning("Win calibrator produced degenerate output; falling back to uncalibrated win probs")
+            else:
+                df["pred_win_prob"] = cal_probs
+                # キャリブレーション後に再正規化
+                if "race_id" in df.columns:
+                    df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob"].transform(
+                        lambda x: x / x.sum() if x.sum() > 0 else x
+                    )
 
-        df["pred_win_prob"] = df["pred_win_prob"].clip(0.001, 0.99)
+        # クリップは最小限にし、レース内で合計=1を維持する
+        df["pred_win_prob"] = df["pred_win_prob"].clip(1e-6, 1 - 1e-6)
+        if "race_id" in df.columns:
+            df["pred_win_prob"] = df.groupby("race_id")["pred_win_prob"].transform(
+                lambda x: x / x.sum() if x.sum() > 0 else x
+            )
 
         # pred_strength を LambdaRank スコアから更新（PL 組み合わせ計算用）
         # exp-softmax 後の確率を odds 比に変換
